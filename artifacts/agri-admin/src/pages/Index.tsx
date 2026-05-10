@@ -95,7 +95,7 @@ export default function Index() {
     if (!can(section)) return <AccessDenied section={pageTitleKeys[active] || active}/>;
 
     if (active === "farmers")         return <FarmerRegistry onNavigate={navigate}/>;
-    if (active === "dashboard")       return <Dashboard/>;
+    if (active === "dashboard")       return <Dashboard onNavigate={navigate}/>;
     if (active === "newregistration") return <NewRegistration/>;
     if (active === "verifiedfarmers") return <VerifiedFarmers/>;
     if (active === "applications")    return <SchemeApplications/>;
@@ -110,7 +110,7 @@ export default function Index() {
     if (active === "settings")        return <SettingsWorkflow/>;
     if (active === "farmerapp")       return <FarmerAppPreview/>;
     if (active === "usermanagement")  return <UserManagement/>;
-    return <Dashboard/>;
+    return <Dashboard onNavigate={navigate}/>;
   };
 
   return (
