@@ -1364,13 +1364,6 @@ function DocUploadCard({
           </div>
         </div>
 
-        {/* Filename pill when file is loaded */}
-        {state.filename && !isIdle && (
-          <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <FileText className="h-3 w-3 flex-shrink-0" />
-            <span className="truncate">{state.filename}</span>
-          </div>
-        )}
       </div>
 
       {/* ── Divider ── */}
