@@ -1149,8 +1149,8 @@ export function FieldsTable({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {lang === "mr" ? "पीक" : lang === "hi" ? "फसल" : "Crop"}
           </p>
-          <div className="border-l-4 border-l-green-400 bg-card border border-border rounded-md p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-green-700 mb-3">
+          <div className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
               {lang === "mr" ? "पीक पाहणी नोंदणी" : lang === "hi" ? "फसल निरीक्षण रजिस्टर" : "Crop Inspection Register"}
             </p>
             <div className="space-y-4">
@@ -1172,8 +1172,8 @@ export function FieldsTable({
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{ui("sourceDocTables", lang)}</p>
           {rawTables.map((tbl, idx) => (
-            <div key={tbl.blockId ?? idx} className="border-l-4 border-l-orange-400 bg-card border border-border rounded-md p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-700 mb-3">{ui("table", lang)} {idx + 1}</p>
+            <div key={tbl.blockId ?? idx} className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">{ui("table", lang)} {idx + 1}</p>
               {docId === "form7" ? (
                 <SpannedTable headers={tbl.headers} rows={tbl.rows} lang={lang} />
               ) : (
@@ -1973,23 +1973,23 @@ function DocReviewPanel({
 
   return (
     <div className="flex flex-col">
-      <div className={`rounded-xl border-2 ${card.borderColor} ${card.bgColor} p-5 mb-5`}>
+      <div className="rounded-xl border-2 border-border bg-white p-5 mb-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-white/70 shadow-sm">
-              <Icon className={`h-6 w-6 ${card.color}`} />
+            <div className="p-3 rounded-xl bg-muted/30 shadow-sm">
+              <Icon className="h-6 w-6 text-black" />
             </div>
             <div>
-              <p className={`text-xs font-semibold uppercase tracking-widest ${card.color} mb-0.5`}>
+              <p className="text-xs font-semibold uppercase tracking-widest text-black mb-0.5">
                 {ui("docNo", lang)} {translateValue(String(index + 1), lang)} {ui("of", lang)} {translateValue(String(total), lang)}
               </p>
-              <h3 className="font-bold text-lg text-foreground leading-tight">{DOC_CARD_LABELS[card.id]?.[lang] ?? card.label}</h3>
+              <h3 className="font-bold text-lg text-black leading-tight">{DOC_CARD_LABELS[card.id]?.[lang] ?? card.label}</h3>
               <p className="text-sm text-muted-foreground mt-0.5">{DOC_CARD_DESCS[card.id]?.[lang] ?? card.description}</p>
             </div>
           </div>
           <div className="flex-shrink-0 flex flex-col items-end gap-2">
             <div className="text-right">
-              <p className={`text-2xl font-bold ${card.color}`}>{fieldCount}</p>
+              <p className="text-2xl font-bold text-black">{fieldCount}</p>
               <p className="text-xs text-muted-foreground">{ui("fieldsExtracted", lang)}</p>
             </div>
           </div>
@@ -2078,7 +2078,7 @@ function DocReviewPanel({
                 </button>
               </div>
             </div>
-            <div className="flex-1 min-w-0 rounded-xl border border-border bg-card p-5">
+            <div className="flex-1 min-w-0 rounded-xl border border-border bg-white p-5">
               <FieldsTable
                 sections={state.sections}
                 rawTables={state.rawTables}
@@ -2090,7 +2090,7 @@ function DocReviewPanel({
           </div>
         </>
       ) : (
-        <div className="rounded-xl border border-border bg-card p-5 mb-6">
+        <div className="rounded-xl border border-border bg-white p-5 mb-6">
           <FieldsTable
             sections={state.sections}
             rawTables={state.rawTables}
@@ -2476,8 +2476,8 @@ export function FarmerProfileCard({
 
 
   return (
-    <div className="rounded-xl border-2 border-primary/30 bg-card shadow-md overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 bg-primary/5 border-b border-primary/20">
+    <div className="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 bg-white border-b border-border">
         <div className="flex items-center gap-4">
           <div className="relative group flex-shrink-0">
             {displayPhoto ? (
@@ -2583,15 +2583,15 @@ export function FarmerProfileCard({
               <button
                 type="button"
                 onClick={() => toggleSection(section.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border mb-4 ${section.headerBg} cursor-pointer select-none`}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border mb-4 bg-white cursor-pointer select-none"
               >
                 <div className="flex items-center gap-2">
-                  <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${isCollapsed ? "-rotate-90" : ""} ${section.headerColor}`} />
-                  <span className={`text-xs font-bold tracking-wide uppercase ${section.headerColor}`}>
+                  <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 text-black ${isCollapsed ? "-rotate-90" : ""}`} />
+                  <span className="text-xs font-bold tracking-wide uppercase text-black">
                     {sectionLabel}
                   </span>
                 </div>
-                <span className={`text-xs font-medium ${section.headerColor} opacity-70`}>
+                <span className="text-xs font-medium text-black opacity-70">
                   {isExtracted ? `${sectionFilled} / ${allFields.length} ${ui("filled", lang)}` : ui("uploadToExtract", lang)}
                 </span>
               </button>
@@ -2640,8 +2640,8 @@ export function FarmerProfileCard({
                         {ui("holdingsTitle", lang)}
                       </p>
                       {form8aRawTables.map((tbl, idx) => (
-                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-orange-400 bg-card border border-border rounded-md p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-700 mb-3">
+                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
                             {ui("table", lang)} {idx + 1} <span className="normal-case font-normal text-muted-foreground ml-1">— {ui("clickToEdit", lang)}</span>
                           </p>
                           <div className="overflow-x-auto">
@@ -2671,8 +2671,8 @@ export function FarmerProfileCard({
                         {ui("ownershipTitle", lang)}
                       </p>
                       {form7RawTables.map((tbl, idx) => (
-                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-emerald-400 bg-card border border-border rounded-md p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 mb-3">
+                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
                             {ui("table", lang)} {idx + 1} <span className="normal-case font-normal text-muted-foreground ml-1">— {ui("clickToEdit", lang)}</span>
                           </p>
                           <EditableSpannedTable
@@ -2691,8 +2691,8 @@ export function FarmerProfileCard({
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {lang === "mr" ? "पीक" : lang === "hi" ? "फसल" : "Crop"}
                       </p>
-                      <div className="border-l-4 border-l-green-400 bg-card border border-border rounded-md p-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-green-700 mb-3">
+                      <div className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
                           {lang === "mr" ? "पीक पाहणी नोंदणी" : lang === "hi" ? "फसल निरीक्षण रजिस्टर" : "Crop Inspection Register"}
                         </p>
                         <div className="space-y-4">
@@ -2714,7 +2714,7 @@ export function FarmerProfileCard({
                 <div className="space-y-5">
                   {section.subsections.map((sub) => (
                     <div key={sub.key}>
-                      <p className={`text-[10px] font-semibold tracking-widest uppercase mb-2 ${section.subHeaderColor}`}>
+                      <p className="text-[10px] font-semibold tracking-widest uppercase mb-2 text-black">
                         {tSec(sub.key, lang)}
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2747,7 +2747,7 @@ export function FarmerProfileCard({
         })}
 
         {!hideFooter && (approved ? (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-white border border-border text-black text-sm font-medium">
             <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
             {ui("approvedMsg", lang)}
           </div>
@@ -2755,7 +2755,7 @@ export function FarmerProfileCard({
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-card text-sm font-medium hover:bg-muted/40 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-white text-sm font-medium hover:bg-muted/40 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               {ui("backToDocs", lang)}
