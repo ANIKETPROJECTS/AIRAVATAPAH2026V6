@@ -1331,14 +1331,11 @@ function DocUploadCard({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const Icon = card.icon;
-  const [uploadAnimPdf, setUploadAnimPdf] = useState<object | null>(null);
-  const [uploadAnimJpg, setUploadAnimJpg] = useState<object | null>(null);
-  const [processingAnim, setProcessingAnim] = useState<object | null>(null);
+  const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/animations/upload-pdf.json`).then(r => r.json()).then(setUploadAnimPdf).catch(() => {});
-    fetch(`${BASE_URL}/animations/upload-jpg.json`).then(r => r.json()).then(setUploadAnimJpg).catch(() => {});
-    fetch(`${BASE_URL}/animations/processing.json`).then(r => r.json()).then(setProcessingAnim).catch(() => {});
+    fetch(`${BASE_URL}/animations/airavata-processing.json`).then(r => r.json()).then(setAiravataAnim).catch(() => {});
   }, []);
 
   const handleFile = useCallback(async (file: File) => {
@@ -1485,35 +1482,17 @@ function DocUploadCard({
       {/* ── Card Body (dynamic per state) ── */}
       <div className="px-4 pb-4 pt-3 flex-1">
 
-        {/* IDLE — upload zone with Lottie animation + integrated upload button */}
+        {/* IDLE — upload zone with static icons + integrated upload button */}
         {isIdle && (
           <div
             onDrop={onDrop}
             onDragOver={(e) => e.preventDefault()}
             className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all py-4 group"
           >
-            {(uploadAnimPdf || uploadAnimJpg) ? (
-              <div className="flex items-center justify-center gap-1">
-                {uploadAnimPdf && (
-                  <Lottie
-                    animationData={uploadAnimPdf}
-                    loop
-                    style={{ width: 72, height: 72 }}
-                    className="pointer-events-none"
-                  />
-                )}
-                {uploadAnimJpg && (
-                  <Lottie
-                    animationData={uploadAnimJpg}
-                    loop
-                    style={{ width: 72, height: 72 }}
-                    className="pointer-events-none"
-                  />
-                )}
-              </div>
-            ) : (
-              <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-            )}
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <img src={`${BASE_URL}/pdf-icon.png`} alt="PDF" style={{ width: 64, height: 64 }} className="object-contain pointer-events-none" />
+              <img src={`${BASE_URL}/image-icon.png`} alt="Image" style={{ width: 64, height: 64 }} className="object-contain pointer-events-none" />
+            </div>
             <p className="text-[11px] text-muted-foreground text-center leading-relaxed px-2 mb-3">
               {ui("dropUpload", lang)}
             </p>
@@ -1527,26 +1506,21 @@ function DocUploadCard({
           </div>
         )}
 
-        {/* UPLOADING / PROCESSING — Lottie loading animation */}
+        {/* UPLOADING / PROCESSING — Airavata animation */}
         {busy && (
           <div className="flex flex-col items-center justify-center py-3">
-            {processingAnim ? (
+            {airavataAnim ? (
               <Lottie
-                animationData={processingAnim}
+                animationData={airavataAnim}
                 loop
-                style={{ width: 72, height: 72 }}
+                style={{ width: 180, height: 60 }}
               />
             ) : (
-              <Loader2 className="h-8 w-8 text-amber-500 animate-spin mb-2" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
             )}
-            <p className="text-[11px] font-semibold text-amber-700 text-center mt-1">
-              {state.status === "uploading" ? ui("uploading", lang) : ui("processing", lang)}
+            <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-xs font-normal text-primary text-center mt-2">
+              Airavata Intelligence is Working...
             </p>
-            {state.filename && (
-              <p className="text-[10px] text-muted-foreground text-center mt-0.5 truncate max-w-full px-2">
-                {state.filename}
-              </p>
-            )}
           </div>
         )}
 
@@ -1557,37 +1531,46 @@ function DocUploadCard({
           </div>
         )}
 
-        {/* COMPLETE — summary + re-upload button + document preview */}
+        {/* COMPLETE — document preview + centered re-upload button */}
         {isComplete && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 flex-1">
-                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="leading-snug">
-                  <span className="font-semibold">{translateValue(String(fieldsCount), lang)}</span> {ui("fieldsExtracted", lang)}
-                  {state.rawTables.length > 0 && ` · ${translateValue(String(state.rawTables.length), lang)} ${ui("table", lang)}`}
-                  {" · "}{ui("reviewNext", lang)}
-                </span>
-              </div>
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-white border border-border text-foreground hover:bg-muted/30 transition-all shadow-sm flex-shrink-0"
-              >
-                <Upload className="h-3.5 w-3.5" />
-                {ui("reupload", lang)}
-              </button>
-            </div>
+            {lightboxSrc && (
+              <DocLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+            )}
             {state.rawFileDataUrl && (
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                  <FileText className="h-3.5 w-3.5" />
+              <div className="flex flex-col items-center gap-3">
+                <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-sm font-normal text-black w-full">
                   Original Document
                 </p>
-                <img
-                  src={state.rawFileDataUrl}
-                  alt={`${card.label} original`}
-                  className="w-full max-h-52 object-contain rounded-lg border border-border bg-muted/20 shadow-sm"
-                />
+                <button
+                  type="button"
+                  onClick={() => setLightboxSrc(state.rawFileDataUrl!)}
+                  className="w-full focus:outline-none"
+                >
+                  <img
+                    src={state.rawFileDataUrl}
+                    alt={`${card.label} original`}
+                    className="w-full max-h-52 object-contain rounded-lg border border-border bg-muted/20 shadow-sm hover:opacity-90 transition-opacity cursor-zoom-in"
+                  />
+                </button>
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold bg-primary text-white hover:bg-primary/90 transition-all shadow-sm"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  {ui("reupload", lang)}
+                </button>
+              </div>
+            )}
+            {!state.rawFileDataUrl && (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold bg-primary text-white hover:bg-primary/90 transition-all shadow-sm"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  {ui("reupload", lang)}
+                </button>
               </div>
             )}
           </div>
@@ -2032,7 +2015,7 @@ function LangSelector({ lang, onChange }: { lang: LangCode; onChange: (l: LangCo
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground font-medium">Language</span>
-      <div className="flex items-center gap-1 bg-muted/40 rounded-full p-1 border border-border">
+      <div className="flex items-center gap-1 bg-white rounded-full p-1 border border-border shadow-sm">
         {opts.map(o => (
           <button
             key={o.code}
@@ -2040,7 +2023,7 @@ function LangSelector({ lang, onChange }: { lang: LangCode; onChange: (l: LangCo
             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
               lang === o.code
                 ? "bg-primary text-white shadow-sm"
-                : "bg-white text-black hover:bg-white/80"
+                : "bg-white text-black hover:bg-muted/10"
             }`}
           >
             {o.label}
