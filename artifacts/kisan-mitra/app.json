@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "कृषी सुविधा",
+    "slug": "kisan-mitra",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#14532D"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.agrimh.krishisuvidha"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#14532D"
+      },
+      "package": "com.agrimh.krishisuvidha",
+      "permissions": ["android.permission.RECORD_AUDIO"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "kotlinVersion": "1.9.25",
+            "ndkVersion": "27.1.12297006"
+          }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow कृषी सुविधा to access your photos to upload documents.",
+          "cameraPermission": "Allow कृषी सुविधा to use your camera to capture documents."
+        }
+      ],
+      "expo-document-picker",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b85ae76e-87e2-49d2-8379-eb7e32ee648d"
+      }
+    },
+    "owner": "krushisuvidha"
+  }
+}

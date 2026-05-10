@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AgriAdmin AI — Smart Agriculture Dashboard"
+version = "1.0.0"
+id = "artifacts/agri-admin"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18593
+
+[services.development]
+run = "pnpm --filter @workspace/agri-admin run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/agri-admin", "run", "build" ]
+publicDir = "artifacts/agri-admin/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18593"
+BASE_PATH = "/"

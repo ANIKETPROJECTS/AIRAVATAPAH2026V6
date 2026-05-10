@@ -1,0 +1,21 @@
+{
+  "name": "workspace",
+  "version": "0.0.0",
+  "license": "MIT",
+  "workspaces": [
+    "artifacts/*",
+    "lib/*",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=artifacts/agri-admin && npm run build --workspace=artifacts/api-server",
+    "dev": "pnpm --filter @workspace/agri-admin run dev",
+    "start": "node --enable-source-maps artifacts/api-server/dist/index.mjs",
+    "typecheck": "tsc --build && npm run typecheck --workspaces --if-present"
+  },
+  "private": true,
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "prettier": "^3.8.1"
+  }
+}
