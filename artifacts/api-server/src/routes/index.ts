@@ -10,6 +10,7 @@ import notificationsRouter from "./notifications";
 import insuranceSubsidiesRouter from "./insurance-subsidies";
 import applicationsRouter from "./applications";
 import aiRouter from "./ai";
+import dashboardRouter from "./dashboard";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(notificationsRouter);
 router.use(insuranceSubsidiesRouter);
 router.use(applicationsRouter);
 router.use(aiRouter);
+router.use(dashboardRouter);
 
 export default router;
