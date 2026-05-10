@@ -1457,7 +1457,7 @@ function DocUploadCard({
               </span>
             )}
             {state.status === "processing" && airavataAnim && (
-              <div className="rounded-full bg-amber-50 border border-amber-200 overflow-hidden px-1" style={{ height: 28 }}>
+              <div className="overflow-hidden" style={{ height: 28 }}>
                 <Lottie animationData={airavataAnim} loop style={{ width: 80, height: 28 }} />
               </div>
             )}
@@ -1516,13 +1516,6 @@ function DocUploadCard({
         {/* UPLOADING / PROCESSING */}
         {busy && (
           <div className="flex flex-col items-center justify-center py-3 gap-1">
-            {/* Airavata animation in a pill container */}
-            {airavataAnim && (
-              <div className="rounded-full bg-amber-50 border border-amber-200 overflow-hidden px-2 mb-1" style={{ height: 44 }}>
-                <Lottie animationData={airavataAnim} loop style={{ width: 160, height: 44 }} />
-              </div>
-            )}
-            {/* Old circular processing animation */}
             {processingAnim ? (
               <Lottie animationData={processingAnim} loop style={{ width: 80, height: 80 }} />
             ) : (
