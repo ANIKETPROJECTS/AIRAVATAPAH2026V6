@@ -1332,10 +1332,12 @@ function DocUploadCard({
   const fileRef = useRef<HTMLInputElement>(null);
   const Icon = card.icon;
   const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
+  const [processingAnim, setProcessingAnim] = useState<object | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${BASE_URL}/animations/airavata-processing.json`).then(r => r.json()).then(setAiravataAnim).catch(() => {});
+    fetch(`${BASE_URL}/animations/processing.json`).then(r => r.json()).then(setProcessingAnim).catch(() => {});
   }, []);
 
   const handleFile = useCallback(async (file: File) => {
@@ -1445,8 +1447,8 @@ function DocUploadCard({
           {/* Status badge only — no upload button here */}
           <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
             {isComplete && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 whitespace-nowrap">
-                <CheckCircle2 className="h-3 w-3" /> {ui("extracted", lang)}
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white whitespace-nowrap">
+                Completed
               </span>
             )}
             {state.status === "uploading" && (
@@ -1454,7 +1456,12 @@ function DocUploadCard({
                 <Loader2 className="h-3 w-3 animate-spin" /> {ui("uploading", lang)}
               </span>
             )}
-            {state.status === "processing" && (
+            {state.status === "processing" && airavataAnim && (
+              <div className="rounded-full bg-amber-50 border border-amber-200 overflow-hidden px-1" style={{ height: 28 }}>
+                <Lottie animationData={airavataAnim} loop style={{ width: 80, height: 28 }} />
+              </div>
+            )}
+            {state.status === "processing" && !airavataAnim && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 whitespace-nowrap">
                 <Loader2 className="h-3 w-3 animate-spin" /> {ui("processing", lang)}
               </span>
@@ -1506,19 +1513,22 @@ function DocUploadCard({
           </div>
         )}
 
-        {/* UPLOADING / PROCESSING — Airavata animation */}
+        {/* UPLOADING / PROCESSING */}
         {busy && (
-          <div className="flex flex-col items-center justify-center py-3">
-            {airavataAnim ? (
-              <Lottie
-                animationData={airavataAnim}
-                loop
-                style={{ width: 180, height: 60 }}
-              />
-            ) : (
-              <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
+          <div className="flex flex-col items-center justify-center py-3 gap-1">
+            {/* Airavata animation in a pill container */}
+            {airavataAnim && (
+              <div className="rounded-full bg-amber-50 border border-amber-200 overflow-hidden px-2 mb-1" style={{ height: 44 }}>
+                <Lottie animationData={airavataAnim} loop style={{ width: 160, height: 44 }} />
+              </div>
             )}
-            <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-xs font-normal text-primary text-center mt-2">
+            {/* Old circular processing animation */}
+            {processingAnim ? (
+              <Lottie animationData={processingAnim} loop style={{ width: 80, height: 80 }} />
+            ) : (
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+            )}
+            <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-xs font-normal text-primary text-center mt-1">
               Airavata Intelligence is Working...
             </p>
           </div>
