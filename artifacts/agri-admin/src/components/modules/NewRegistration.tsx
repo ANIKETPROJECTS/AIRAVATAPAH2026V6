@@ -578,134 +578,31 @@ const ZOOM_STEP = 0.12;
 
 /** Full-screen document lightbox — scroll to zoom, drag to pan, Esc to close */
 export function DocLightbox({ src, label, onClose }: { src: string; label?: string; onClose: () => void }) {
-  const [scale, setScale] = useState(1);
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
-  const dragging = useRef(false);
-  const dragStart = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const scaleRef = useRef(1);
-
-  // Keep scaleRef in sync so the native wheel handler can read latest value
-  useEffect(() => { scaleRef.current = scale; }, [scale]);
-
-  // Lock body scroll and wire up native wheel listener (passive: false required for preventDefault)
+  // Keyboard: Esc closes
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
-    const el = containerRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
-      setScale(s => {
-        const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, s + delta));
-        scaleRef.current = next;
-        return next;
-      });
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-
-    return () => {
-      document.body.style.overflow = prev;
-      el.removeEventListener("wheel", onWheel);
-    };
-  }, []);
-
-  // Keyboard: Esc closes
-  useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", handler);
+    };
   }, [onClose]);
 
-  const resetZoom = () => { setScale(1); setTranslate({ x: 0, y: 0 }); };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (scaleRef.current <= 1) return;
-    e.preventDefault();
-    dragging.current = true;
-    dragStart.current = { x: e.clientX, y: e.clientY, tx: translate.x, ty: translate.y };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!dragging.current) return;
-    setTranslate({
-      x: dragStart.current.tx + (e.clientX - dragStart.current.x),
-      y: dragStart.current.ty + (e.clientY - dragStart.current.y),
-    });
-  };
-
-  const handleMouseUp = () => { dragging.current = false; };
-
-  const pct = Math.round(scale * 100);
-
   return createPortal(
-    <div className="fixed inset-0 flex flex-col bg-black/96" style={{ zIndex: 10001 }}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-black/70 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <Image className="h-4 w-4 text-white/50 flex-shrink-0" />
-          {label && <span className="text-sm font-semibold text-white/80">{label}</span>}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-white/40 hidden sm:block">Scroll to zoom · drag to pan · Esc to close</span>
-          <span className="text-xs font-mono text-white/50 tabular-nums w-12 text-center">{pct}%</span>
-          <button
-            onClick={() => setScale(s => Math.min(ZOOM_MAX, s + ZOOM_STEP * 3))}
-            className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10 border border-white/20"
-          >
-            <ZoomIn className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => { if (scale > 1) { setScale(s => Math.max(ZOOM_MIN, s - ZOOM_STEP * 3)); } else resetZoom(); }}
-            className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10 border border-white/20"
-            title="Zoom out"
-          >
-            <ZoomIn className="h-4 w-4 rotate-180" />
-          </button>
-          <button
-            onClick={resetZoom}
-            className="text-xs text-white/60 hover:text-white font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10 border border-white/20"
-          >
-            Reset
-          </button>
-          <button
-            onClick={onClose}
-            className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-semibold transition-colors px-4 py-2 rounded-lg hover:bg-white/10 border border-white/20"
-          >
-            <X className="h-4 w-4" />
-            Close
-          </button>
-        </div>
-      </div>
-
-      {/* Image area */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-hidden flex items-center justify-center"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onClick={e => { if (!dragging.current && scale === 1) onClose(); }}
-        style={{ cursor: scale > 1 ? (dragging.current ? "grabbing" : "grab") : "default" }}
-      >
-        <img
-          src={src}
-          alt={label ?? "Document"}
-          draggable={false}
-          className="rounded-xl shadow-2xl select-none"
-          style={{
-            maxWidth: "none",
-            maxHeight: "none",
-            transform: `scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`,
-            transformOrigin: "center center",
-            transition: dragging.current ? "none" : "transform 0.05s ease-out",
-          }}
-        />
-      </div>
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/80"
+      style={{ zIndex: 10001 }}
+      onClick={onClose}
+    >
+      <img
+        src={src}
+        alt={label ?? "Document"}
+        draggable={false}
+        onClick={e => e.stopPropagation()}
+        className="rounded-xl shadow-2xl select-none max-h-[90vh] max-w-[90vw] object-contain"
+      />
     </div>,
     document.body,
   );
@@ -1447,24 +1344,17 @@ function DocUploadCard({
           {/* Status badge only — no upload button here */}
           <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
             {isComplete && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white whitespace-nowrap">
+              <span style={{ fontFamily: "'Poppins', sans-serif" }} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary text-white whitespace-nowrap">
                 Completed
               </span>
             )}
-            {state.status === "uploading" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700 whitespace-nowrap">
-                <Loader2 className="h-3 w-3 animate-spin" /> {ui("uploading", lang)}
-              </span>
-            )}
-            {state.status === "processing" && airavataAnim && (
+            {busy && airavataAnim && (
               <div className="overflow-hidden" style={{ height: 28 }}>
                 <Lottie animationData={airavataAnim} loop style={{ width: 80, height: 28 }} />
               </div>
             )}
-            {state.status === "processing" && !airavataAnim && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 whitespace-nowrap">
-                <Loader2 className="h-3 w-3 animate-spin" /> {ui("processing", lang)}
-              </span>
+            {busy && !airavataAnim && (
+              <Loader2 className="h-4 w-4 text-amber-500 animate-spin" />
             )}
             {isError && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700 whitespace-nowrap">
@@ -1542,9 +1432,16 @@ function DocUploadCard({
             )}
             {state.rawFileDataUrl && (
               <div className="flex flex-col items-center gap-3">
-                <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-sm font-normal text-black w-full">
-                  Original Document
-                </p>
+                <div className="w-full">
+                  <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-sm font-normal text-black">
+                    Original Document
+                  </p>
+                  {state.filename && (
+                    <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                      {state.filename}
+                    </p>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => setLightboxSrc(state.rawFileDataUrl!)}
@@ -1558,7 +1455,8 @@ function DocUploadCard({
                 </button>
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold bg-primary text-white hover:bg-primary/90 transition-all shadow-sm"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-medium bg-primary text-white hover:bg-primary/90 transition-all shadow-sm"
                 >
                   <Upload className="h-3.5 w-3.5" />
                   {ui("reupload", lang)}
@@ -1569,7 +1467,8 @@ function DocUploadCard({
               <div className="flex justify-center">
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold bg-primary text-white hover:bg-primary/90 transition-all shadow-sm"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-medium bg-primary text-white hover:bg-primary/90 transition-all shadow-sm"
                 >
                   <Upload className="h-3.5 w-3.5" />
                   {ui("reupload", lang)}
