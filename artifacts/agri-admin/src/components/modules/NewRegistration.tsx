@@ -1331,11 +1331,13 @@ function DocUploadCard({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const Icon = card.icon;
-  const [uploadAnim, setUploadAnim] = useState<object | null>(null);
+  const [uploadAnimPdf, setUploadAnimPdf] = useState<object | null>(null);
+  const [uploadAnimJpg, setUploadAnimJpg] = useState<object | null>(null);
   const [processingAnim, setProcessingAnim] = useState<object | null>(null);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/animations/upload.json`).then(r => r.json()).then(setUploadAnim).catch(() => {});
+    fetch(`${BASE_URL}/animations/upload-pdf.json`).then(r => r.json()).then(setUploadAnimPdf).catch(() => {});
+    fetch(`${BASE_URL}/animations/upload-jpg.json`).then(r => r.json()).then(setUploadAnimJpg).catch(() => {});
     fetch(`${BASE_URL}/animations/processing.json`).then(r => r.json()).then(setProcessingAnim).catch(() => {});
   }, []);
 
@@ -1490,13 +1492,25 @@ function DocUploadCard({
             onDragOver={(e) => e.preventDefault()}
             className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all py-4 group"
           >
-            {uploadAnim ? (
-              <Lottie
-                animationData={uploadAnim}
-                loop
-                style={{ width: 110, height: 110 }}
-                className="pointer-events-none"
-              />
+            {(uploadAnimPdf || uploadAnimJpg) ? (
+              <div className="flex items-center justify-center gap-1">
+                {uploadAnimPdf && (
+                  <Lottie
+                    animationData={uploadAnimPdf}
+                    loop
+                    style={{ width: 72, height: 72 }}
+                    className="pointer-events-none"
+                  />
+                )}
+                {uploadAnimJpg && (
+                  <Lottie
+                    animationData={uploadAnimJpg}
+                    loop
+                    style={{ width: 72, height: 72 }}
+                    className="pointer-events-none"
+                  />
+                )}
+              </div>
             ) : (
               <Upload className="h-10 w-10 text-muted-foreground mb-2" />
             )}
@@ -2016,20 +2030,23 @@ function LangSelector({ lang, onChange }: { lang: LangCode; onChange: (l: LangCo
     { code: "en", label: "English" },
   ];
   return (
-    <div className="flex items-center gap-1.5 bg-muted/40 rounded-full p-1 border border-border">
-      {opts.map(o => (
-        <button
-          key={o.code}
-          onClick={() => onChange(o.code)}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-            lang === o.code
-              ? "bg-primary text-white shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-white/60"
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground font-medium">Language</span>
+      <div className="flex items-center gap-1 bg-muted/40 rounded-full p-1 border border-border">
+        {opts.map(o => (
+          <button
+            key={o.code}
+            onClick={() => onChange(o.code)}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              lang === o.code
+                ? "bg-primary text-white shadow-sm"
+                : "bg-white text-black hover:bg-white/80"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -3034,7 +3051,8 @@ export default function NewRegistration() {
     return (
       <div className="space-y-6">
         <div>
-          <div className="flex items-center justify-end mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="font-heading text-2xl">New Registration</h1>
             <LangSelector lang={form8aLang} onChange={setForm8aLang} />
           </div>
           <p className="text-sm text-muted-foreground mb-5">
