@@ -52,9 +52,9 @@ function EmptyState({ icon, message }: { icon: React.ReactNode; message: string 
 }
 function StatBadge({ label, val, color }: { label: string; val: number | string; color: string }) {
   return (
-    <div className={`border rounded-xl px-4 py-2.5 text-center ${color}`}>
-      <div className="text-xl font-bold">{val}</div>
-      <div className="text-[9px] font-semibold uppercase tracking-wide mt-0.5">{label}</div>
+    <div className={`rounded-xl px-4 py-3 text-center ${color}`} style={{ fontFamily: "Poppins, sans-serif" }}>
+      <div className="text-2xl font-bold text-white leading-none">{val}</div>
+      <div className="text-[10px] font-medium uppercase tracking-wide mt-1 text-white/90">{label}</div>
     </div>
   );
 }
@@ -397,13 +397,13 @@ function ApplicationsPageBase({
 
       {/* Stats */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-        <StatBadge label="Total" val={counts.total} color="text-teal-700 bg-teal-50 border-teal-200" />
-        <StatBadge label="Pending" val={counts.pending} color="text-yellow-700 bg-yellow-50 border-yellow-200" />
-        <StatBadge label="Under Review" val={counts.review} color="text-blue-700 bg-blue-50 border-blue-200" />
-        <StatBadge label="Approved" val={counts.approved} color="text-emerald-700 bg-emerald-50 border-emerald-200" />
-        <StatBadge label="Rejected" val={counts.rejected} color="text-red-600 bg-red-50 border-red-200" />
-        {type === "insurance" && <StatBadge label="Settled" val={counts.settled} color="text-teal-800 bg-teal-50 border-teal-300" />}
-        {type !== "insurance" && <StatBadge label="Available" val={filteredCatalog.length + catalog.filter(c => appliedSchemeIds.has(c.id)).length} color="text-slate-600 bg-slate-50 border-slate-200" />}
+        <StatBadge label="Total" val={counts.total} color="bg-teal-600" />
+        <StatBadge label="Pending" val={counts.pending} color="bg-amber-500" />
+        <StatBadge label="Under Review" val={counts.review} color="bg-blue-600" />
+        <StatBadge label="Approved" val={counts.approved} color="bg-emerald-600" />
+        <StatBadge label="Rejected" val={counts.rejected} color="bg-red-600" />
+        {type === "insurance" && <StatBadge label="Settled" val={counts.settled} color="bg-teal-700" />}
+        {type !== "insurance" && <StatBadge label="Available" val={filteredCatalog.length + catalog.filter(c => appliedSchemeIds.has(c.id)).length} color="bg-slate-600" />}
       </div>
 
       {/* Tabs */}
@@ -756,67 +756,74 @@ function AiRecommendationsPanel({ farmer }: { farmer: FarmerRecord }) {
   };
 
   const PRIORITY_COLOR: Record<string, string> = {
-    High: "bg-red-50 text-red-700 border-red-200",
-    Medium: "bg-amber-50 text-amber-700 border-amber-200",
-    Low: "bg-slate-100 text-slate-600 border-slate-200",
+    High: "bg-red-100 text-red-800 border-red-200",
+    Medium: "bg-amber-100 text-amber-800 border-amber-200",
+    Low: "bg-slate-100 text-slate-700 border-slate-200",
   };
   const TYPE_COLOR: Record<string, string> = {
-    scheme: "bg-blue-50 text-blue-700",
-    insurance: "bg-purple-50 text-purple-700",
-    subsidy: "bg-emerald-50 text-emerald-700",
+    scheme: "bg-blue-100 text-blue-800",
+    insurance: "bg-purple-100 text-purple-800",
+    subsidy: "bg-emerald-100 text-emerald-800",
   };
 
   return (
-    <div className="w-80 flex-shrink-0">
-      <div className="border border-emerald-200 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
-        <div className="bg-gradient-to-r from-emerald-700 to-green-600 px-4 py-3.5 flex items-center gap-2.5">
-          <Sparkles className="h-4 w-4 text-emerald-200 flex-shrink-0" />
-          <div>
-            <div className="font-bold text-white text-sm">AI Recommendations</div>
-            <div className="text-emerald-200 text-[10px]">Scheme · Insurance · Subsidy Advisor</div>
+    <div className="w-80 flex-shrink-0" style={{ fontFamily: "Poppins, sans-serif" }}>
+      <div className="border border-slate-200 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
+        {/* AIRAVATA INTELLIGENCE header */}
+        <div className="px-4 py-3 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-0.5">AIRAVATA INTELLIGENCE</div>
+              <div className="text-sm font-semibold text-black leading-none">AI Summary</div>
+            </div>
           </div>
+          <div className="mt-2 text-[11px] text-black/50 font-normal">Scheme · Insurance · Subsidy Advisor</div>
         </div>
+
         <div className="p-4 space-y-3">
           {!result && !loading && (
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-sm text-black font-normal leading-relaxed">
               Get AI-powered scheme, insurance, and subsidy recommendations tailored to this farmer's land, crops, and district.
             </p>
           )}
           <button
             onClick={generate}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-700 text-white text-sm font-semibold rounded-xl hover:bg-emerald-800 disabled:opacity-60 transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-black disabled:opacity-60 transition-colors"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
             {loading ? "Analysing..." : result ? "Regenerate" : "Generate Advice"}
           </button>
-          {error && <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
+          {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
           {result && (
             <div className="space-y-3 mt-1">
-              <div className="text-xs text-slate-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5 leading-relaxed">{result.summary}</div>
+              <div className="text-sm text-black font-normal bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 leading-relaxed">{result.summary}</div>
               {result.recommendations.map(r => (
-                <div key={r.id} className={`border rounded-xl overflow-hidden ${r.applyFirst ? "border-emerald-400 shadow-sm" : "border-slate-200"}`}>
-                  <div className={`px-3 py-2.5 ${r.applyFirst ? "bg-emerald-50" : "bg-slate-50"}`}>
+                <div key={r.id} className={`border rounded-xl overflow-hidden ${r.applyFirst ? "border-slate-400 shadow-sm" : "border-slate-200"}`}>
+                  <div className={`px-3 py-2.5 ${r.applyFirst ? "bg-slate-100" : "bg-slate-50"}`}>
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <div className="text-[11px] font-bold text-slate-800 leading-tight">{r.name}</div>
-                      {r.applyFirst && <span className="text-[9px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-bold flex-shrink-0">TOP PICK</span>}
+                      <div className="text-sm font-medium text-black leading-tight">{r.name}</div>
+                      {r.applyFirst && <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded font-semibold flex-shrink-0">TOP PICK</span>}
                     </div>
                     <div className="flex flex-wrap gap-1">
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold border ${PRIORITY_COLOR[r.priority] ?? ""}`}>{r.priority}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold ${TYPE_COLOR[r.type] ?? "bg-slate-100 text-slate-600"}`}>{r.type}</span>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${PRIORITY_COLOR[r.priority] ?? ""}`}>{r.priority}</span>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${TYPE_COLOR[r.type] ?? "bg-slate-100 text-slate-700"}`}>{r.type}</span>
                     </div>
                   </div>
-                  <div className="px-3 py-2 bg-white space-y-1.5">
-                    <p className="text-[11px] text-slate-700 leading-relaxed">{r.reason}</p>
-                    <p className="text-[10px] text-emerald-700 font-medium">✓ {r.benefit}</p>
+                  <div className="px-3 py-2.5 bg-white space-y-1.5">
+                    <p className="text-sm text-black font-normal leading-relaxed">{r.reason}</p>
+                    <p className="text-[11px] text-black/60 font-medium">✓ {r.benefit}</p>
                   </div>
                 </div>
               ))}
               {result.tips?.length > 0 && (
-                <div className="border border-amber-200 bg-amber-50 rounded-xl px-3 py-2.5 space-y-1">
-                  <div className="text-[9px] font-bold text-amber-700 uppercase tracking-wide mb-1.5">Tips for Officer</div>
+                <div className="border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 space-y-1">
+                  <div className="text-[10px] font-semibold text-black uppercase tracking-wide mb-1.5">Tips for Officer</div>
                   {result.tips.map((tip, i) => (
-                    <p key={i} className="text-[10px] text-amber-800 leading-relaxed">• {tip}</p>
+                    <p key={i} className="text-sm text-black font-normal leading-relaxed">• {tip}</p>
                   ))}
                 </div>
               )}
@@ -853,24 +860,31 @@ function AiGrievanceAdvisorPanel({ farmer, grievances }: { farmer: FarmerRecord;
   };
 
   const PRIORITY_BORDER: Record<string, string> = {
-    High: "border-red-300 bg-red-50/50",
-    Medium: "border-amber-200 bg-amber-50/50",
-    Low: "border-slate-200 bg-slate-50",
+    High: "border-red-200",
+    Medium: "border-amber-200",
+    Low: "border-slate-200",
   };
 
   return (
-    <div className="w-80 flex-shrink-0">
-      <div className="border border-teal-200 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
-        <div className="bg-gradient-to-r from-teal-700 to-emerald-600 px-4 py-3.5 flex items-center gap-2.5">
-          <Sparkles className="h-4 w-4 text-teal-200 flex-shrink-0" />
-          <div>
-            <div className="font-bold text-white text-sm">AI Grievance Advisor</div>
-            <div className="text-teal-200 text-[10px]">Step-by-step Resolution Guidance</div>
+    <div className="w-80 flex-shrink-0" style={{ fontFamily: "Poppins, sans-serif" }}>
+      <div className="border border-slate-200 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
+        {/* AIRAVATA INTELLIGENCE header */}
+        <div className="px-4 py-3 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-0.5">AIRAVATA INTELLIGENCE</div>
+              <div className="text-sm font-semibold text-black leading-none">AI Summary</div>
+            </div>
           </div>
+          <div className="mt-2 text-[11px] text-black/50 font-normal">Step-by-step Resolution Guidance</div>
         </div>
+
         <div className="p-4 space-y-3">
           {!result && !loading && (
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-sm text-black font-normal leading-relaxed">
               {grievances.length
                 ? "Get AI-powered resolution steps for all open and in-progress grievances."
                 : "No grievances to advise on yet."}
@@ -879,45 +893,45 @@ function AiGrievanceAdvisorPanel({ farmer, grievances }: { farmer: FarmerRecord;
           <button
             onClick={generate}
             disabled={loading || grievances.length === 0}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-700 text-white text-sm font-semibold rounded-xl hover:bg-teal-800 disabled:opacity-50 transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-black disabled:opacity-50 transition-colors"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
             {loading ? "Analysing..." : result ? "Regenerate" : "Advise Me"}
           </button>
-          {error && <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
+          {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
           {result && (
             <div className="space-y-3 mt-1">
-              <div className="text-xs text-slate-700 bg-teal-50 border border-teal-200 rounded-xl px-3 py-2.5 leading-relaxed">{result.overview}</div>
+              <div className="text-sm text-black font-normal bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 leading-relaxed">{result.overview}</div>
               {result.urgentAction && (
-                <div className="bg-red-50 border border-red-300 rounded-xl px-3 py-2.5">
-                  <div className="text-[9px] font-bold text-red-600 uppercase tracking-wide mb-1">⚡ Urgent Action</div>
-                  <p className="text-[11px] text-red-700 leading-relaxed">{result.urgentAction}</p>
+                <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                  <div className="text-[10px] font-semibold text-black uppercase tracking-wide mb-1">⚡ Urgent Action</div>
+                  <p className="text-sm text-black font-normal leading-relaxed">{result.urgentAction}</p>
                 </div>
               )}
               {result.advice.map(a => (
-                <div key={a.grievanceId} className={`border rounded-xl overflow-hidden ${PRIORITY_BORDER[a.priority] ?? "border-slate-200"}`}>
-                  <div className="px-3 py-2.5">
-                    <div className="flex items-start justify-between gap-1.5 mb-1">
-                      <div className="text-[11px] font-bold text-slate-800 leading-tight">{a.subject}</div>
-                      {a.escalate && <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold flex-shrink-0">ESCALATE</span>}
+                <div key={a.grievanceId} className={`border rounded-xl overflow-hidden bg-white ${PRIORITY_BORDER[a.priority] ?? "border-slate-200"}`}>
+                  <div className="px-3 py-3">
+                    <div className="flex items-start justify-between gap-1.5 mb-1.5">
+                      <div className="text-sm font-medium text-black leading-tight">{a.subject}</div>
+                      {a.escalate && <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded font-semibold flex-shrink-0">ESCALATE</span>}
                     </div>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold bg-slate-200 text-slate-600">{a.category}</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-mono bg-white border border-slate-200 text-slate-500">{a.grievanceId}</span>
+                    <div className="flex flex-wrap gap-1 mb-2.5">
+                      <span className="text-[10px] px-2 py-0.5 rounded font-normal bg-slate-100 text-black">{a.category}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-white border border-slate-200 text-black/50">{a.grievanceId}</span>
                     </div>
-                    <p className="text-[11px] text-slate-700 leading-relaxed mb-2">{a.resolution}</p>
+                    <p className="text-sm text-black font-normal leading-relaxed mb-2.5">{a.resolution}</p>
                     {a.steps?.length > 0 && (
-                      <div className="space-y-1 mb-2">
+                      <div className="space-y-1.5 mb-2.5">
                         {a.steps.map((step, i) => (
-                          <div key={i} className="flex gap-1.5">
-                            <span className="text-[9px] font-bold text-teal-700 flex-shrink-0 mt-0.5">{i + 1}.</span>
-                            <p className="text-[10px] text-slate-600 leading-relaxed">{step}</p>
+                          <div key={i} className="flex gap-2">
+                            <span className="text-[10px] font-semibold text-black/40 flex-shrink-0 mt-0.5">{i + 1}.</span>
+                            <p className="text-sm text-black font-normal leading-relaxed">{step}</p>
                           </div>
                         ))}
                       </div>
                     )}
                     {a.estimatedTime && (
-                      <div className="text-[10px] text-teal-700 font-medium">⏱ {a.estimatedTime}</div>
+                      <div className="text-[11px] text-black/50 font-normal">⏱ {a.estimatedTime}</div>
                     )}
                   </div>
                 </div>
@@ -1000,10 +1014,10 @@ export function GrievancesPage({ farmer }: { farmer: FarmerRecord }) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatBadge label="Total" val={grievances.length} color="text-teal-700 bg-teal-50 border-teal-200" />
-        <StatBadge label="Open" val={grievances.filter(g => g.status === "Open").length} color="text-lime-800 bg-lime-50 border-lime-300" />
-        <StatBadge label="In Progress" val={grievances.filter(g => g.status === "In Progress").length} color="text-green-700 bg-green-50 border-green-200" />
-        <StatBadge label="Resolved / Closed" val={grievances.filter(g => g.status === "Resolved" || g.status === "Closed").length} color="text-emerald-700 bg-emerald-50 border-emerald-200" />
+        <StatBadge label="Total" val={grievances.length} color="bg-teal-600" />
+        <StatBadge label="Open" val={grievances.filter(g => g.status === "Open").length} color="bg-amber-500" />
+        <StatBadge label="In Progress" val={grievances.filter(g => g.status === "In Progress").length} color="bg-blue-600" />
+        <StatBadge label="Resolved / Closed" val={grievances.filter(g => g.status === "Resolved" || g.status === "Closed").length} color="bg-emerald-600" />
       </div>
 
       {/* Controls */}
@@ -1194,27 +1208,26 @@ export function AllApplicationsPage({ farmer }: { farmer: FarmerRecord }) {
   type AppTab = "scheme" | "insurance" | "subsidy";
   const [activeTab, setActiveTab] = useState<AppTab>("scheme");
 
-  const tabs: { key: AppTab; label: string; icon: React.ReactNode }[] = [
-    { key: "scheme",    label: "Scheme Applications",   icon: <Shield className="h-3.5 w-3.5 flex-shrink-0" /> },
-    { key: "insurance", label: "Insurance Applications", icon: <LifeBuoy className="h-3.5 w-3.5 flex-shrink-0" /> },
-    { key: "subsidy",   label: "Subsidy Applications",   icon: <IndianRupee className="h-3.5 w-3.5 flex-shrink-0" /> },
+  const tabs: { key: AppTab; label: string }[] = [
+    { key: "scheme",    label: "Scheme Applications" },
+    { key: "insurance", label: "Insurance Applications" },
+    { key: "subsidy",   label: "Subsidy Applications" },
   ];
 
   return (
     <div className="flex gap-5 items-start">
       <div className="flex-1 min-w-0 space-y-5">
-        <div className="flex items-center gap-1 border-b border-border pb-0 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+        <div className="flex items-center gap-1 border-b border-border pb-0 overflow-x-auto" style={{ scrollbarWidth: "none", fontFamily: "Poppins, sans-serif" }}>
           {tabs.map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-all -mb-px ${
+              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
                 activeTab === tab.key
-                  ? "border-secondary text-secondary"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                  ? "border-black text-black"
+                  : "border-transparent text-black/50 hover:text-black hover:border-black/30"
               }`}
             >
-              {tab.icon}
               {tab.label}
             </button>
           ))}

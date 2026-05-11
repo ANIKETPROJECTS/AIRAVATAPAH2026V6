@@ -4,6 +4,8 @@ import {
   FileText, LifeBuoy, IndianRupee, Shield,
 } from "lucide-react";
 import iconView from "/icon-view.png";
+import iconNavApps from "/icon-farmer-apps.png";
+import iconNavGrievance from "/icon-farmer-grievance.png";
 import { apiFetchFarmers, type FarmerRecord } from "@/data/farmerApi";
 import VerifiedFarmerCard from "@/components/modules/VerifiedFarmerCard";
 import {
@@ -60,8 +62,8 @@ const SUB_PAGE_META: Record<SubPageKey, { label: string; icon: React.ReactNode }
   scheme_apps:    { label: "Scheme Applications",    icon: <Shield      className="h-4 w-4" /> },
   insurance_apps: { label: "Insurance Applications", icon: <LifeBuoy    className="h-4 w-4" /> },
   subsidy_apps:   { label: "Subsidy Applications",   icon: <IndianRupee className="h-4 w-4" /> },
-  applications:   { label: "Applications",           icon: <Shield      className="h-4 w-4" /> },
-  grievances:     { label: "Grievances",             icon: <AlertCircle className="h-4 w-4" /> },
+  applications:   { label: "Applications",           icon: <img src={iconNavApps} alt="" className="w-4 h-4 object-contain" /> },
+  grievances:     { label: "Grievances",             icon: <img src={iconNavGrievance} alt="" className="w-4 h-4 object-contain" /> },
   documents:      { label: "Documents",              icon: <FileText    className="h-4 w-4" /> },
 };
 
@@ -72,7 +74,7 @@ function SubPageView({ farmer, subPage }: { farmer: FarmerRecord; subPage: SubPa
   return (
     <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
       <div className="border-b border-border px-6 py-4 flex items-center gap-3 bg-slate-50/70">
-        <span className="text-secondary">{meta.icon}</span>
+        <span>{meta.icon}</span>
         <div>
           <h2 className="font-bold text-base text-foreground">{meta.label}</h2>
           <p className="text-xs text-muted-foreground">{farmer.name} · {farmer.farmerId}</p>
