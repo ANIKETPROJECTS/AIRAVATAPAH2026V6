@@ -148,88 +148,19 @@ function ProfilePanel({ onClose, onNavigateSettings, onEditProfile }: { onClose:
   const enabledSections = (Object.keys(currentUser.permissions) as SectionKey[]).filter(k => currentUser.permissions[k]);
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-[320px] bg-white border border-border rounded-2xl shadow-2xl shadow-black/10 z-50 overflow-hidden">
-      {/* User info */}
-      <div className="p-5 border-b border-slate-100" style={{ background: "linear-gradient(135deg, #0D2B1E, #1a4a30)" }}>
-        <div className="flex items-start gap-3 mb-3">
-          <div className="relative flex-shrink-0">
-            {currentUser.avatarUrl ? (
-              <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20 shadow"/>
-            ) : (
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${currentUser.avatarColor} flex items-center justify-center font-bold text-white text-lg shadow`}>
-                {currentUser.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="font-bold text-white text-sm truncate">{currentUser.name}</div>
-            <div className="text-[11px] text-white/60 truncate">{currentUser.designation}</div>
-            <span className="mt-1 inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: "rgba(74,222,128,0.2)", color: "#4ade80" }}>
-              {ROLE_LABELS[currentUser.role]}
-            </span>
-          </div>
-          <button onClick={() => { onEditProfile(); onClose(); }}
-            title="Edit profile"
-            className="flex-shrink-0 p-1.5 rounded-lg hover:bg-white/10 transition-colors mt-0.5">
-            <Edit2 className="h-3.5 w-3.5 text-white/60"/>
-          </button>
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[11px] text-white/50">
-            <Mail className="h-3 w-3 flex-shrink-0"/><span className="truncate">{currentUser.email}</span>
-          </div>
-          {currentUser.phone && <div className="flex items-center gap-2 text-[11px] text-white/50">
-            <Phone className="h-3 w-3 flex-shrink-0"/><span>{currentUser.phone}</span>
-          </div>}
-          {currentUser.district && <div className="flex items-center gap-2 text-[11px] text-white/50">
-            <MapPin className="h-3 w-3 flex-shrink-0"/><span>{currentUser.district} District</span>
-          </div>}
-        </div>
-      </div>
-
-      {/* Permissions summary */}
-      <div className="px-4 py-3 border-b border-slate-100">
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Access ({enabledSections.length} sections)</div>
-        <div className="flex flex-wrap gap-1">
-          {enabledSections.map(s => (
-            <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
-              {SECTION_LABELS[s]}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="p-2">
-        <button onClick={() => { onEditProfile(); onClose(); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-          <Edit2 className="h-4 w-4 text-emerald-500"/><span className="font-semibold">Edit My Profile</span>
-        </button>
+    <div className="absolute right-0 top-full mt-2 w-[200px] bg-white border border-border rounded-xl shadow-xl shadow-black/10 z-50 overflow-hidden">
+      <div className="p-1.5">
         {can("settings") && (
           <button onClick={() => { onNavigateSettings(); onClose(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors">
-            <Settings className="h-4 w-4 text-slate-400"/><span>Settings & Workflow</span>
-          </button>
-        )}
-        {can("usermanagement") && (
-          <button onClick={() => { onClose(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors">
-            <User className="h-4 w-4 text-slate-400"/><span>User Management</span>
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+            <Settings className="h-4 w-4 text-slate-400 flex-shrink-0"/><span>Settings &amp; Workflow</span>
           </button>
         )}
         <button onClick={() => { logout(); onClose(); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors mt-1">
-          <LogOut className="h-4 w-4"/><span className="font-semibold">Sign Out</span>
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors">
+          <LogOut className="h-4 w-4 flex-shrink-0"/><span className="font-semibold">Sign Out</span>
         </button>
       </div>
-
-      {currentUser.lastLogin && (
-        <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-            <Clock className="h-3 w-3"/>Last login: {timeAgo(currentUser.lastLogin)}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -281,13 +212,13 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 cursor-pointer" onClick={onAIOpen}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={onAIOpen}>
           {airavataAnim && (
-            <Lottie animationData={airavataAnim} loop style={{ width: 36, height: 36, flexShrink: 0 }} />
+            <Lottie animationData={airavataAnim} loop style={{ width: 48, height: 48, flexShrink: 0 }} />
           )}
           <div className="hidden sm:block">
-            <p className="text-[10px] font-bold tracking-widest uppercase leading-tight" style={{ color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
-            <p className="text-[10px] text-muted-foreground leading-tight">AI Assistant</p>
+            <p className="font-bold tracking-widest uppercase leading-tight" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 300, letterSpacing: "0.15em", color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
+            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "10px", fontWeight: 300, color: "#000000" }} className="leading-tight">AI Assistant</p>
           </div>
         </div>
 
@@ -308,12 +239,8 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
         {/* Profile button */}
         <div className="relative" ref={profileRef}>
           <button onClick={() => { setProfileOpen(o => !o); setNotifOpen(false); }}
-            className={`flex items-center gap-2.5 px-2 py-1.5 rounded-xl transition-colors ${profileOpen ? "bg-slate-100" : "hover:bg-muted"}`}>
+            className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl transition-colors ${profileOpen ? "bg-slate-100" : "hover:bg-muted"}`}>
             <UserAvatar/>
-            <div className="hidden md:block text-xs text-left">
-              <div className="font-semibold text-foreground leading-tight">{currentUser?.name}</div>
-              <div className="text-muted-foreground text-[10px] leading-tight">{currentUser?.designation}</div>
-            </div>
             <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${profileOpen ? "rotate-180" : ""}`}/>
           </button>
           {profileOpen && (

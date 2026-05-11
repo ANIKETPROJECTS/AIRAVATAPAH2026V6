@@ -934,12 +934,12 @@ export function SpannedTable({ headers, rows, lang = "mr" }: { headers: string[]
   }
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse border border-border text-xs">
+      <table className="w-full border-collapse border border-black text-xs">
         {headers.length > 0 && (
           <thead>
             <tr className="bg-muted/40">
               {headers.map((h, i) => (
-                <th key={i} className="border border-border p-2 text-left font-semibold align-top whitespace-pre-wrap">{tField(h, lang, h) || ""}</th>
+                <th key={i} className="border border-black p-2 text-left font-semibold align-top whitespace-pre-wrap text-black">{tField(h, lang, h) || ""}</th>
               ))}
             </tr>
           </thead>
@@ -952,7 +952,7 @@ export function SpannedTable({ headers, rows, lang = "mr" }: { headers: string[]
                 const hasContent = cell.value !== undefined && cell.value !== null && cell.value.length > 0;
                 const lines = (cell.value ?? "").split("\n");
                 return (
-                  <td key={cIdx} rowSpan={cell.rowspan > 1 ? cell.rowspan : undefined} className="border border-border px-2 py-1.5 align-top break-words">
+                  <td key={cIdx} rowSpan={cell.rowspan > 1 ? cell.rowspan : undefined} className="border border-black px-2 py-1.5 align-top break-words text-black">
                     {hasContent ? (
                       <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 leading-relaxed">
                         {lines.flatMap((line, lIdx) => {
@@ -1026,12 +1026,12 @@ function EditableSpannedTable({
   }
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse border border-border text-xs">
+      <table className="w-full border-collapse border border-black text-xs">
         {headers.length > 0 && (
           <thead>
             <tr className="bg-muted/40">
               {headers.map((h, i) => (
-                <th key={i} className="border border-border p-2 text-left font-semibold align-top whitespace-pre-wrap">
+                <th key={i} className="border border-black p-2 text-left font-semibold align-top whitespace-pre-wrap text-black">
                   {tField(h, lang, h) || ""}
                 </th>
               ))}
@@ -1052,7 +1052,7 @@ function EditableSpannedTable({
                     contentEditable
                     suppressContentEditableWarning
                     spellCheck={false}
-                    className="border border-border px-2 py-1.5 align-top break-words focus:bg-primary/5 focus:outline-none cursor-text min-w-[40px]"
+                    className="border border-black px-2 py-1.5 align-top break-words focus:bg-primary/5 focus:outline-none cursor-text min-w-[40px] text-black"
                     dangerouslySetInnerHTML={{
                       __html: hasContent
                         ? `<div style="display:grid;grid-template-columns:1fr auto;column-gap:0.75rem;row-gap:0.25rem;line-height:1.625;">${
@@ -1101,15 +1101,15 @@ export function FieldsTable({
         <div key={sec.title}>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{tSec(sec.title, lang)}</p>
           {sec.fields.filter(f => f.value && f.value !== "—").length > 0 && (
-            <div className="rounded-md border border-border overflow-hidden">
+            <div className="rounded-md border border-black overflow-hidden">
               <table className="w-full text-sm">
                 <tbody>
                   {sec.fields.filter(f => f.value && f.value !== "—").map((f) => (
-                    <tr key={f.key} className="border-b border-border last:border-0">
-                      <td className="px-4 py-2.5 text-muted-foreground w-2/5 font-medium">
+                    <tr key={f.key} className="border-b border-black last:border-0">
+                      <td className="px-4 py-2.5 text-black w-2/5 font-medium">
                         {tField(f.key, lang, f.label)}
                       </td>
-                      <td className="px-4 py-2.5 text-foreground break-words">
+                      <td className="px-4 py-2.5 text-black break-words">
                         {sanitizeName(f.value)}
                       </td>
                     </tr>
@@ -1121,18 +1121,18 @@ export function FieldsTable({
           {/* For form12, skip the structured sec.tables — we show the raw HTML table below instead */}
           {docId !== "form12" && sec.tables.map((tbl) => tbl.rows.length > 0 && (
             <div key={tbl.key} className="mt-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-1">{tSec(tbl.label, lang)}</p>
-              <div className="overflow-x-auto rounded-md border border-border">
+              <p className="text-xs font-semibold text-black mb-1">{tSec(tbl.label, lang)}</p>
+              <div className="overflow-x-auto rounded-md border border-black">
                 <table className="min-w-full text-sm">
                   <thead className="bg-muted/40">
                     <tr>
-                      {tbl.columns.map(c => <th key={c.key} className="px-4 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">{tField(c.key, lang, c.label)}</th>)}
+                      {tbl.columns.map(c => <th key={c.key} className="px-4 py-2 text-left font-medium text-black whitespace-nowrap border-b border-black">{tField(c.key, lang, c.label)}</th>)}
                     </tr>
                   </thead>
                   <tbody>
                     {tbl.rows.map((row, i) => (
-                      <tr key={i} className="border-t border-border">
-                        {tbl.columns.map(c => <td key={c.key} className="px-4 py-2 text-foreground">{row.values[c.key] ?? "—"}</td>)}
+                      <tr key={i} className="border-t border-black">
+                        {tbl.columns.map(c => <td key={c.key} className="px-4 py-2 text-black border-r border-black last:border-r-0">{row.values[c.key] ?? "—"}</td>)}
                       </tr>
                     ))}
                   </tbody>
@@ -1149,7 +1149,7 @@ export function FieldsTable({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {lang === "mr" ? "पीक" : lang === "hi" ? "फसल" : "Crop"}
           </p>
-          <div className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+          <div className="border-l-4 border-l-black bg-white border border-black rounded-md p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
               {lang === "mr" ? "पीक पाहणी नोंदणी" : lang === "hi" ? "फसल निरीक्षण रजिस्टर" : "Crop Inspection Register"}
             </p>
@@ -1157,7 +1157,7 @@ export function FieldsTable({
               {rawTables.map((tbl, idx) => (
                 <div key={tbl.blockId ?? idx} className="overflow-x-auto">
                   <div
-                    className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-xs [&_th]:border [&_th]:border-border [&_th]:bg-muted/40 [&_th]:p-2 [&_th]:text-left [&_th]:align-top [&_td]:border [&_td]:border-border [&_td]:p-2 [&_td]:align-top text-foreground"
+                    className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-xs [&_th]:border [&_th]:border-black [&_th]:bg-muted/40 [&_th]:p-2 [&_th]:text-left [&_th]:align-top [&_th]:text-black [&_td]:border [&_td]:border-black [&_td]:p-2 [&_td]:align-top [&_td]:text-black text-black"
                     dangerouslySetInnerHTML={{ __html: cleanDocHtml(tbl.html) }}
                   />
                 </div>
@@ -1172,13 +1172,13 @@ export function FieldsTable({
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{ui("sourceDocTables", lang)}</p>
           {rawTables.map((tbl, idx) => (
-            <div key={tbl.blockId ?? idx} className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+            <div key={tbl.blockId ?? idx} className="border-l-4 border-l-black bg-white border border-black rounded-md p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">{ui("table", lang)} {idx + 1}</p>
               {docId === "form7" ? (
                 <SpannedTable headers={tbl.headers} rows={tbl.rows} lang={lang} />
               ) : (
                 <div
-                  className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_th]:border [&_th]:border-border [&_th]:bg-muted/40 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:border-border [&_td]:p-2 [&_td]:align-top text-foreground"
+                  className="[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_th]:border [&_th]:border-black [&_th]:bg-muted/40 [&_th]:p-2 [&_th]:text-left [&_th]:text-black [&_td]:border [&_td]:border-black [&_td]:p-2 [&_td]:align-top [&_td]:text-black text-black"
                   dangerouslySetInnerHTML={{ __html: cleanDocHtml(tbl.html) }}
                 />
               )}
@@ -1849,36 +1849,32 @@ function ReviewTabBar({
         <div className="w-px h-5 bg-border flex-shrink-0 mr-2" />
 
         {completedCards.map((card, i) => {
-          const Icon = card.icon;
           const isActive = !showProfile && activeIndex === i;
           return (
             <button
               key={card.id}
               onClick={() => onJump(i)}
-              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-all rounded-t-sm whitespace-nowrap ${
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-all rounded-t-sm whitespace-nowrap text-black ${
                 isActive
-                  ? `border-b-2 ${card.borderColor.replace("border-", "border-b-")} ${card.color} bg-muted/30`
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/20"
+                  ? "border-b-2 border-b-black bg-muted/30"
+                  : "border-transparent hover:bg-muted/20"
               }`}
             >
-              <Icon className={`h-3.5 w-3.5 ${isActive ? card.color : ""}`} />
               {DOC_CARD_SHORT[card.id]?.[lang] ?? card.shortLabel}
-              {(i < activeIndex || showProfile) ? (
-                <CheckCircle2 className="h-3 w-3 text-emerald-500 ml-0.5" />
-              ) : null}
             </button>
           );
         })}
 
         <button
           onClick={onJumpToProfile}
-          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-all rounded-t-sm whitespace-nowrap ${
+          style={{ fontFamily: "'Poppins', sans-serif" }}
+          className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-all rounded-t-sm whitespace-nowrap text-black ${
             showProfile
-              ? "border-b-2 border-b-primary text-primary bg-muted/30"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/20"
+              ? "border-b-2 border-b-black bg-muted/30"
+              : "border-transparent hover:bg-muted/20"
           }`}
         >
-          <UserCheck className="h-3.5 w-3.5" />
           {ui("farmerProfileTab", lang)}
           {issueCount > 0 && (
             <span className={`ml-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 ${
