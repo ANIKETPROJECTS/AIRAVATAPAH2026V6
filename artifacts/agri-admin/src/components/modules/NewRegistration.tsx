@@ -1678,20 +1678,12 @@ function AiSummaryPanel({
   return (
     <div className="space-y-3">
       {/* Header */}
-      <div className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${
-        issues.length === 0 ? "bg-emerald-50 border-emerald-200" :
-        highCount > 0 ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"
-      }`}>
-        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-          issues.length === 0 ? "bg-emerald-500" : highCount > 0 ? "bg-red-600" : "bg-amber-500"
-        }`}>
-          {issues.length === 0
-            ? <ShieldCheck className="h-4 w-4 text-white" />
-            : highCount > 0 ? <img src="/warning-icon.png" className="h-4 w-4 object-contain" alt="warning" />
-            : <AlertTriangle className="h-4 w-4 text-white" />}
-        </div>
+      <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 flex items-center gap-3">
+        {issues.length === 0
+          ? <ShieldCheck className="h-6 w-6 text-emerald-500 flex-shrink-0" />
+          : <img src="/exclamation-icon.png" className="h-6 w-6 object-contain flex-shrink-0" alt="issues" />}
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm text-foreground">
+          <div className="font-semibold text-sm text-black">
             {issues.length === 0 ? "All clear" : `${issues.length} issue${issues.length !== 1 ? "s" : ""} to review`}
           </div>
           {resolvedCount > 0 && (
@@ -1878,9 +1870,7 @@ function ReviewTabBar({
         >
           {ui("farmerProfileTab", lang)}
           {issueCount > 0 && (
-            <span className={`ml-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 ${
-              showProfile ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-600"
-            }`}>
+            <span className="ml-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 bg-red-600 text-white">
               {issueCount}
             </span>
           )}
@@ -3029,11 +3019,11 @@ export default function NewRegistration() {
           <div className="w-72 flex-shrink-0 sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pb-4">
             <div className="flex items-center gap-2 mb-3">
               {airavataAnim && (
-                <Lottie animationData={airavataAnim} loop style={{ width: 44, height: 44, flexShrink: 0 }} />
+                <Lottie animationData={airavataAnim} loop style={{ width: 58, height: 58, flexShrink: 0 }} />
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-bold tracking-widest uppercase leading-tight" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
-                <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 600, color: "#000000" }} className="leading-tight">AI SUMMARY</p>
+                <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px", fontWeight: 500, letterSpacing: "0.13em", color: "#D97706" }} className="uppercase leading-tight">AIRAVATA INTELLIGENCE</p>
+                <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 500, color: "#000000" }} className="leading-tight">AI SUMMARY</p>
               </div>
               {issueCount > 0 && (
                 <span className="ml-auto min-w-[20px] h-[20px] flex items-center justify-center rounded-full text-[11px] font-bold px-1 bg-red-600 text-white">
