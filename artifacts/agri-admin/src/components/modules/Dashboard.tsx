@@ -1,7 +1,7 @@
 import {
   ClipboardList, Shield, CheckCircle,
   TrendingUp, AlertTriangle, UserPlus, FileText, Coins,
-  ArrowUpRight, Users,
+  ArrowUpRight,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -33,20 +33,15 @@ function Skeleton({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse bg-gray-100 rounded ${className}`} />;
 }
 
-/* ── KPI Card (no icon) ───────────────────────────────────── */
-function KpiCard({
-  label, value, sub, delay = 0,
-}: {
-  label: string; value: string | number; sub?: string; delay?: number;
-}) {
+/* ── KPI Card ─────────────────────────────────────────────── */
+function KpiCard({ label, value, delay = 0 }: { label: string; value: string | number; delay?: number }) {
   return (
     <div
-      className="bg-white border border-black rounded-xl p-4 flex flex-col gap-1.5 animate-fade-in"
+      className="bg-white border border-black rounded-xl p-4 flex flex-col items-center justify-center gap-1.5 animate-fade-in text-center min-h-[90px]"
       style={{ opacity: 0, animationDelay: `${delay}s` }}
     >
-      <div className="text-3xl font-heading text-black leading-none mb-1">{value}</div>
-      <div className="text-sm text-black font-medium">{label}</div>
-      {sub && <div className="text-[11px] text-black/60 mt-0.5">{sub}</div>}
+      <div className="text-3xl font-heading text-black leading-none">{value}</div>
+      <div className="text-xs text-black font-medium leading-tight">{label}</div>
     </div>
   );
 }
@@ -54,23 +49,24 @@ function KpiCard({
 /* ── Status Badge ─────────────────────────────────────────── */
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Active: "bg-emerald-100 text-emerald-800",
-    Verified: "bg-teal-100 text-teal-800",
-    Pending: "bg-yellow-100 text-yellow-900",
-    Inactive: "bg-gray-100 text-gray-700",
-    Cancelled: "bg-red-100 text-red-800",
-    Open: "bg-yellow-100 text-yellow-900",
-    "In Progress": "bg-blue-100 text-blue-800",
-    Resolved: "bg-emerald-100 text-emerald-800",
-    Escalated: "bg-red-100 text-red-800",
-    Closed: "bg-gray-100 text-gray-700",
-    Grievance: "bg-orange-100 text-orange-800",
-    Scheme: "bg-teal-100 text-teal-800",
-    Subsidy: "bg-violet-100 text-violet-800",
-    Insurance: "bg-blue-100 text-blue-800",
+    Active:       "bg-emerald-600 text-white",
+    Verified:     "bg-teal-600 text-white",
+    Pending:      "bg-yellow-500 text-white",
+    Inactive:     "bg-gray-500 text-white",
+    Cancelled:    "bg-red-500 text-white",
+    Rejected:     "bg-red-500 text-white",
+    Open:         "bg-yellow-500 text-white",
+    "In Progress":"bg-blue-500 text-white",
+    Resolved:     "bg-emerald-600 text-white",
+    Escalated:    "bg-red-500 text-white",
+    Closed:       "bg-gray-500 text-white",
+    Grievance:    "bg-orange-500 text-white",
+    Scheme:       "bg-teal-600 text-white",
+    Subsidy:      "bg-violet-600 text-white",
+    Insurance:    "bg-blue-500 text-white",
   };
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${map[status] ?? "bg-gray-100 text-gray-700"}`}>
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${map[status] ?? "bg-gray-500 text-white"}`}>
       {status}
     </span>
   );
@@ -84,34 +80,26 @@ function PriorityDot({ priority }: { priority: string }) {
 
 /* ── App Type Card ────────────────────────────────────────── */
 function AppTypeCard({
-  icon: Icon, label, stats, color, delay,
+  label, stats, delay,
 }: {
-  icon: React.ElementType; label: string; stats: AppTypeStats; color: string; delay: number;
+  label: string; stats: AppTypeStats; delay: number;
 }) {
   const pct = stats.total > 0 ? Math.round((stats.approved / stats.total) * 100) : 0;
   return (
     <div className="bg-white border border-black rounded-xl p-5 animate-fade-in flex flex-col gap-4" style={{ opacity: 0, animationDelay: `${delay}s` }}>
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}18` }}>
-          <Icon className="h-4 w-4" style={{ color }} />
-        </div>
-        <div>
-          <div className="font-heading text-sm text-black">{label}</div>
-          <div className="text-xs text-black/60">{stats.total} total applications</div>
-        </div>
-      </div>
+      <div className="font-heading text-base text-black">{label}</div>
       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg py-2">
-          <div className="text-lg font-bold text-black">{stats.pending + stats.underReview}</div>
-          <div className="text-xs text-black/70">Pending</div>
+        <div className="rounded-lg py-2 bg-yellow-500">
+          <div className="text-lg font-bold text-white">{stats.pending + stats.underReview}</div>
+          <div className="text-xs text-white/90">Pending</div>
         </div>
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg py-2">
-          <div className="text-lg font-bold text-black">{stats.approved}</div>
-          <div className="text-xs text-black/70">Approved</div>
+        <div className="rounded-lg py-2 bg-emerald-600">
+          <div className="text-lg font-bold text-white">{stats.approved}</div>
+          <div className="text-xs text-white/90">Approved</div>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg py-2">
-          <div className="text-lg font-bold text-black">{stats.rejected}</div>
-          <div className="text-xs text-black/70">Rejected</div>
+        <div className="rounded-lg py-2 bg-red-500">
+          <div className="text-lg font-bold text-white">{stats.rejected}</div>
+          <div className="text-xs text-white/90">Rejected</div>
         </div>
       </div>
       {stats.total > 0 && (
@@ -147,7 +135,14 @@ function SchemeTooltip({ active, payload }: { active?: boolean; payload?: { name
 /* ── Farmer Status Row ────────────────────────────────────── */
 function FarmerStatusRow({ byStatus }: { byStatus: Record<string, number> }) {
   const statuses = ["Active", "Verified", "Pending", "Inactive", "Cancelled"];
-  const colors: Record<string, string> = {
+  const solidColors: Record<string, string> = {
+    Active:    "bg-emerald-600 text-white",
+    Verified:  "bg-teal-600 text-white",
+    Pending:   "bg-yellow-500 text-white",
+    Inactive:  "bg-gray-500 text-white",
+    Cancelled: "bg-red-500 text-white",
+  };
+  const barColors: Record<string, string> = {
     Active: "#10B981", Verified: "#0D9488", Pending: "#F59E0B", Inactive: "#9CA3AF", Cancelled: "#EF4444",
   };
   const total = Object.values(byStatus).reduce((s, v) => s + v, 0);
@@ -159,18 +154,17 @@ function FarmerStatusRow({ byStatus }: { byStatus: Record<string, number> }) {
           const count = byStatus[s] ?? 0;
           const pct = (count / total) * 100;
           if (pct === 0) return null;
-          return <div key={s} className="h-full rounded-sm" style={{ width: `${pct}%`, backgroundColor: colors[s] }} title={`${s}: ${count}`} />;
+          return <div key={s} className="h-full rounded-sm" style={{ width: `${pct}%`, backgroundColor: barColors[s] }} title={`${s}: ${count}`} />;
         })}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+      <div className="flex flex-wrap gap-2">
         {statuses.map(s => {
           const count = byStatus[s] ?? 0;
           if (count === 0) return null;
           return (
-            <div key={s} className="flex items-center gap-1.5 text-xs text-black">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[s] }} />
-              {s}: <span className="font-semibold text-black">{count}</span>
-            </div>
+            <span key={s} className={`text-xs px-2.5 py-1 rounded-full font-medium ${solidColors[s]}`}>
+              {s}: {count}
+            </span>
           );
         })}
       </div>
@@ -231,77 +225,33 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
 
   const grievancePriorityData = s?.grievancesByPriority
     ? [
-        { name: "High",   value: s.grievancesByPriority.High ?? 0,   color: "#EF4444" },
-        { name: "Medium", value: s.grievancesByPriority.Medium ?? 0, color: "#F59E0B" },
-        { name: "Low",    value: s.grievancesByPriority.Low ?? 0,    color: "#10B981" },
-      ].filter(d => d.value > 0)
+        { name: "High",   value: s.grievancesByPriority.High ?? 0,   bg: "bg-red-500" },
+        { name: "Medium", value: s.grievancesByPriority.Medium ?? 0, bg: "bg-yellow-500" },
+        { name: "Low",    value: s.grievancesByPriority.Low ?? 0,    bg: "bg-emerald-600" },
+      ]
     : [];
 
   return (
     <div className="space-y-6 pb-6">
 
-      {/* ── Section 1: 8-card KPI row ── */}
-      <div className="grid grid-cols-4 xl:grid-cols-8 gap-3">
+      {/* ── Section 1: 7-card KPI row ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-3">
         {loading ? (
-          Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-white border border-black rounded-xl p-4 flex flex-col gap-2">
+          Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="bg-white border border-black rounded-xl p-4 flex flex-col items-center gap-2 min-h-[90px]">
               <Skeleton className="h-7 w-12" />
               <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-3/4" />
             </div>
           ))
         ) : (
           <>
-            {/* Original 5 */}
-            <KpiCard
-              label="Registered Farmers"
-              value={s!.kpis.totalFarmers.toLocaleString("en-IN")}
-              sub="All statuses"
-              delay={0.04}
-            />
-            <KpiCard
-              label="Pending Applications"
-              value={s!.kpis.pendingApplications.toLocaleString("en-IN")}
-              sub={`of ${s!.kpis.totalApplications} total`}
-              delay={0.08}
-            />
-            <KpiCard
-              label="Approved Applications"
-              value={s!.kpis.approvedApplications.toLocaleString("en-IN")}
-              sub={`${s!.kpis.approvalRate}% approval rate`}
-              delay={0.12}
-            />
-            <KpiCard
-              label="Open Grievances"
-              value={s!.kpis.openGrievancesCount.toLocaleString("en-IN")}
-              sub={`${s!.kpis.resolvedGrievances} resolved`}
-              delay={0.16}
-            />
-            <KpiCard
-              label="Active Insurance Claims"
-              value={s!.kpis.activeInsuranceClaims.toLocaleString("en-IN")}
-              sub="Pending / Under Review"
-              delay={0.20}
-            />
-            {/* 3 new cards */}
-            <KpiCard
-              label="Active Scheme Apps"
-              value={activeScheme.toLocaleString("en-IN")}
-              sub={`of ${s!.applicationsByType.scheme?.total ?? 0} scheme total`}
-              delay={0.24}
-            />
-            <KpiCard
-              label="Active Subsidy Apps"
-              value={activeSubsidy.toLocaleString("en-IN")}
-              sub={`of ${s!.applicationsByType.subsidy?.total ?? 0} subsidy total`}
-              delay={0.28}
-            />
-            <KpiCard
-              label="Active Insurance Apps"
-              value={activeInsurance.toLocaleString("en-IN")}
-              sub={`of ${s!.applicationsByType.insurance?.total ?? 0} insurance total`}
-              delay={0.32}
-            />
+            <KpiCard label="Registered Farmers"   value={s!.kpis.totalFarmers.toLocaleString("en-IN")}        delay={0.04} />
+            <KpiCard label="Pending Applications"  value={s!.kpis.pendingApplications.toLocaleString("en-IN")} delay={0.08} />
+            <KpiCard label="Approved Applications" value={s!.kpis.approvedApplications.toLocaleString("en-IN")}delay={0.12} />
+            <KpiCard label="Open Grievances"       value={s!.kpis.openGrievancesCount.toLocaleString("en-IN")} delay={0.16} />
+            <KpiCard label="Active Scheme"         value={activeScheme.toLocaleString("en-IN")}                delay={0.20} />
+            <KpiCard label="Active Subsidy"        value={activeSubsidy.toLocaleString("en-IN")}               delay={0.24} />
+            <KpiCard label="Active Insurance"      value={activeInsurance.toLocaleString("en-IN")}             delay={0.28} />
           </>
         )}
       </div>
@@ -398,13 +348,13 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}18` }}>
                 <Icon className="h-4 w-4" style={{ color }} />
               </div>
-              <span className="text-sm font-semibold text-black">{label}</span>
+              <span className="font-heading text-base text-black">{label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Section 4: Application type breakdown ── */}
+      {/* ── Section 4: Application Pipeline ── */}
       <div>
         <h3 className="font-heading text-base mb-3 text-black">Application Pipeline</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -416,9 +366,9 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
             ))
           ) : (
             <>
-              <AppTypeCard icon={FileText} label="Scheme Applications" stats={s!.applicationsByType.scheme ?? { total: 0, pending: 0, approved: 0, rejected: 0, underReview: 0 }} color="#0D9488" delay={0.48} />
-              <AppTypeCard icon={Coins}    label="Subsidy Applications" stats={s!.applicationsByType.subsidy ?? { total: 0, pending: 0, approved: 0, rejected: 0, underReview: 0 }} color="#7C3AED" delay={0.52} />
-              <AppTypeCard icon={Shield}   label="Insurance Claims"     stats={s!.applicationsByType.insurance ?? { total: 0, pending: 0, approved: 0, rejected: 0, underReview: 0 }} color="#2563EB" delay={0.56} />
+              <AppTypeCard label="Scheme Applications" stats={s!.applicationsByType.scheme ?? { total: 0, pending: 0, approved: 0, rejected: 0, underReview: 0 }} delay={0.48} />
+              <AppTypeCard label="Subsidy Applications" stats={s!.applicationsByType.subsidy ?? { total: 0, pending: 0, approved: 0, rejected: 0, underReview: 0 }} delay={0.52} />
+              <AppTypeCard label="Insurance Claims"     stats={s!.applicationsByType.insurance ?? { total: 0, pending: 0, approved: 0, rejected: 0, underReview: 0 }} delay={0.56} />
             </>
           )}
         </div>
@@ -476,51 +426,46 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
               <span>No grievances filed yet</span>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
-              {/* By status */}
+            <div className="flex flex-col gap-4">
+              {/* Top row: 3 stat boxes */}
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg py-3 bg-yellow-500">
+                  <div className="text-2xl font-heading text-white leading-none">{s!.kpis.openGrievancesCount}</div>
+                  <div className="text-xs text-white/90 mt-1">Open</div>
+                </div>
+                <div className="rounded-lg py-3 bg-blue-500">
+                  <div className="text-2xl font-heading text-white leading-none">
+                    {(s!.grievancesByStatus?.["In Progress"] ?? 0)}
+                  </div>
+                  <div className="text-xs text-white/90 mt-1">In Progress</div>
+                </div>
+                <div className="rounded-lg py-3 bg-emerald-600">
+                  <div className="text-2xl font-heading text-white leading-none">{s!.kpis.resolvedGrievances}</div>
+                  <div className="text-xs text-white/90 mt-1">Resolved</div>
+                </div>
+              </div>
+              {/* Priority breakdown */}
               <div>
-                <div className="text-xs font-semibold text-black mb-2">By Status</div>
-                <div className="space-y-1.5">
-                  {grievanceStatusData.map(d => (
-                    <div key={d.name} className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                        <span className="text-black">{d.name}</span>
-                      </div>
-                      <span className="font-semibold text-black">{d.value}</span>
-                    </div>
+                <div className="text-xs font-semibold text-black mb-2">By Priority</div>
+                <div className="flex flex-wrap gap-2">
+                  {grievancePriorityData.map(d => (
+                    <span key={d.name} className={`text-xs px-3 py-1 rounded-full font-medium text-white ${d.bg}`}>
+                      {d.name}: {d.value}
+                    </span>
                   ))}
                 </div>
               </div>
-              {/* By priority + mini chart */}
-              <div>
-                <div className="text-xs font-semibold text-black mb-2">By Priority</div>
-                {grievancePriorityData.length > 0 ? (
-                  <>
-                    <ResponsiveContainer width="100%" height={80}>
-                      <PieChart>
-                        <Pie data={grievancePriorityData} cx="50%" cy="50%" innerRadius={22} outerRadius={38} paddingAngle={2} dataKey="value">
-                          {grievancePriorityData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                        </Pie>
-                        <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "6px", border: "1px solid #000" }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="flex flex-col gap-1 mt-1">
-                      {grievancePriorityData.map(d => (
-                        <div key={d.name} className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-1.5">
-                            <PriorityDot priority={d.name} />
-                            <span className="text-black">{d.name}</span>
-                          </div>
-                          <span className="font-semibold text-black">{d.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-xs text-black">No data</div>
-                )}
-              </div>
+              {/* Status breakdown */}
+              {grievanceStatusData.length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold text-black mb-2">By Status</div>
+                  <div className="flex flex-wrap gap-2">
+                    {grievanceStatusData.map(d => (
+                      <StatusPill key={d.name} status={d.name} />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -590,7 +535,6 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
             <div className="space-y-0">
               {(s?.activityFeed ?? []).map((item, i) => (
                 <div key={i} className="flex gap-3 py-2.5 border-b border-black/10 last:border-0">
-                  <span className="text-base flex-shrink-0 mt-0.5">{item.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-black leading-snug">{item.text}</p>
                     {item.time && (
