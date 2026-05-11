@@ -1102,11 +1102,11 @@ export function FieldsTable({
         <div key={sec.title}>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{tSec(sec.title, lang)}</p>
           {sec.fields.filter(f => f.value && f.value !== "—").length > 0 && (
-            <div className="rounded-md border border-black overflow-hidden">
+            <div className="rounded-md border border-black overflow-hidden bg-white">
               <table className="w-full text-sm">
                 <tbody>
                   {sec.fields.filter(f => f.value && f.value !== "—").map((f) => (
-                    <tr key={f.key} className="border-b border-black last:border-0">
+                    <tr key={f.key} className="border-b border-black last:border-0 bg-white">
                       <td className="px-4 py-2.5 text-black w-2/5 font-medium">
                         {tField(f.key, lang, f.label)}
                       </td>

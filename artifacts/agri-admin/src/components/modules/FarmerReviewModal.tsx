@@ -75,12 +75,6 @@ export function DocContentView({
 
   return (
     <div className="space-y-4">
-      {state.filename && (
-        <div className="flex items-center gap-2 text-xs text-black bg-gray-100 rounded-md px-3 py-2 border border-black/20">
-          <FileText className="h-3.5 w-3.5 flex-shrink-0" />
-          <span className="font-mono truncate">{state.filename}</span>
-        </div>
-      )}
 
       {docId === "aadhar" && state.aadharPhoto && (
         <div className="flex justify-center mb-2">
@@ -118,6 +112,11 @@ export function DocContentView({
                 </div>
               </button>
             </div>
+            {state.filename && (
+              <p className="mt-1.5 text-[10px] text-black/40 font-mono text-center truncate px-1" title={state.filename}>
+                {state.filename}
+              </p>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             {(state.sections.length > 0 || hasRawTables) && (
@@ -184,32 +183,74 @@ function RejectReasonDialog({
 }) {
   const [reason, setReason] = useState("");
 
+  const QUICK_REASONS = [
+    "Document is unclear or blurry",
+    "Aadhaar details do not match",
+    "Land records are incomplete",
+    "Invalid or expired documents",
+    "Bank account details missing",
+    "Suspicious or fraudulent data",
+  ];
+
   return (
     <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10001 }}>
-      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
-      <div className="relative bg-white rounded-2xl shadow-2xl border border-black/20 w-full max-w-md mx-4 overflow-hidden">
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-black/10 bg-red-50">
-          <div className="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-            <XCircle className="h-5 w-5 text-red-600" />
-          </div>
-          <div>
-            <h3 className="font-bold text-base text-black">Reject Registration</h3>
-            <p className="text-xs text-red-600 mt-0.5">This action will notify the farmer of the rejection.</p>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden border border-red-100">
+
+        {/* Header */}
+        <div className="bg-red-600 px-6 py-5">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <XCircle className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg text-white" style={{ fontFamily: "Poppins, sans-serif" }}>Reject Registration</h3>
+              <p className="text-sm text-white/75 mt-0.5">The farmer will be notified via Kisan Mitra app.</p>
+            </div>
+            <button onClick={onCancel} className="ml-auto p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+              <X className="h-4 w-4 text-white" />
+            </button>
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-5 space-y-5">
+
+          {/* Quick reasons */}
+          <div>
+            <p className="text-[11px] font-semibold text-black/40 uppercase tracking-wider mb-2">Quick Select</p>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_REASONS.map(r => (
+                <button key={r} type="button" onClick={() => setReason(r)}
+                  className={`text-[11px] px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                    reason === r
+                      ? "bg-red-600 text-white border-red-600"
+                      : "border-black/20 text-black hover:border-red-400 hover:bg-red-50"
+                  }`}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom reason textarea */}
           <div>
             <label className="block text-sm font-semibold text-black mb-1.5">
-              <MessageSquare className="h-4 w-4 inline mr-1.5 text-black/50" />
-              Reason for Rejection <span className="text-red-500 ml-1">*</span>
+              Rejection Reason <span className="text-red-500">*</span>
             </label>
             <textarea value={reason} onChange={e => setReason(e.target.value)}
-              placeholder="e.g. Aadhaar document is unclear / blurry. Please re-upload a clear scan."
-              rows={5} autoFocus
-              className="w-full text-sm px-3 py-2.5 rounded-lg border border-black/20 bg-white focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 resize-none transition-all text-black"
+              placeholder="Describe why this registration is being rejected..."
+              rows={4} autoFocus
+              className="w-full text-sm px-3 py-2.5 rounded-lg border border-black/20 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 resize-none transition-all text-black"
             />
-            <p className="text-xs text-black/50 mt-1.5">This reason will be shown to the farmer in their mobile app.</p>
+            <p className="text-[11px] text-black/35 mt-1 text-right">{reason.length} characters</p>
+          </div>
+
+          {/* Warning note */}
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+            <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-800 leading-relaxed">
+              The farmer can view this reason in their app and re-submit corrected documents.
+            </p>
           </div>
         </div>
 
@@ -240,7 +281,6 @@ export default function FarmerReviewModal({
   const [lang, setLang]               = useState<LangCode>("mr");
   const [customPhoto, setCustomPhoto]  = useState<string | null>(null);
   const [saving, setSaving]            = useState<string | null>(null);
-  const [modalStep, setModalStep]      = useState<"review" | "verify">("review");
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [docImages, setDocImages]      = useState<Record<string, { base64: string; mimeType: string }>>({});
   const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
@@ -354,17 +394,6 @@ export default function FarmerReviewModal({
   const isVerified  = farmer.status === "Verified";
   const isCancelled = farmer.status === "Cancelled";
 
-  /* Detail chips for header */
-  const detailChips = [
-    { label: "ID",          value: farmer.farmerId },
-    { label: "आधार",        value: farmer.aadhaar  && farmer.aadhaar !== "—" ? farmer.aadhaar : null },
-    { label: "गाव",         value: farmer.village  && farmer.village !== "—" ? farmer.village : null },
-    { label: "तालुका",      value: farmer.taluka   && farmer.taluka !== "—"  ? farmer.taluka  : null },
-    { label: "जिल्हा",      value: farmer.district && farmer.district !== "—"? farmer.district: null },
-    { label: "खाते क्र.",   value: farmer.khateNumber && farmer.khateNumber !== "—" ? farmer.khateNumber : null },
-    { label: "भूमापन क्र.", value: farmer.surveyNumber && farmer.surveyNumber !== "—" ? farmer.surveyNumber : null },
-  ].filter(c => c.value);
-
   const poppins = { fontFamily: "Poppins, sans-serif" } as const;
 
   const content = (
@@ -389,21 +418,11 @@ export default function FarmerReviewModal({
             </div>
           )}
 
-          {/* Name + detail chips */}
+          {/* Name + status */}
           <div>
-            <div className="flex items-center gap-2 flex-wrap mb-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-bold text-lg text-black" style={poppins}>{farmer.name}</h2>
               <StatusBadge status={farmer.status} />
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {detailChips.map(chip => (
-                <span key={chip.label}
-                  className="inline-flex items-center gap-1 text-[11px] bg-gray-100 border border-black/15 rounded-md px-2 py-0.5 text-black font-medium"
-                  style={poppins}>
-                  <span className="text-black/50 font-normal">{chip.label}:</span>
-                  <span className="font-semibold">{chip.value}</span>
-                </span>
-              ))}
             </div>
           </div>
         </div>
@@ -414,24 +433,26 @@ export default function FarmerReviewModal({
       </div>
 
       {/* ── Tab bar ── */}
-      <div className="flex items-center gap-1 px-6 py-2 border-b border-border bg-muted/30 flex-shrink-0 overflow-x-auto">
+      <div className="flex items-center px-6 pt-1 border-b border-border bg-muted/30 flex-shrink-0 overflow-x-auto">
         {completedCards.map(card => (
           <button key={card.id} onClick={() => setActiveTab(card.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap ${
-              activeTab === card.id ? "bg-black text-white" : "text-black hover:bg-gray-200"
+            className={`px-4 py-2.5 -mb-px text-xs font-semibold transition-colors whitespace-nowrap border-b-2 ${
+              activeTab === card.id
+                ? "border-black text-black"
+                : "border-transparent text-black/50 hover:text-black hover:border-black/30"
             }`} style={poppins}>
-            <DocTabIcon id={card.id} />
             {DOC_CARD_SHORT[card.id]?.["en"] ?? card.id}
           </button>
         ))}
         <button onClick={() => setActiveTab("profile")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap ${
-            activeTab === "profile" ? "bg-black text-white" : "text-black hover:bg-gray-200"
+          className={`px-4 py-2.5 -mb-px text-xs font-semibold transition-colors whitespace-nowrap border-b-2 flex items-center gap-1.5 ${
+            activeTab === "profile"
+              ? "border-black text-black"
+              : "border-transparent text-black/50 hover:text-black hover:border-black/30"
           }`} style={poppins}>
-          <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
           Farmer Profile
           {issueCount > 0 && (
-            <span className="ml-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 bg-red-600 text-white">
+            <span className="min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 bg-red-600 text-white">
               {issueCount}
             </span>
           )}
@@ -516,32 +537,14 @@ export default function FarmerReviewModal({
       {/* ── Footer actions ── */}
       <div className="flex-shrink-0 border-t border-border bg-card px-6 py-4">
 
-        {/* Pending — step 1 */}
-        {isPending && modalStep === "review" && (
+        {/* Pending — direct Reject + Approve */}
+        {isPending && (
           <div className="flex items-center gap-3 justify-between flex-wrap gap-y-2">
-            <p className="text-sm text-black font-medium" style={poppins}>Review all documents and farmer profile before deciding.</p>
-            <button onClick={() => setModalStep("verify")} disabled={!!saving}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors disabled:opacity-50 shadow-sm"
-              style={poppins}>
-              <CheckCircle2 className="h-4 w-4" /> Accept Farmer
-            </button>
-          </div>
-        )}
-
-        {/* Pending — step 2: confirm */}
-        {isPending && modalStep === "verify" && (
-          <div className="flex items-center gap-3 justify-between flex-wrap gap-y-2">
-            <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2">
-              <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-              Farmer accepted — verify data and approve, or reject if any issue is found.
-            </div>
+            <p className="text-sm text-black/60 font-medium" style={poppins}>Review all documents and farmer profile before deciding.</p>
             <div className="flex items-center gap-3">
-              <button onClick={() => setModalStep("review")} disabled={!!saving}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-black/20 bg-white text-sm font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 text-black">
-                Back
-              </button>
               <button onClick={() => setShowRejectDialog(true)} disabled={!!saving}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm font-semibold hover:bg-red-100 transition-colors disabled:opacity-50"
+                style={poppins}>
                 {saving === "Cancelled" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
                 Reject
               </button>
