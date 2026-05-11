@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import Lottie from "lottie-react";
 import {
   Search, Filter, ArrowUpDown, AlertCircle, FileText,
   CheckCircle2, XCircle, Calendar, Info, Plus, X, Send,
@@ -100,14 +101,14 @@ const textareaCls = inputCls + " resize-none";
 
 /* ─────────────── app status pill ─────────────── */
 const APP_STATUS: Record<string, string> = {
-  "Pending": "bg-yellow-100 text-yellow-800",
-  "Under Review": "bg-blue-100 text-blue-800",
-  "Approved": "bg-emerald-100 text-emerald-800",
-  "Rejected": "bg-red-100 text-red-600",
-  "Settled": "bg-teal-100 text-teal-800",
+  "Pending":      "bg-amber-500 text-white",
+  "Under Review": "bg-blue-600 text-white",
+  "Approved":     "bg-emerald-600 text-white",
+  "Rejected":     "bg-red-600 text-white",
+  "Settled":      "bg-teal-600 text-white",
 };
 function AppStatusPill({ status }: { status: string }) {
-  return <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${APP_STATUS[status] ?? "bg-muted text-muted-foreground"}`}>{status}</span>;
+  return <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${APP_STATUS[status] ?? "bg-slate-600 text-white"}`} style={{ fontFamily: "Poppins, sans-serif" }}>{status}</span>;
 }
 
 /* ─────────────── interfaces ─────────────── */
@@ -407,17 +408,17 @@ function ApplicationsPageBase({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-border gap-1">
+      <div className="flex border-b border-black/10 gap-1" style={{ fontFamily: "Poppins, sans-serif" }}>
         {(["applied", "available"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-5 py-2.5 text-sm font-semibold transition-colors -mb-px border-b-2 ${tab === t ? "border-secondary text-secondary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            className={`px-5 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2 ${tab === t ? "border-black text-black" : "border-transparent text-black/40 hover:text-black"}`}>
             {t === "applied" ? `My Applications (${applications.length})` : `Available ${emptyLabel} (${filteredCatalog.length})`}
           </button>
         ))}
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center" style={{ fontFamily: "Poppins, sans-serif" }}>
         <SearchBar value={search} onChange={setSearch} placeholder={`Search ${emptyLabel.toLowerCase()}…`} />
         {tab === "applied" && (
           <FilterSelect value={statusFilter} onChange={setStatusFilter} label="All Statuses"
@@ -434,37 +435,31 @@ function ApplicationsPageBase({
         filteredApps.length === 0
           ? <EmptyState icon={icon} message={applications.length === 0 ? `No ${emptyLabel.toLowerCase()} applications yet.` : "No applications match your filters."} />
           : (
-            <div className="space-y-3">
+            <div className="space-y-3" style={{ fontFamily: "Poppins, sans-serif" }}>
               {filteredApps.map(app => (
-                <div key={app.applicationId} className={`border rounded-xl overflow-hidden ${
-                  app.status === "Approved" ? "border-emerald-200 bg-emerald-50/20" :
-                  app.status === "Rejected" ? "border-red-200 bg-red-50/20" :
-                  app.status === "Under Review" ? "border-blue-200 bg-blue-50/20" :
-                  app.status === "Settled" ? "border-teal-200 bg-teal-50/20" :
-                  "border-yellow-200 bg-yellow-50/10"
-                }`}>
+                <div key={app.applicationId} className="border border-black/10 rounded-xl bg-white overflow-hidden shadow-sm">
                   <div className="px-5 py-4 flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-slate-800">{app.schemeName}</span>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="font-semibold text-sm text-black">{app.schemeName}</span>
                         <AppStatusPill status={app.status} />
                       </div>
-                      <div className="text-[11px] text-muted-foreground font-mono">{app.applicationId}</div>
+                      <div className="text-[11px] text-black/40 font-mono">{app.applicationId}</div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <div className="text-right text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1"><Calendar className="h-3 w-3" />Applied: {new Date(app.appliedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</div>
-                        {app.updatedAt !== app.appliedAt && <div className="text-[10px]">Updated: {new Date(app.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</div>}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="text-right text-xs text-black/50">
+                        <div className="flex items-center gap-1 justify-end"><Calendar className="h-3 w-3" />{new Date(app.appliedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</div>
+                        {app.updatedAt !== app.appliedAt && <div className="text-[10px] mt-0.5">Updated: {new Date(app.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</div>}
                       </div>
-                      <button onClick={() => setUpdatingApp(app)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 transition-colors">
+                      <button onClick={() => setUpdatingApp(app)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-black text-white hover:bg-black/80 transition-colors">
                         Update Status
                       </button>
                     </div>
                   </div>
                   {(app.adminReply || app.adminNotes) && (
-                    <div className="px-5 pb-4 space-y-2">
-                      {app.adminReply && <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-emerald-700">Reply to Farmer: </span><span className="text-emerald-700">{app.adminReply}</span></div>}
-                      {app.adminNotes && <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-slate-600">Internal Notes: </span><span className="text-slate-600">{app.adminNotes}</span></div>}
+                    <div className="px-5 pb-4 space-y-2 border-t border-black/5 pt-3">
+                      {app.adminReply && <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-black">Reply to Farmer: </span><span className="text-black/70">{app.adminReply}</span></div>}
+                      {app.adminNotes && <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-black">Internal Notes: </span><span className="text-black/70">{app.adminNotes}</span></div>}
                     </div>
                   )}
                 </div>
@@ -478,33 +473,33 @@ function ApplicationsPageBase({
         filteredCatalog.length === 0
           ? <EmptyState icon={icon} message={catalog.length === 0 ? `No ${emptyLabel.toLowerCase()} found.` : `All ${emptyLabel.toLowerCase()} have been applied to, or none match your search.`} />
           : (
-            <div className="space-y-3">
+            <div className="space-y-3" style={{ fontFamily: "Poppins, sans-serif" }}>
               {filteredCatalog.map(item => (
-                <div key={item.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+                <div key={item.id} className="border border-black/10 rounded-xl bg-white overflow-hidden shadow-sm">
                   <div className="px-5 py-4 flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-slate-800">{item.name}</span>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="font-semibold text-sm text-black">{item.name}</span>
                         {(item.type ?? item.region) && (
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-teal-100 text-teal-800 font-semibold">{item.type ?? item.region}</span>
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-semibold">{item.type ?? item.region}</span>
                         )}
                         {item.status && item.status !== "Active" && (
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">{item.status}</span>
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-600 text-white font-semibold">{item.status}</span>
                         )}
                       </div>
-                      {item.category && <div className="text-[11px] text-muted-foreground">{item.category}</div>}
+                      {item.category && <div className="text-[11px] text-black/50 mt-0.5">{item.category}</div>}
                     </div>
                     <button
                       onClick={() => setApplyingItem(item)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-white text-xs font-semibold rounded-lg hover:bg-secondary/90 transition-colors shadow-sm flex-shrink-0"
+                      className="flex items-center gap-1.5 px-4 py-1.5 bg-black text-white text-xs font-semibold rounded-lg hover:bg-black/80 transition-colors shadow-sm flex-shrink-0"
                     >
                       <Plus className="h-3 w-3" />Apply
                     </button>
                   </div>
                   {(item.description || item.benefits) && (
-                    <div className="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs border-t border-slate-100 pt-3">
-                      {item.description && <div className="sm:col-span-2"><span className="text-muted-foreground">About: </span><span className="text-slate-700">{item.description}</span></div>}
-                      {item.benefits && <div className="sm:col-span-2 flex items-start gap-1"><IndianRupee className="h-3 w-3 text-emerald-600 flex-shrink-0 mt-0.5" /><span className="text-emerald-700 font-medium">{item.benefits}</span></div>}
+                    <div className="px-5 pb-4 space-y-1.5 border-t border-black/5 pt-3">
+                      {item.description && <p className="text-xs text-black/70 leading-relaxed">{item.description}</p>}
+                      {item.benefits && <div className="flex items-start gap-1.5"><span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-semibold flex-shrink-0">Benefit</span><span className="text-xs text-black font-medium leading-relaxed">{item.benefits}</span></div>}
                     </div>
                   )}
                 </div>
@@ -732,13 +727,34 @@ interface AiGrievanceResult {
   advice: AiGrievanceItem[];
 }
 
+/* ─── Shared AIRAVATA panel header ─── */
+function AiPanelHeader({ subtitle, count }: { subtitle: string; count?: number }) {
+  const [anim, setAnim] = useState<object | null>(null);
+  useEffect(() => {
+    fetch("/animations/airavata-sidebar.json").then(r => r.json()).then(setAnim).catch(() => {});
+  }, []);
+  return (
+    <div className="flex items-center gap-1 px-3 pt-3 pb-2 border-b border-black/8">
+      {anim && <Lottie animationData={anim} loop style={{ width: 52, height: 52, flexShrink: 0 }} />}
+      <div className="flex-1 min-w-0">
+        <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#D97706" }} className="uppercase leading-tight">AIRAVATA INTELLIGENCE</p>
+        <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px", fontWeight: 600, color: "#000000" }} className="leading-tight">AI SUMMARY</p>
+        <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "10px", color: "rgba(0,0,0,0.45)" }} className="leading-tight mt-0.5">{subtitle}</p>
+      </div>
+      {count !== undefined && count > 0 && (
+        <span className="min-w-[20px] h-[20px] flex items-center justify-center rounded-full text-[10px] font-bold px-1.5 bg-black text-white flex-shrink-0">{count}</span>
+      )}
+    </div>
+  );
+}
+
 /* ─── Scheme / Insurance / Subsidy Recommendations Panel ─── */
 function AiRecommendationsPanel({ farmer }: { farmer: FarmerRecord }) {
   const [result, setResult] = useState<AiRecommendationsResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const generate = async () => {
+  const generate = useCallback(async () => {
     setLoading(true); setError(""); setResult(null);
     try {
       const res = await fetch("/api/ai/recommendations", {
@@ -753,80 +769,78 @@ function AiRecommendationsPanel({ farmer }: { farmer: FarmerRecord }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [farmer]);
 
-  const PRIORITY_COLOR: Record<string, string> = {
-    High: "bg-red-100 text-red-800 border-red-200",
-    Medium: "bg-amber-100 text-amber-800 border-amber-200",
-    Low: "bg-slate-100 text-slate-700 border-slate-200",
+  useEffect(() => { generate(); }, []);
+
+  const PRIORITY_PILL: Record<string, string> = {
+    High:   "bg-red-600 text-white",
+    Medium: "bg-amber-500 text-white",
+    Low:    "bg-slate-500 text-white",
   };
-  const TYPE_COLOR: Record<string, string> = {
-    scheme: "bg-blue-100 text-blue-800",
-    insurance: "bg-purple-100 text-purple-800",
-    subsidy: "bg-emerald-100 text-emerald-800",
+  const TYPE_PILL: Record<string, string> = {
+    scheme:    "bg-blue-600 text-white",
+    insurance: "bg-purple-600 text-white",
+    subsidy:   "bg-emerald-600 text-white",
   };
 
   return (
     <div className="w-80 flex-shrink-0" style={{ fontFamily: "Poppins, sans-serif" }}>
-      <div className="border border-slate-200 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
-        {/* AIRAVATA INTELLIGENCE header */}
-        <div className="px-4 py-3 border-b border-slate-100 bg-white">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-0.5">AIRAVATA INTELLIGENCE</div>
-              <div className="text-sm font-semibold text-black leading-none">AI Summary</div>
-            </div>
-          </div>
-          <div className="mt-2 text-[11px] text-black/50 font-normal">Scheme · Insurance · Subsidy Advisor</div>
-        </div>
+      <div className="border border-black/10 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
+        <AiPanelHeader subtitle="Scheme · Insurance · Subsidy Advisor" count={result?.recommendations?.length} />
 
-        <div className="p-4 space-y-3">
-          {!result && !loading && (
-            <p className="text-sm text-black font-normal leading-relaxed">
-              Get AI-powered scheme, insurance, and subsidy recommendations tailored to this farmer's land, crops, and district.
-            </p>
+        <div className="p-3 space-y-3">
+          {/* Loading skeleton */}
+          {loading && (
+            <div className="space-y-2.5 py-1">
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-full" />
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-4/5" />
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-full" />
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-3/5" />
+              <div className="h-14 bg-black/5 rounded-xl animate-pulse mt-2" />
+              <div className="h-14 bg-black/5 rounded-xl animate-pulse" />
+            </div>
           )}
-          <button
-            onClick={generate}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-black disabled:opacity-60 transition-colors"
-          >
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-            {loading ? "Analysing..." : result ? "Regenerate" : "Generate Advice"}
-          </button>
-          {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
-          {result && (
-            <div className="space-y-3 mt-1">
-              <div className="text-sm text-black font-normal bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 leading-relaxed">{result.summary}</div>
+          {error && (
+            <div className="space-y-2">
+              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>
+              <button onClick={generate} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-medium rounded-xl hover:bg-black/80 transition-colors">
+                <Sparkles className="h-3.5 w-3.5" />Retry
+              </button>
+            </div>
+          )}
+          {result && !loading && (
+            <div className="space-y-2.5">
+              <div className="text-sm text-black font-normal bg-black/4 rounded-xl px-3 py-2.5 leading-relaxed">{result.summary}</div>
               {result.recommendations.map(r => (
-                <div key={r.id} className={`border rounded-xl overflow-hidden ${r.applyFirst ? "border-slate-400 shadow-sm" : "border-slate-200"}`}>
-                  <div className={`px-3 py-2.5 ${r.applyFirst ? "bg-slate-100" : "bg-slate-50"}`}>
+                <div key={r.id} className="border border-black/10 rounded-xl overflow-hidden bg-white shadow-sm">
+                  <div className="px-3 py-2.5 bg-black/3">
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <div className="text-sm font-medium text-black leading-tight">{r.name}</div>
-                      {r.applyFirst && <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded font-semibold flex-shrink-0">TOP PICK</span>}
+                      <div className="text-sm font-semibold text-black leading-tight">{r.name}</div>
+                      {r.applyFirst && <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full font-bold flex-shrink-0">TOP PICK</span>}
                     </div>
                     <div className="flex flex-wrap gap-1">
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${PRIORITY_COLOR[r.priority] ?? ""}`}>{r.priority}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${TYPE_COLOR[r.type] ?? "bg-slate-100 text-slate-700"}`}>{r.type}</span>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-semibold ${PRIORITY_PILL[r.priority] ?? "bg-slate-500 text-white"}`}>{r.priority}</span>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-semibold ${TYPE_PILL[r.type] ?? "bg-slate-500 text-white"}`}>{r.type}</span>
                     </div>
                   </div>
                   <div className="px-3 py-2.5 bg-white space-y-1.5">
                     <p className="text-sm text-black font-normal leading-relaxed">{r.reason}</p>
-                    <p className="text-[11px] text-black/60 font-medium">✓ {r.benefit}</p>
+                    <p className="text-[11px] text-black/55 font-medium">✓ {r.benefit}</p>
                   </div>
                 </div>
               ))}
               {result.tips?.length > 0 && (
-                <div className="border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 space-y-1">
-                  <div className="text-[10px] font-semibold text-black uppercase tracking-wide mb-1.5">Tips for Officer</div>
+                <div className="border border-black/10 bg-black/3 rounded-xl px-3 py-2.5 space-y-1">
+                  <div className="text-[9px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Tips for Officer</div>
                   {result.tips.map((tip, i) => (
                     <p key={i} className="text-sm text-black font-normal leading-relaxed">• {tip}</p>
                   ))}
                 </div>
               )}
+              <button onClick={generate} disabled={loading} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-black/5 text-black text-xs font-medium rounded-xl hover:bg-black/10 transition-colors border border-black/10">
+                <RefreshCw className="h-3 w-3" />Regenerate
+              </button>
             </div>
           )}
         </div>
@@ -840,15 +854,16 @@ function AiGrievanceAdvisorPanel({ farmer, grievances }: { farmer: FarmerRecord;
   const [result, setResult] = useState<AiGrievanceResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const autoTriggered = useRef(false);
 
-  const generate = async () => {
-    if (!grievances.length) return;
+  const generate = useCallback(async (grv: ApiGrievance[]) => {
+    if (!grv.length) return;
     setLoading(true); setError(""); setResult(null);
     try {
       const res = await fetch("/api/ai/grievance-advice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ farmer, grievances }),
+        body: JSON.stringify({ farmer, grievances: grv }),
       });
       if (!res.ok) throw new Error((await res.json() as { error: string }).error || "Failed");
       setResult(await res.json() as AiGrievanceResult);
@@ -857,85 +872,93 @@ function AiGrievanceAdvisorPanel({ farmer, grievances }: { farmer: FarmerRecord;
     } finally {
       setLoading(false);
     }
-  };
+  }, [farmer]);
 
-  const PRIORITY_BORDER: Record<string, string> = {
-    High: "border-red-200",
-    Medium: "border-amber-200",
-    Low: "border-slate-200",
+  useEffect(() => {
+    if (!autoTriggered.current && grievances.length > 0) {
+      autoTriggered.current = true;
+      generate(grievances);
+    }
+  }, [grievances.length]);
+
+  const PRIORITY_LEFT: Record<string, string> = {
+    High: "border-l-red-500",
+    Medium: "border-l-amber-400",
+    Low: "border-l-slate-300",
   };
 
   return (
     <div className="w-80 flex-shrink-0" style={{ fontFamily: "Poppins, sans-serif" }}>
-      <div className="border border-slate-200 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
-        {/* AIRAVATA INTELLIGENCE header */}
-        <div className="px-4 py-3 border-b border-slate-100 bg-white">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-0.5">AIRAVATA INTELLIGENCE</div>
-              <div className="text-sm font-semibold text-black leading-none">AI Summary</div>
-            </div>
-          </div>
-          <div className="mt-2 text-[11px] text-black/50 font-normal">Step-by-step Resolution Guidance</div>
-        </div>
+      <div className="border border-black/10 rounded-2xl overflow-hidden sticky top-4 bg-white shadow-sm">
+        <AiPanelHeader subtitle="Step-by-step Resolution Guidance" count={result?.advice?.length} />
 
-        <div className="p-4 space-y-3">
-          {!result && !loading && (
-            <p className="text-sm text-black font-normal leading-relaxed">
-              {grievances.length
-                ? "Get AI-powered resolution steps for all open and in-progress grievances."
-                : "No grievances to advise on yet."}
-            </p>
+        <div className="p-3 space-y-3">
+          {/* No grievances yet */}
+          {!loading && !result && !error && grievances.length === 0 && (
+            <p className="text-sm text-black/50 font-normal leading-relaxed py-2">No grievances on record — summary will appear once grievances are loaded.</p>
           )}
-          <button
-            onClick={generate}
-            disabled={loading || grievances.length === 0}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-black disabled:opacity-50 transition-colors"
-          >
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-            {loading ? "Analysing..." : result ? "Regenerate" : "Advise Me"}
-          </button>
-          {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
-          {result && (
-            <div className="space-y-3 mt-1">
-              <div className="text-sm text-black font-normal bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 leading-relaxed">{result.overview}</div>
+
+          {/* Loading skeleton */}
+          {loading && (
+            <div className="space-y-2.5 py-1">
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-full" />
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-4/5" />
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-full" />
+              <div className="h-3 bg-black/8 rounded-full animate-pulse w-3/5" />
+              <div className="h-16 bg-black/5 rounded-xl animate-pulse mt-2" />
+              <div className="h-16 bg-black/5 rounded-xl animate-pulse" />
+            </div>
+          )}
+
+          {error && (
+            <div className="space-y-2">
+              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>
+              <button onClick={() => generate(grievances)} disabled={grievances.length === 0} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-medium rounded-xl hover:bg-black/80 transition-colors disabled:opacity-50">
+                <Sparkles className="h-3.5 w-3.5" />Retry
+              </button>
+            </div>
+          )}
+
+          {result && !loading && (
+            <div className="space-y-2.5">
+              <div className="text-sm text-black font-normal bg-black/4 rounded-xl px-3 py-2.5 leading-relaxed">{result.overview}</div>
               {result.urgentAction && (
-                <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                  <div className="text-[10px] font-semibold text-black uppercase tracking-wide mb-1">⚡ Urgent Action</div>
+                <div className="bg-red-50 border border-l-4 border-red-300 border-l-red-500 rounded-xl px-3 py-2.5">
+                  <div className="text-[9px] font-bold text-black/50 uppercase tracking-widest mb-1">⚡ Urgent Action</div>
                   <p className="text-sm text-black font-normal leading-relaxed">{result.urgentAction}</p>
                 </div>
               )}
               {result.advice.map(a => (
-                <div key={a.grievanceId} className={`border rounded-xl overflow-hidden bg-white ${PRIORITY_BORDER[a.priority] ?? "border-slate-200"}`}>
+                <div key={a.grievanceId} className={`border border-black/10 border-l-4 rounded-xl overflow-hidden bg-white shadow-sm ${PRIORITY_LEFT[a.priority] ?? "border-l-slate-300"}`}>
                   <div className="px-3 py-3">
                     <div className="flex items-start justify-between gap-1.5 mb-1.5">
-                      <div className="text-sm font-medium text-black leading-tight">{a.subject}</div>
-                      {a.escalate && <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded font-semibold flex-shrink-0">ESCALATE</span>}
+                      <div className="text-sm font-semibold text-black leading-tight">{a.subject}</div>
+                      {a.escalate && <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded-full font-bold flex-shrink-0">ESCALATE</span>}
                     </div>
-                    <div className="flex flex-wrap gap-1 mb-2.5">
-                      <span className="text-[10px] px-2 py-0.5 rounded font-normal bg-slate-100 text-black">{a.category}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-white border border-slate-200 text-black/50">{a.grievanceId}</span>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-semibold bg-slate-600 text-white">{a.category}</span>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-mono bg-black/6 text-black/50 border border-black/10">{a.grievanceId}</span>
                     </div>
-                    <p className="text-sm text-black font-normal leading-relaxed mb-2.5">{a.resolution}</p>
+                    <p className="text-sm text-black font-normal leading-relaxed mb-2">{a.resolution}</p>
                     {a.steps?.length > 0 && (
-                      <div className="space-y-1.5 mb-2.5">
+                      <div className="space-y-1.5 mb-2">
                         {a.steps.map((step, i) => (
                           <div key={i} className="flex gap-2">
-                            <span className="text-[10px] font-semibold text-black/40 flex-shrink-0 mt-0.5">{i + 1}.</span>
+                            <span className="text-[10px] font-bold text-black/35 flex-shrink-0 mt-0.5">{i + 1}.</span>
                             <p className="text-sm text-black font-normal leading-relaxed">{step}</p>
                           </div>
                         ))}
                       </div>
                     )}
                     {a.estimatedTime && (
-                      <div className="text-[11px] text-black/50 font-normal">⏱ {a.estimatedTime}</div>
+                      <div className="text-[11px] text-black/45 font-normal">⏱ {a.estimatedTime}</div>
                     )}
                   </div>
                 </div>
               ))}
+              <button onClick={() => generate(grievances)} disabled={loading || grievances.length === 0} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-black/5 text-black text-xs font-medium rounded-xl hover:bg-black/10 transition-colors border border-black/10">
+                <RefreshCw className="h-3 w-3" />Regenerate
+              </button>
             </div>
           )}
         </div>
@@ -1021,8 +1044,8 @@ export function GrievancesPage({ farmer }: { farmer: FarmerRecord }) {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-secondary text-white text-sm font-semibold rounded-lg hover:bg-secondary/90 shadow-sm flex-shrink-0">
+      <div className="flex flex-wrap gap-2 items-center" style={{ fontFamily: "Poppins, sans-serif" }}>
+        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-black/80 shadow-sm flex-shrink-0">
           <Plus className="h-4 w-4" />Raise Grievance
         </button>
         <SearchBar value={search} onChange={setSearch} placeholder="Search by subject, category, ID…" />
@@ -1043,43 +1066,47 @@ export function GrievancesPage({ farmer }: { farmer: FarmerRecord }) {
       {filtered.length === 0
         ? <EmptyState icon={<AlertCircle className="h-7 w-7" />} message={grievances.length === 0 ? "No grievances on record for this farmer." : "No grievances match your filters."} />
         : (
-          <div className="space-y-4">
-            {filtered.map(g => (
-              <div key={g.grievanceId} className={`border rounded-xl overflow-hidden ${g.status === "Open" ? "border-lime-300" : g.status === "In Progress" ? "border-teal-200" : "border-slate-200"}`}>
-                <div className={`px-5 py-4 ${g.status === "Open" ? "bg-lime-50/60" : g.status === "In Progress" ? "bg-teal-50/60" : "bg-slate-50"}`}>
-                  <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm text-slate-800 mb-1.5">{g.subject}</h3>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Pill label={g.status} map={GSTATUS} />
-                        <Pill label={g.priority} map={GPRIORITY} />
-                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600 font-medium">{g.category}</span>
+          <div className="space-y-3" style={{ fontFamily: "Poppins, sans-serif" }}>
+            {filtered.map(g => {
+              const priorityColor = g.priority === "High" ? "bg-red-600" : g.priority === "Medium" ? "bg-amber-500" : "bg-slate-500";
+              const statusColor = g.status === "Open" ? "bg-lime-600" : g.status === "In Progress" ? "bg-blue-600" : g.status === "Resolved" ? "bg-emerald-600" : g.status === "Rejected" ? "bg-red-600" : "bg-slate-600";
+              return (
+                <div key={g.grievanceId} className="border border-black/10 rounded-xl overflow-hidden bg-white shadow-sm">
+                  <div className="px-5 py-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm text-black mb-2">{g.subject}</h3>
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold text-white ${statusColor}`}>{g.status}</span>
+                          <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold text-white ${priorityColor}`}>{g.priority}</span>
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-black/8 text-black font-medium">{g.category}</span>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-mono font-semibold text-[11px] text-black/40">{g.grievanceId}</div>
+                        <div className="flex items-center gap-1 justify-end mt-1 text-xs text-black/50"><Calendar className="h-3 w-3" />{new Date(g.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</div>
                       </div>
                     </div>
-                    <div className="text-right text-xs text-muted-foreground flex-shrink-0">
-                      <div className="font-mono font-semibold text-[11px] text-slate-600">{g.grievanceId}</div>
-                      <div className="flex items-center gap-1 justify-end mt-0.5"><Calendar className="h-3 w-3" />{new Date(g.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</div>
-                    </div>
+                  </div>
+                  <div className="px-5 pb-4 space-y-3 border-t border-black/6 pt-3">
+                    <p className="text-sm text-black font-normal leading-relaxed">{g.description}</p>
+                    {g.assignedTo && <div className="text-xs text-black/50"><span className="font-semibold text-black">Assigned To: </span>{g.assignedTo}</div>}
+                    {g.adminReply && (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+                        <div className="text-[9px] font-bold text-black/50 uppercase tracking-widest mb-1">Admin Reply</div>
+                        <p className="text-sm text-black font-normal leading-relaxed">{g.adminReply}</p>
+                      </div>
+                    )}
+                    {g.rejectionReason && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                        <div className="text-[9px] font-bold text-black/50 uppercase tracking-widest mb-1">Rejection Reason</div>
+                        <p className="text-sm text-black font-normal leading-relaxed">{g.rejectionReason}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="px-5 py-4 bg-white space-y-3">
-                  <p className="text-sm text-slate-700 leading-relaxed">{g.description}</p>
-                  {g.assignedTo && <div className="text-xs text-muted-foreground"><span className="font-medium">Assigned To: </span>{g.assignedTo}</div>}
-                  {g.adminReply && (
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
-                      <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1">Admin Reply</div>
-                      <p className="text-xs text-emerald-700 leading-relaxed">{g.adminReply}</p>
-                    </div>
-                  )}
-                  {g.rejectionReason && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                      <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">Rejection Reason</div>
-                      <p className="text-xs text-red-600 leading-relaxed">{g.rejectionReason}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )
       }
