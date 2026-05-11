@@ -126,28 +126,25 @@ function NotifPanel({ onClose, onNavigate }: { onClose: () => void; onNavigate?:
 function HeaderLangSelector() {
   const { lang, setLang } = useLang();
   const opts: { code: LangCode; label: string }[] = [
-    { code: "mr", label: "मराठी" },
-    { code: "hi", label: "हिंदी" },
-    { code: "en", label: "English" },
+    { code: "mr", label: "MR" },
+    { code: "hi", label: "HI" },
+    { code: "en", label: "EN" },
   ];
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground font-medium hidden sm:block">Language</span>
-      <div className="flex items-center gap-1 bg-white rounded-full p-1 border border-border shadow-sm">
-        {opts.map(o => (
-          <button
-            key={o.code}
-            onClick={() => setLang(o.code)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-              lang === o.code
-                ? "bg-primary text-white shadow-sm"
-                : "bg-white text-black hover:bg-muted/10"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
+    <div className="flex items-center gap-1 bg-white rounded-full p-1 border border-border shadow-sm">
+      {opts.map(o => (
+        <button
+          key={o.code}
+          onClick={() => setLang(o.code)}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            lang === o.code
+              ? "bg-primary text-white shadow-sm"
+              : "bg-white text-black hover:bg-muted/10"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -187,23 +184,13 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
   return (
     <>
     <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-card">
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm font-medium text-black">
         {time.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         {" · "}
         {time.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={onAIOpen}>
-          {airavataAnim && (
-            <Lottie animationData={airavataAnim} loop style={{ width: 48, height: 48, flexShrink: 0 }} />
-          )}
-          <div className="hidden sm:block">
-            <p className="font-bold tracking-widest uppercase leading-tight" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 300, letterSpacing: "0.15em", color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
-            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "10px", fontWeight: 300, color: "#000000" }} className="leading-tight">AI Assistant</p>
-          </div>
-        </div>
-
         {/* Notification bell */}
         <div className="relative" ref={notifRef}>
           <button onClick={() => { setNotifOpen(o => !o); }}
@@ -216,6 +203,16 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
             )}
           </button>
           {notifOpen && <NotifPanel onClose={() => setNotifOpen(false)} onNavigate={onNavigate}/>}
+        </div>
+
+        <div className="flex items-center gap-2 cursor-pointer" onClick={onAIOpen}>
+          {airavataAnim && (
+            <Lottie animationData={airavataAnim} loop style={{ width: 58, height: 58, flexShrink: 0 }} />
+          )}
+          <div className="hidden sm:block">
+            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px", fontWeight: 700, letterSpacing: "0.13em", color: "#D97706" }} className="uppercase leading-tight">AIRAVATA INTELLIGENCE</p>
+            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 500, color: "#000000" }} className="leading-tight">AI Assistant</p>
+          </div>
         </div>
 
         {/* Language selector */}

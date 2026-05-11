@@ -1842,9 +1842,9 @@ function ReviewTabBar({
       <div className="flex items-center gap-1 mb-0 overflow-x-auto scrollbar-none">
         <button
           onClick={onBack}
-          className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-t-lg mr-2"
+          className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-black hover:text-black/70 transition-colors rounded-t-lg mr-2"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 text-black" />
           {ui("uploadTab", lang)}
         </button>
         <div className="w-px h-5 bg-border flex-shrink-0 mr-2" />
@@ -2116,6 +2116,14 @@ function DocReviewPanel({
 }
 
 type ProfileField = { key: keyof FarmerProfile; label: string; placeholder: string; span?: boolean };
+
+const SECTION_SOLID_BG: Record<string, string> = {
+  identity: "bg-violet-600",
+  bank: "bg-blue-600",
+  form7: "bg-emerald-700",
+  form12: "bg-green-700",
+  form8a: "bg-teal-700",
+};
 
 const PROFILE_SECTIONS: {
   id: string;
@@ -2475,8 +2483,8 @@ export function FarmerProfileCard({
                 className="w-14 h-16 object-cover rounded-xl border-2 border-white shadow-md"
               />
             ) : (
-              <div className="w-14 h-16 rounded-xl bg-primary/15 flex items-center justify-center border-2 border-white shadow-md">
-                <UserCheck className="h-7 w-7 text-primary" />
+              <div className="w-14 h-16 rounded-xl bg-gray-100 flex items-center justify-center border-2 border-white shadow-md">
+                <UserCheck className="h-7 w-7 text-black" />
               </div>
             )}
             <button
@@ -2489,17 +2497,17 @@ export function FarmerProfileCard({
             <input ref={profilePhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleProfilePhotoUpload} />
           </div>
           <div>
-            <h3 className="font-bold text-base text-foreground">
+            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: "15px", color: "#000" }}>
               {profile.name || (lang === "mr" ? "स्वयं-तयार शेतकरी प्रोफाइल" : lang === "hi" ? "स्वतः-निर्मित किसान प्रोफाइल" : "Auto-Built Farmer Profile")}
             </h3>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <p className="mt-0.5" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "12px", fontWeight: 400, color: "#555" }}>
               {filledCount} {ui("of", lang)} {ALL_PROFILE_FIELDS.length} {ui("filled", lang)} · {ui("verifyEdit", lang)}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-black">
           <Pencil className="h-3.5 w-3.5" />
-          <span className="text-xs">{ui("editable", lang)}</span>
+          <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px" }}>{ui("editable", lang)}</span>
         </div>
       </div>
 
@@ -2568,15 +2576,15 @@ export function FarmerProfileCard({
               <button
                 type="button"
                 onClick={() => toggleSection(section.id)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-black mb-4 bg-white cursor-pointer select-none"
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg mb-4 cursor-pointer select-none ${SECTION_SOLID_BG[section.id] ?? "bg-gray-700"}`}
               >
                 <div className="flex items-center gap-2">
-                  <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 text-black ${isCollapsed ? "-rotate-90" : ""}`} />
-                  <span className="text-xs font-bold tracking-wide uppercase text-black">
+                  <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform duration-200 text-white ${isCollapsed ? "-rotate-90" : ""}`} />
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 500, fontSize: "13px", letterSpacing: "0.06em" }} className="uppercase text-white">
                     {sectionLabel}
                   </span>
                 </div>
-                <span className="text-xs font-medium text-black opacity-70">
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 400 }} className="text-white/80">
                   {isExtracted ? `${sectionFilled} / ${allFields.length} ${ui("filled", lang)}` : ui("uploadToExtract", lang)}
                 </span>
               </button>
@@ -2585,7 +2593,7 @@ export function FarmerProfileCard({
                 <div className="space-y-5">
                   {section.subsections.map((sub) => (
                     <div key={sub.key}>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                      <p className="mb-2 uppercase tracking-wide text-black" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 600 }}>
                         {tSec(sub.key, lang)}
                       </p>
                       <div className="rounded-md border border-black overflow-hidden">
@@ -2594,10 +2602,10 @@ export function FarmerProfileCard({
                             {sub.fields.map(({ key, placeholder }) => {
                               const isHighlighted = highlightedFields?.has(key as keyof FarmerProfile);
                               return (
-                              <tr key={key} className={`border-b border-black last:border-0 ${isHighlighted ? "bg-amber-50/60" : ""}`}>
-                                <td className="px-4 py-2.5 text-muted-foreground font-medium w-2/5 align-middle whitespace-nowrap">
+                              <tr key={key} className="border-b border-black last:border-0">
+                                <td className="px-4 py-2.5 w-2/5 align-middle whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "12px", fontWeight: 500, color: "#000" }}>
                                   {tProfileField(key, lang)}
-                                  {isHighlighted && <span className="ml-1.5 inline-flex items-center"><AlertTriangle className="h-3 w-3 text-amber-500" /></span>}
+                                  {isHighlighted && <span className="ml-1.5 inline-flex items-center"><AlertTriangle className="h-3 w-3 text-black" /></span>}
                                 </td>
                                 <td className="px-3 py-1.5 align-middle">
                                   <input
@@ -2606,7 +2614,8 @@ export function FarmerProfileCard({
                                     value={profile[key as keyof FarmerProfile]}
                                     onChange={(e) => onChange(key as keyof FarmerProfile, e.target.value)}
                                     placeholder={placeholder}
-                                    className={`w-full rounded-md border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 transition ${isHighlighted ? "border-amber-400 ring-amber-400/30 bg-amber-50/40 focus:ring-amber-400/40" : "border-input bg-background focus:ring-primary/40"}`}
+                                    style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px" }}
+                                    className="w-full rounded-md border border-black px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition bg-white"
                                   />
                                 </td>
                               </tr>
@@ -2699,7 +2708,7 @@ export function FarmerProfileCard({
                 <div className="space-y-5">
                   {section.subsections.map((sub) => (
                     <div key={sub.key}>
-                      <p className="text-[10px] font-semibold tracking-widest uppercase mb-2 text-black">
+                      <p className="mb-2 uppercase tracking-widest text-black" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 600 }}>
                         {tSec(sub.key, lang)}
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2707,9 +2716,9 @@ export function FarmerProfileCard({
                           const isHighlighted = highlightedFields?.has(key as keyof FarmerProfile);
                           return (
                           <div key={key} className={span ? "sm:col-span-2" : ""}>
-                            <label className={`flex items-center gap-1.5 text-xs font-medium mb-1 ${isHighlighted ? "text-amber-600" : "text-muted-foreground"}`}>
+                              <label className="flex items-center gap-1.5 mb-1 text-black" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "12px", fontWeight: 500 }}>
                               {tProfileField(key, lang)}
-                              {isHighlighted && <AlertTriangle className="h-3 w-3 text-amber-500 flex-shrink-0" />}
+                              {isHighlighted && <AlertTriangle className="h-3 w-3 text-black flex-shrink-0" />}
                             </label>
                             <input
                               id={`profile-field-${key}`}
@@ -2717,7 +2726,8 @@ export function FarmerProfileCard({
                               value={profile[key as keyof FarmerProfile]}
                               onChange={(e) => onChange(key as keyof FarmerProfile, e.target.value)}
                               placeholder={placeholder}
-                              className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 transition ${isHighlighted ? "border-amber-400 ring-amber-400/30 bg-amber-50/40 focus:ring-amber-400/40" : "border-input bg-background focus:ring-primary/40"}`}
+                              style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px" }}
+                              className="w-full rounded-md border border-black px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition bg-white"
                             />
                           </div>
                           );
