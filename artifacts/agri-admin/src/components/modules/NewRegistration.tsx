@@ -1657,7 +1657,7 @@ export function analyzeDocuments(docStates: Record<string, ExtractionState>): Su
 
 // ─── AI Summary Side Panel ────────────────────────────────────────────────────
 
-function AiSummaryPanel({
+export function AiSummaryPanel({
   docStates,
   resolvedIds = new Set(),
   onResolve = () => {},

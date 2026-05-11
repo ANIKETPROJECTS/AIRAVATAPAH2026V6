@@ -323,11 +323,11 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
       {!loading && !error && (
         <div className="bg-white border border-black/10 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full" style={poppins}>
+            <table className="w-full border-collapse" style={poppins}>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200 text-left">
-                  {["नोंदणी दिनांक","नाव","गाव","तालुका","जिल्हा","खाते क्र.","भूमापन क्र.","Source","Priority","Status","Action"].map(h => (
-                    <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-black whitespace-nowrap">{h}</th>
+                <tr className="bg-white border-b-2 border-black text-left">
+                  {["नोंदणी दिनांक","शेतकरी ID","नाव","गाव","तालुका","जिल्हा","खाते क्र.","भूमापन क्र.","Source","Priority","Status","Action"].map(h => (
+                    <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-black whitespace-nowrap border-r border-black/20 last:border-r-0">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -341,42 +341,45 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
 
                   return (
                     <tr key={f.farmerId}
-                      className={`bg-white hover:bg-gray-50 transition-colors ${idx < pageData.length-1 ? "border-b border-gray-100" : ""}`}>
+                      className={`bg-white hover:bg-gray-50 transition-colors ${idx < pageData.length-1 ? "border-b border-black/15" : ""}`}>
 
                       {/* Date */}
-                      <td className="px-4 py-3 text-[13px] text-black font-mono whitespace-nowrap">{formatDate(f.addedAt)}</td>
+                      <td className="px-4 py-3 text-[13px] text-black font-mono whitespace-nowrap border-r border-black/10">{formatDate(f.addedAt)}</td>
+
+                      {/* Farmer ID */}
+                      <td className="px-4 py-3 text-[13px] text-black font-mono whitespace-nowrap border-r border-black/10">{f.farmerId}</td>
 
                       {/* Name */}
-                      <td className="px-4 py-3 text-[13px] font-semibold text-black whitespace-nowrap">{f.name}</td>
+                      <td className="px-4 py-3 text-[13px] font-semibold text-black whitespace-nowrap border-r border-black/10">{f.name}</td>
 
                       {/* गाव */}
                       <td className="px-4 py-3 text-[13px] text-black">{f.village || <span className="text-gray-300">—</span>}</td>
 
                       {/* तालुका */}
-                      <td className="px-4 py-3 text-[13px] text-black">{f.taluka  || <span className="text-gray-300">—</span>}</td>
+                      <td className="px-4 py-3 text-[13px] text-black border-r border-black/10">{f.taluka  || <span className="text-gray-300">—</span>}</td>
 
                       {/* जिल्हा */}
-                      <td className="px-4 py-3 text-[13px] text-black">{f.district|| <span className="text-gray-300">—</span>}</td>
+                      <td className="px-4 py-3 text-[13px] text-black border-r border-black/10">{f.district|| <span className="text-gray-300">—</span>}</td>
 
                       {/* खाते क्रमांक */}
-                      <td className="px-4 py-3 text-[13px] text-black font-mono">
+                      <td className="px-4 py-3 text-[13px] text-black font-mono border-r border-black/10">
                         {f.khateNumber && f.khateNumber !== "—" ? f.khateNumber : <span className="text-gray-300">—</span>}
                       </td>
 
                       {/* भूमापन क्रमांक */}
-                      <td className="px-4 py-3 text-[13px] text-black font-mono">
+                      <td className="px-4 py-3 text-[13px] text-black font-mono border-r border-black/10">
                         {f.surveyNumber && f.surveyNumber !== "—" ? f.surveyNumber : <span className="text-gray-300">—</span>}
                       </td>
 
-                      {/* Source — solid pill, white text */}
-                      <td className="px-4 py-3">
+                      {/* Source */}
+                      <td className="px-4 py-3 border-r border-black/10">
                         <span className={`inline-block text-[12px] px-3 py-1 rounded-full font-semibold text-white whitespace-nowrap ${isMobile ? "bg-purple-600" : "bg-blue-600"}`}>
                           {isMobile ? "Mobile" : "System"}
                         </span>
                       </td>
 
-                      {/* Priority — solid pill + days, white text */}
-                      <td className="px-4 py-3">
+                      {/* Priority */}
+                      <td className="px-4 py-3 border-r border-black/10">
                         {priority ? (
                           <span className={`inline-block text-[12px] px-3 py-1 rounded-full font-semibold text-white whitespace-nowrap ${priority.bg}`}>
                             {priority.label} · {priority.days}d
@@ -384,8 +387,8 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
                         ) : <span className="text-gray-300 text-[13px]">—</span>}
                       </td>
 
-                      {/* Status — solid pill, white text */}
-                      <td className="px-4 py-3">
+                      {/* Status */}
+                      <td className="px-4 py-3 border-r border-black/10">
                         {isVerified  && <span className="inline-block text-[12px] px-3 py-1 rounded-full font-semibold text-white bg-emerald-600 whitespace-nowrap">Verified</span>}
                         {isPending   && <span className="inline-block text-[12px] px-3 py-1 rounded-full font-semibold text-white bg-amber-500 whitespace-nowrap">Pending</span>}
                         {isCancelled && <span className="inline-block text-[12px] px-3 py-1 rounded-full font-semibold text-white bg-red-600 whitespace-nowrap">Rejected</span>}
@@ -413,7 +416,7 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
                 })}
                 {pageData.length === 0 && (
                   <tr>
-                    <td colSpan={11} className="px-4 py-12 text-center text-[13px] text-gray-400" style={poppins}>
+                    <td colSpan={12} className="px-4 py-12 text-center text-[13px] text-gray-400" style={poppins}>
                       No farmers found matching your filters.
                     </td>
                   </tr>
@@ -423,7 +426,7 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50" style={poppins}>
+          <div className="flex items-center justify-between px-4 py-3 border-t-2 border-black bg-white" style={poppins}>
             <span className="text-[12px] text-black">
               {filtered.length > 0
                 ? `Showing ${page*10+1}–${Math.min((page+1)*10, filtered.length)} of ${filtered.length}`
