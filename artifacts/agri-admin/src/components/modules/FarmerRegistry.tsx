@@ -1,7 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
-import { Search, Plus, Upload, Download, ChevronLeft, ChevronRight, Sparkles, Loader2, AlertCircle, Trash2, Eye, CheckCircle2 } from "lucide-react";
-import { apiFetchFarmers, apiDeleteFarmer, apiUpdateFarmer, notifyFarmerChange, type FarmerRecord } from "@/data/farmerApi";
+import {
+  Search, Plus, Upload, Download, ChevronLeft, ChevronRight,
+  Loader2, AlertCircle, Eye, CheckCircle2, Smartphone, Monitor,
+  Clock, AlertTriangle, ShieldCheck, XCircle, FileCheck
+} from "lucide-react";
+import { apiFetchFarmers, apiUpdateFarmer, notifyFarmerChange, type FarmerRecord } from "@/data/farmerApi";
 import FarmerRegistrationForm from "@/components/forms/FarmerRegistrationForm";
 import FarmerDetailModal from "@/components/modules/FarmerDetailModal";
 import FarmerReviewModal from "@/components/modules/FarmerReviewModal";
@@ -22,12 +26,98 @@ function formatLandHAR(val: number | string | undefined): string {
   return `${s} हे.`;
 }
 
+function formatDate(dateStr: string | undefined): string {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  } catch {
+    return "—";
+  }
+}
+
+function daysSince(dateStr: string | undefined): number {
+  if (!dateStr) return 0;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 0;
+    const now = new Date();
+    return Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+  } catch {
+    return 0;
+  }
+}
+
+function getPriority(farmer: FarmerRecord): { label: string; color: string; bg: string; border: string } | null {
+  if (farmer.status !== "Pending") return null;
+  const days = daysSince(farmer.addedAt);
+  if (days > 7) return { label: "High", color: "text-red-700", bg: "bg-red-50", border: "border-red-200" };
+  if (days >= 3) return { label: "Mid", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200" };
+  return { label: "Low", color: "text-green-700", bg: "bg-green-50", border: "border-green-200" };
+}
+
+function getSourceInfo(source: string): { label: string; icon: React.ReactNode; color: string; bg: string } {
+  if (source === "mobile_ocr") {
+    return {
+      label: "Mobile App",
+      icon: <Smartphone className="h-3 w-3" />,
+      color: "text-purple-700",
+      bg: "bg-purple-50"
+    };
+  }
+  return {
+    label: "System",
+    icon: <Monitor className="h-3 w-3" />,
+    color: "text-blue-700",
+    bg: "bg-blue-50"
+  };
+}
+
 function StatusBadge({ status }: { status: string }) {
   if (status === "Verified") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">Verified</span>;
-  if (status === "Cancelled") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-700">Cancelled</span>;
+  if (status === "Cancelled") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-700">Rejected</span>;
   if (status === "Pending") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-yellow-100 text-yellow-700">Pending</span>;
-  if (status === "Active") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-success/10 text-success">Active</span>;
+  if (status === "Active") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">Active</span>;
+  if (status === "Inactive") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">Inactive</span>;
   return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-muted text-muted-foreground">{status}</span>;
+}
+
+type ActiveCard = "all" | "verified" | "pending" | "rejected" | "system" | "mobile";
+
+interface StatCardProps {
+  label: string;
+  count: number;
+  icon: React.ReactNode;
+  cardKey: ActiveCard;
+  active: boolean;
+  onClick: (key: ActiveCard) => void;
+  accent: string;
+  iconBg: string;
+}
+
+function StatCard({ label, count, icon, cardKey, active, onClick, accent, iconBg }: StatCardProps) {
+  return (
+    <button
+      onClick={() => onClick(cardKey)}
+      className={`flex-1 min-w-[140px] bg-white rounded-xl border-2 p-4 text-left transition-all cursor-pointer hover:shadow-md ${
+        active ? `${accent} shadow-md` : "border-black/10 hover:border-black/20"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="text-2xl font-bold text-gray-900 leading-none">{count}</p>
+          <p className="text-xs font-medium text-gray-500 mt-1.5 leading-tight">{label}</p>
+        </div>
+        <div className={`rounded-lg p-2 ${iconBg} flex-shrink-0`}>
+          {icon}
+        </div>
+      </div>
+      {active && (
+        <div className="mt-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Filtered ✓</div>
+      )}
+    </button>
+  );
 }
 
 export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: string) => void }) {
@@ -37,14 +127,13 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [distFilter, setDistFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(0);
   const [showAdd, setShowAdd] = useState(false);
   const [viewFarmer, setViewFarmer] = useState<FarmerRecord | null>(null);
   const [reviewFarmer, setReviewFarmer] = useState<FarmerRecord | null>(null);
   const [toast, setToast] = useState("");
-  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [activeCard, setActiveCard] = useState<ActiveCard>("all");
+
   const loadFarmers = useCallback(async () => {
     try {
       setError("");
@@ -72,19 +161,38 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
 
   const districts = useMemo(() => [...new Set(farmers.map(f => f.district))].sort(), [farmers]);
 
+  const counts = useMemo(() => ({
+    verified: farmers.filter(f => f.status === "Verified" || f.status === "Active").length,
+    pending: farmers.filter(f => f.status === "Pending").length,
+    rejected: farmers.filter(f => f.status === "Cancelled" || f.status === "Inactive").length,
+    system: farmers.filter(f => f.source !== "mobile_ocr").length,
+    mobile: farmers.filter(f => f.source === "mobile_ocr").length,
+  }), [farmers]);
+
+  const handleCardClick = (key: ActiveCard) => {
+    setActiveCard(prev => prev === key ? "all" : key);
+    setPage(0);
+  };
+
   const filtered = useMemo(() => {
     return farmers.filter(f => {
       const s = search.toLowerCase();
       const matchSearch = !s || f.name.toLowerCase().includes(s) || f.farmerId.toLowerCase().includes(s) || f.aadhaar.includes(s);
       const matchDist = !distFilter || f.district === distFilter;
-      const matchStatus = !statusFilter || f.status === statusFilter;
-      return matchSearch && matchDist && matchStatus;
+
+      let matchCard = true;
+      if (activeCard === "verified") matchCard = f.status === "Verified" || f.status === "Active";
+      else if (activeCard === "pending") matchCard = f.status === "Pending";
+      else if (activeCard === "rejected") matchCard = f.status === "Cancelled" || f.status === "Inactive";
+      else if (activeCard === "system") matchCard = f.source !== "mobile_ocr";
+      else if (activeCard === "mobile") matchCard = f.source === "mobile_ocr";
+
+      return matchSearch && matchDist && matchCard;
     });
-  }, [search, distFilter, statusFilter, farmers]);
+  }, [search, distFilter, activeCard, farmers]);
 
   const totalPages = Math.ceil(filtered.length / 10);
   const pageData = filtered.slice(page * 10, (page + 1) * 10);
-  const pendingCount = farmers.filter(f => f.status === "Pending").length;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -97,33 +205,14 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
     showToast("Farmer deleted successfully");
   };
 
-  const handleRowDelete = async (farmerId: string) => {
-    if (pendingDelete !== farmerId) {
-      setPendingDelete(farmerId);
-      setTimeout(() => setPendingDelete(prev => prev === farmerId ? null : prev), 3000);
-      return;
-    }
-    setPendingDelete(null);
-    setDeleting(farmerId);
-    try {
-      await apiDeleteFarmer(farmerId);
-      setFarmers(prev => prev.filter(f => f.farmerId !== farmerId));
-      showToast("Farmer deleted");
-    } catch {
-      showToast("Delete failed — please try again");
-    } finally {
-      setDeleting(null);
-    }
-  };
-
   const handleFarmerUpdated = (updated: FarmerRecord) => {
     setFarmers(prev => prev.map(f => f.farmerId === updated.farmerId ? updated : f));
     setViewFarmer(null);
     showToast(`Farmer ${updated.status === "Verified" ? "verified ✓" : updated.status === "Cancelled" ? "rejected" : "updated"}`);
     if (updated.status === "Verified") {
-      addNotification({ type:"farmer", title:"Farmer Verified", body:`${updated.name} (${updated.farmerId}) has been successfully verified and added to the Farmers list.`, farmerName:updated.name, farmerId:updated.farmerId });
+      addNotification({ type: "farmer", title: "Farmer Verified", body: `${updated.name} (${updated.farmerId}) has been successfully verified.`, farmerName: updated.name, farmerId: updated.farmerId });
     } else if (updated.status === "Cancelled") {
-      addNotification({ type:"system", title:"Registration Cancelled", body:`${updated.name} (${updated.farmerId}) registration was cancelled.`, farmerName:updated.name, farmerId:updated.farmerId });
+      addNotification({ type: "system", title: "Registration Cancelled", body: `${updated.name} (${updated.farmerId}) registration was cancelled.`, farmerName: updated.name, farmerId: updated.farmerId });
     }
   };
 
@@ -132,61 +221,123 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
     setReviewFarmer(null);
     showToast(updated.status === "Verified" ? "Farmer verification approved ✓" : "Farmer registration cancelled");
     if (updated.status === "Verified") {
-      addNotification({ type:"farmer", title:"Farmer Verified ✓", body:`${updated.name} (${updated.farmerId}) passed verification — now visible in Verified Farmers.`, farmerName:updated.name, farmerId:updated.farmerId });
+      addNotification({ type: "farmer", title: "Farmer Verified ✓", body: `${updated.name} (${updated.farmerId}) passed verification.`, farmerName: updated.name, farmerId: updated.farmerId });
     } else if (updated.status === "Cancelled") {
-      addNotification({ type:"system", title:"Registration Rejected", body:`${updated.name} (${updated.farmerId}) registration was rejected during review.`, farmerName:updated.name, farmerId:updated.farmerId });
+      addNotification({ type: "system", title: "Registration Rejected", body: `${updated.name} (${updated.farmerId}) registration was rejected.`, farmerName: updated.name, farmerId: updated.farmerId });
     }
   };
 
   const handleRegistrationSuccess = (msg: string, farmerName?: string, farmerId?: string) => {
     showToast(msg);
     loadFarmers();
-    addNotification({ type:"farmer", title:"New Farmer Registered", body: farmerName ? `${farmerName} (${farmerId}) has been registered and is pending verification.` : msg, farmerName, farmerId });
+    addNotification({ type: "farmer", title: "New Farmer Registered", body: farmerName ? `${farmerName} (${farmerId}) has been registered and is pending verification.` : msg, farmerName, farmerId });
   };
 
   return (
-    <div className="space-y-4 animate-fade-in" style={{ opacity: 0 }}>
+    <div className="space-y-5 animate-fade-in" style={{ opacity: 0 }}>
       {toast && (
         <div className="fixed top-4 right-4 z-50 bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-lg text-sm animate-fade-in" style={{ opacity: 0 }}>
           {toast}
         </div>
       )}
 
-      {pendingCount > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm">
-          <Sparkles className="h-4 w-4 flex-shrink-0 text-yellow-600" />
-          <span><strong>{pendingCount}</strong> farmer{pendingCount > 1 ? "s" : ""} pending review and verification.</span>
-        </div>
-      )}
+      {/* ── 5 Stat Cards ── */}
+      <div className="flex flex-wrap gap-3">
+        <StatCard
+          cardKey="verified"
+          label="Verified Farmers"
+          count={counts.verified}
+          icon={<ShieldCheck className="h-5 w-5 text-emerald-600" />}
+          iconBg="bg-emerald-50"
+          active={activeCard === "verified"}
+          onClick={handleCardClick}
+          accent="border-emerald-500"
+        />
+        <StatCard
+          cardKey="pending"
+          label="Pending Review"
+          count={counts.pending}
+          icon={<Clock className="h-5 w-5 text-yellow-600" />}
+          iconBg="bg-yellow-50"
+          active={activeCard === "pending"}
+          onClick={handleCardClick}
+          accent="border-yellow-500"
+        />
+        <StatCard
+          cardKey="rejected"
+          label="Rejected / Cancelled"
+          count={counts.rejected}
+          icon={<XCircle className="h-5 w-5 text-red-500" />}
+          iconBg="bg-red-50"
+          active={activeCard === "rejected"}
+          onClick={handleCardClick}
+          accent="border-red-500"
+        />
+        <StatCard
+          cardKey="system"
+          label="Via System (Admin / OCR)"
+          count={counts.system}
+          icon={<Monitor className="h-5 w-5 text-blue-600" />}
+          iconBg="bg-blue-50"
+          active={activeCard === "system"}
+          onClick={handleCardClick}
+          accent="border-blue-500"
+        />
+        <StatCard
+          cardKey="mobile"
+          label="Via Farmer Mobile App"
+          count={counts.mobile}
+          icon={<Smartphone className="h-5 w-5 text-purple-600" />}
+          iconBg="bg-purple-50"
+          active={activeCard === "mobile"}
+          onClick={handleCardClick}
+          accent="border-purple-500"
+        />
+      </div>
 
+      {/* ── Filters & Actions ── */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }}
+          <input
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(0); }}
             placeholder="Search by name, ID, Aadhaar..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/50" />
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/50"
+          />
         </div>
-        <select value={distFilter} onChange={e => { setDistFilter(e.target.value); setPage(0); }}
-          className="text-sm bg-card border border-border rounded-lg px-3 py-2">
+        <select
+          value={distFilter}
+          onChange={e => { setDistFilter(e.target.value); setPage(0); }}
+          className="text-sm bg-white border border-border rounded-lg px-3 py-2"
+        >
           <option value="">All Districts</option>
           {districts.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(0); }}
-          className="text-sm bg-card border border-border rounded-lg px-3 py-2">
-          <option value="">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="Verified">Verified</option>
-          <option value="Cancelled">Cancelled</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
-        <button onClick={() => onNavigate ? onNavigate("newregistration") : setShowAdd(true)} className="flex items-center gap-1.5 text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90">
+        {activeCard !== "all" && (
+          <button
+            onClick={() => setActiveCard("all")}
+            className="text-sm px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 text-gray-700"
+          >
+            Clear Filter ×
+          </button>
+        )}
+        <button
+          onClick={() => onNavigate ? onNavigate("newregistration") : setShowAdd(true)}
+          className="flex items-center gap-1.5 text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90"
+        >
           <Plus className="h-4 w-4" /> Add Farmer
         </button>
-        <button onClick={() => showToast("✅ CSV imported successfully — 24 records added")} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-card border border-border rounded-lg hover:bg-muted">
+        <button
+          onClick={() => showToast("✅ CSV imported successfully — 24 records added")}
+          className="flex items-center gap-1.5 text-sm px-3 py-2 bg-white border border-border rounded-lg hover:bg-muted"
+        >
           <Upload className="h-4 w-4" /> Import
         </button>
-        <button onClick={() => showToast("📁 Export started...")} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-card border border-border rounded-lg hover:bg-muted">
+        <button
+          onClick={() => showToast("📁 Export started...")}
+          className="flex items-center gap-1.5 text-sm px-3 py-2 bg-white border border-border rounded-lg hover:bg-muted"
+        >
           <Download className="h-4 w-4" /> Export
         </button>
       </div>
@@ -207,131 +358,97 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
       )}
 
       {!loading && !error && (
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="bg-white border border-black/10 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Farmer ID</th>
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Village</th>
-                  <th className="px-4 py-3 font-medium">District</th>
-                  <th className="px-4 py-3 font-medium">क्षेत्रफळ <span className="text-muted-foreground font-normal">(हे.आर.चौ.मी.)</span></th>
-                  <th className="px-4 py-3 font-medium">Khate No.</th>
-                  <th className="px-4 py-3 font-medium">Aadhaar</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+                <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Farmer ID</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Name</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Village</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">District</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">क्षेत्रफळ</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Aadhaar</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Reg. Date</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Source</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Priority</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Status</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {pageData.map(f => (
-                  <tr
-                    key={f.farmerId}
-                    className={`border-t border-border/50 hover:bg-muted/30 transition-colors ${
-                      f.status === "Pending" ? "bg-yellow-50/40" :
-                      f.source === "ocr" ? "bg-emerald-50/40" :
-                      f.source === "manual" ? "bg-blue-50/30" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-2.5 font-mono text-xs">
-                      <span className="flex items-center gap-1">
-                        {f.farmerId}
-                        {f.source === "ocr" && (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                            <Sparkles className="h-2.5 w-2.5" />OCR
+                {pageData.map((f, idx) => {
+                  const priority = getPriority(f);
+                  const sourceInfo = getSourceInfo(f.source);
+                  return (
+                    <tr
+                      key={f.farmerId}
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors bg-white ${idx === pageData.length - 1 ? "border-b-0" : ""}`}
+                    >
+                      <td className="px-4 py-3 font-mono text-xs text-gray-700 font-medium">{f.farmerId}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{f.name}</td>
+                      <td className="px-4 py-3 text-gray-600">{f.village || <span className="text-gray-300">—</span>}</td>
+                      <td className="px-4 py-3 text-gray-600">{f.district || <span className="text-gray-300">—</span>}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-600">{formatLandHAR(f.land)}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-600">{f.aadhaar}</td>
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">{formatDate(f.addedAt)}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${sourceInfo.bg} ${sourceInfo.color}`}>
+                          {sourceInfo.icon}
+                          {sourceInfo.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {priority ? (
+                          <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold border ${priority.bg} ${priority.color} ${priority.border}`}>
+                            {priority.label === "High" && <AlertTriangle className="h-3 w-3" />}
+                            {priority.label === "Mid" && <Clock className="h-3 w-3" />}
+                            {priority.label === "Low" && <FileCheck className="h-3 w-3" />}
+                            {priority.label}
                           </span>
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
                         )}
-                        {f.source === "manual" && (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
-                            Manual
-                          </span>
-                        )}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 font-medium">{f.name}</td>
-                    <td className="px-4 py-2.5">{f.village}</td>
-                    <td className="px-4 py-2.5">{f.district}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs">{formatLandHAR(f.land)}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs">{f.khateNumber && f.khateNumber !== "—" ? f.khateNumber : <span className="text-muted-foreground/50">—</span>}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs">{f.aadhaar}</td>
-                    <td className="px-4 py-2.5"><StatusBadge status={f.status} /></td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex gap-1 items-center flex-wrap">
-                        {/* Pending farmers: Review only (Reject is inside the review modal) */}
+                      </td>
+                      <td className="px-4 py-3"><StatusBadge status={f.status} /></td>
+                      <td className="px-4 py-3">
+                        {/* Pending: Review */}
                         {f.status === "Pending" && (
                           <button
                             onClick={() => setReviewFarmer(f)}
-                            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-85 font-medium transition-opacity"
+                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-85 font-medium transition-opacity"
                           >
                             <Eye className="h-3 w-3" />
                             Review
                           </button>
                         )}
-
-                        {/* Verified farmers: View (read-only) */}
-                        {f.status === "Verified" && (
+                        {/* Verified: View */}
+                        {(f.status === "Verified" || f.status === "Active") && (
                           <button
                             onClick={() => setReviewFarmer(f)}
-                            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium transition-colors"
+                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium transition-colors"
                           >
                             <CheckCircle2 className="h-3 w-3" />
                             View
                           </button>
                         )}
-
-                        {/* Cancelled farmers: View */}
-                        {f.status === "Cancelled" && (
+                        {/* Cancelled/Inactive: View */}
+                        {(f.status === "Cancelled" || f.status === "Inactive") && (
                           <button
                             onClick={() => setReviewFarmer(f)}
-                            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-muted text-muted-foreground hover:bg-muted/80 font-medium transition-colors"
+                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 font-medium transition-colors"
                           >
                             <Eye className="h-3 w-3" />
                             View
                           </button>
                         )}
-
-                        {/* Active/Inactive (seed data): View + Edit */}
-                        {(f.status === "Active" || f.status === "Inactive") && (
-                          <>
-                            <button
-                              onClick={() => setViewFarmer(f)}
-                              className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:opacity-80"
-                            >
-                              View
-                            </button>
-                            <button
-                              onClick={() => setViewFarmer(f)}
-                              className="text-xs px-2 py-1 rounded bg-muted text-foreground hover:bg-muted/80"
-                            >
-                              Edit
-                            </button>
-                          </>
-                        )}
-
-                        {/* Delete for all */}
-                        <button
-                          onClick={() => handleRowDelete(f.farmerId)}
-                          disabled={deleting === f.farmerId}
-                          className={`text-xs px-2 py-1 rounded flex items-center gap-1 transition-colors ${
-                            pendingDelete === f.farmerId
-                              ? "bg-destructive text-destructive-foreground animate-pulse"
-                              : "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                          }`}
-                        >
-                          {deleting === f.farmerId ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3 w-3" />
-                          )}
-                          {pendingDelete === f.farmerId ? "Confirm?" : "Delete"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {pageData.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                    <td colSpan={11} className="px-4 py-12 text-center text-sm text-gray-400">
                       No farmers found matching your filters.
                     </td>
                   </tr>
@@ -339,21 +456,34 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-            <span className="text-xs text-muted-foreground">
+
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50">
+            <span className="text-xs text-gray-500">
               {filtered.length > 0
                 ? `Showing ${page * 10 + 1}–${Math.min((page + 1) * 10, filtered.length)} of ${filtered.length}`
                 : "No results"}
+              {activeCard !== "all" && <span className="ml-1 text-gray-400">(filtered)</span>}
             </span>
             <div className="flex gap-1">
-              <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-muted disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
-              <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-muted disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+              <button
+                disabled={page === 0}
+                onClick={() => setPage(p => p - 1)}
+                className="p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage(p => p + 1)}
+                className="p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Full review modal for OCR/Pending/Verified/Cancelled farmers */}
       {reviewFarmer && (
         <FarmerReviewModal
           farmer={reviewFarmer}
@@ -362,7 +492,6 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
         />
       )}
 
-      {/* Legacy detail modal for Active/Inactive seed farmers */}
       {viewFarmer && (
         <FarmerDetailModal
           farmer={viewFarmer}
