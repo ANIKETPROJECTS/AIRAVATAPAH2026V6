@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   Search, Loader2, AlertCircle, ChevronLeft, ChevronRight, ChevronDown,
-  FileText, LifeBuoy, IndianRupee, Shield, Eye,
+  FileText, LifeBuoy, IndianRupee, Shield,
 } from "lucide-react";
+import iconView from "/icon-view.png";
 import { apiFetchFarmers, type FarmerRecord } from "@/data/farmerApi";
 import VerifiedFarmerCard from "@/components/modules/VerifiedFarmerCard";
 import {
@@ -89,6 +90,9 @@ function SubPageView({ farmer, subPage }: { farmer: FarmerRecord; subPage: SubPa
   );
 }
 
+const poppinsCss = { fontFamily: "Poppins, sans-serif" } as const;
+const dmSerif   = { fontFamily: "DM Serif Display, serif" } as const;
+
 /* ── Profile page view ────────────────────── */
 function ProfileView({ farmer, onBack, onNavigate }: {
   farmer: FarmerRecord; onBack: () => void; onNavigate: (key: string) => void;
@@ -96,19 +100,13 @@ function ProfileView({ farmer, onBack, onNavigate }: {
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
   return (
     <div>
-      <div className="flex items-center gap-3 mb-5 flex-wrap">
+      <div className="flex items-center justify-between mb-5">
+        <h1 className="text-2xl font-bold text-black" style={dmSerif}>Farmers</h1>
         <button onClick={onBack}
-          className="flex items-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 bg-secondary/8 hover:bg-secondary/15 border border-secondary/20 px-4 py-2 rounded-xl transition-all flex-shrink-0">
+          className="flex items-center gap-2 text-sm font-semibold text-white bg-[#16A34A] hover:bg-[#14532D] px-4 py-2 rounded-xl transition-all flex-shrink-0"
+          style={poppinsCss}>
           <ChevronLeft className="h-4 w-4" /> Back to Farmers
         </button>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <button onClick={onBack} className="hover:text-foreground transition-colors">Farmers</button>
-          <span className="text-muted-foreground/40">›</span>
-          <span className="font-semibold text-foreground">
-            {farmer.name}
-            <span className="font-mono text-xs text-muted-foreground ml-1">({farmer.farmerId})</span>
-          </span>
-        </div>
       </div>
       <VerifiedFarmerCard farmer={farmer} onNavigate={onNavigate} />
     </div>
@@ -120,27 +118,14 @@ function Breadcrumb({ farmer, subPage, onBack, onBackToProfile }: {
   farmer: FarmerRecord; subPage: SubPageKey | null; onBack: () => void; onBackToProfile: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3 mb-5 flex-wrap">
+    <div className="flex items-center justify-between mb-5">
+      <h1 className="text-2xl font-bold text-black" style={dmSerif}>Farmers</h1>
       <button onClick={subPage ? onBackToProfile : onBack}
-        className="flex items-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 bg-secondary/8 hover:bg-secondary/15 border border-secondary/20 px-4 py-2 rounded-xl transition-all flex-shrink-0">
+        className="flex items-center gap-2 text-sm font-semibold text-white bg-[#16A34A] hover:bg-[#14532D] px-4 py-2 rounded-xl transition-all flex-shrink-0"
+        style={poppinsCss}>
         <ChevronLeft className="h-4 w-4" />
         {subPage ? `Back to ${farmer.name.split(" ")[0]}'s Profile` : "Back to Farmers"}
       </button>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-        <button onClick={onBack} className="hover:text-foreground transition-colors">Farmers</button>
-        <span className="text-muted-foreground/40">›</span>
-        <button onClick={onBackToProfile} className={`${subPage ? "hover:text-foreground" : "font-semibold text-foreground"} transition-colors`}>
-          {farmer.name}
-          <span className="font-mono text-xs text-muted-foreground ml-1">({farmer.farmerId})</span>
-        </button>
-        {subPage && <>
-          <span className="text-muted-foreground/40">›</span>
-          <span className="font-semibold text-foreground flex items-center gap-1.5">
-            {SUB_PAGE_META[subPage].icon}
-            {SUB_PAGE_META[subPage].label}
-          </span>
-        </>}
-      </div>
     </div>
   );
 }
@@ -241,9 +226,6 @@ export default function VerifiedFarmers() {
   /* ── List page (level 1) ── */
   return (
     <div className="space-y-5" style={poppins}>
-
-      {/* Page title */}
-      <h1 className="font-heading text-2xl font-bold text-black" style={{ fontFamily: "DM Serif Display, serif" }}>Farmers</h1>
 
       {/* ── Search + Filters ── */}
       <div className="flex flex-wrap gap-2 items-center">
@@ -381,7 +363,7 @@ export default function VerifiedFarmers() {
                     <button
                       onClick={() => { setSelectedId(f.farmerId); setSubPage(null); }}
                       className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-full font-semibold text-white bg-blue-600 hover:opacity-85 transition-opacity whitespace-nowrap">
-                      <Eye className="h-3.5 w-3.5" />
+                      <img src={iconView} alt="" className="w-3.5 h-3.5 object-contain brightness-0 invert" />
                       View Profile
                     </button>
                   </td>

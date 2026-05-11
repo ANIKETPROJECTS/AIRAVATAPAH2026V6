@@ -5,6 +5,10 @@ import {
   CreditCard, ArrowRight, IndianRupee, LifeBuoy,
   FileStack, ClipboardCheck, UserCheck, Loader2, MapPin,
 } from "lucide-react";
+import iconNavProfile   from "/icon-farmer-profile.png";
+import iconNavDocs      from "/icon-farmer-docs.png";
+import iconNavApps      from "/icon-farmer-apps.png";
+import iconNavGrievance from "/icon-farmer-grievance.png";
 import type { FarmerRecord } from "@/data/farmerApi";
 import { DocContentView } from "@/components/modules/FarmerReviewModal";
 import {
@@ -254,34 +258,39 @@ function ProfileSection({
 /* ─────────────────────────── quick-jump nav ─────────────────────────── */
 const SCROLL_SECTIONS = ["sec-profile", "sec-docs", "sec-apps", "sec-grievances"];
 const NAV_ITEMS = [
-  { id: "sec-profile",    label: "Profile",       navKey: null as string | null, icon: <UserCheck className="h-3.5 w-3.5" /> },
-  { id: "sec-docs",       label: "Documents",     navKey: null,                  icon: <FileText className="h-3.5 w-3.5" /> },
-  { id: "sec-apps",       label: "Applications",  navKey: "applications",        icon: <Shield className="h-3.5 w-3.5" /> },
-  { id: "sec-grievances", label: "Grievances",    navKey: "grievances",          icon: <AlertCircle className="h-3.5 w-3.5" /> },
+  { id: "sec-profile",    label: "Profile",      navKey: null as string | null, img: iconNavProfile },
+  { id: "sec-docs",       label: "Documents",    navKey: null,                  img: iconNavDocs },
+  { id: "sec-apps",       label: "Applications", navKey: "applications",        img: iconNavApps },
+  { id: "sec-grievances", label: "Grievances",   navKey: "grievances",          img: iconNavGrievance },
 ];
 
 function QuickNav({ activeId, onJump, onNavigate }: { activeId: string; onJump: (id: string) => void; onNavigate: (key: string) => void }) {
   return (
-    <div className="flex items-center gap-1 overflow-x-auto px-4 py-2.5 bg-white border-b border-border" style={{ scrollbarWidth: "none" }}>
-      <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mr-1 flex-shrink-0">JUMP TO:</span>
-      {NAV_ITEMS.map(s => (
-        <button
-          key={s.id}
-          onClick={() => s.navKey ? onNavigate(s.navKey) : onJump(s.id)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0
-            ${s.navKey
-              ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
-              : activeId === s.id
-                ? "bg-secondary text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
-            }`}
-        >
-          {s.icon}{s.label}
-          {s.navKey && <ArrowRight className="h-2.5 w-2.5 opacity-60" />}
-        </button>
-      ))}
+    <div className="flex items-center gap-0 overflow-x-auto bg-white border-b border-border" style={{ scrollbarWidth: "none", fontFamily: "Poppins, sans-serif" }}>
+      {NAV_ITEMS.map(s => {
+        const isActive = activeId === s.id;
+        return (
+          <button
+            key={s.id}
+            onClick={() => s.navKey ? onNavigate(s.navKey) : onJump(s.id)}
+            className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 relative
+              ${isActive ? "text-black" : "text-slate-400 hover:text-slate-700"}`}
+            style={{ fontFamily: "Poppins, sans-serif" }}
+          >
+            <img src={s.img} alt="" className="w-5 h-5 object-contain" />
+            {s.label}
+            {isActive && <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-black rounded-t-full" />}
+          </button>
+        );
+      })}
     </div>
   );
+}
+
+/* ─────────────────────────── date helper ─────────────────────────── */
+function fmtDate(s: string | undefined) {
+  if (!s) return "—";
+  try { const d = new Date(s); return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); } catch { return "—"; }
 }
 
 /* ─────────────────────────── main card ─────────────────────────── */
@@ -291,7 +300,16 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
   const [docImages, setDocImages] = useState<Record<string, { base64: string; mimeType: string }>>({});
   const [docsLoading, setDocsLoading] = useState(false);
   const initials = farmer.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
-  const regDate = new Date(farmer.addedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
+  /* Aadhaar photo from extraction data */
+  const aadhaarPhoto: string | null = (farmer.extractionData as Record<string, Record<string, string | null>> | undefined)?.aadhar?.aadharPhoto ?? null;
+
+  /* Verification date */
+  const verifiedDate = fmtDate((farmer as FarmerRecord & { verifiedAt?: string }).verifiedAt || farmer.updatedAt || farmer.addedAt);
+
+  /* Address string */
+  const addressParts = [farmer.village, farmer.taluka, farmer.district].filter(v => v && v !== "—");
+  const address = addressParts.join(", ") || "—";
 
   useEffect(() => {
     if (!farmer.farmerId) return;
@@ -323,24 +341,37 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
   const nav = useCallback((key: string) => { onNavigate?.(key); }, [onNavigate]);
 
   const DOC_LABEL: Record<string, string> = { aadhar: "Aadhaar Card", bank_passbook: "Bank Passbook", form7: "7/12 Satbara (Form 7)", form12: "Form 12 — Crop Register", form8a: "Form 8A" };
+  const poppins = { fontFamily: "Poppins, sans-serif" } as const;
 
   return (
     <div ref={cardRef} className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
 
       {/* ═══════════════════ HEADER ═══════════════════ */}
-      <div className="bg-white border-b border-border px-6 py-5">
-        <div className="flex flex-col sm:flex-row gap-5 items-start">
+      <div className="bg-white border-b border-border px-6 py-5" style={poppins}>
+        <div className="flex gap-5 items-start">
+
+          {/* ── Photo / Avatar ── */}
           <div className="relative flex-shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-white shadow-md">
-              {initials}
-            </div>
+            {aadhaarPhoto ? (
+              <img
+                src={`data:image/jpeg;base64,${aadhaarPhoto}`}
+                alt={farmer.name}
+                className="w-20 h-20 rounded-2xl object-cover border-2 border-emerald-200 shadow-md"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-black text-2xl text-white shadow-md">
+                {initials}
+              </div>
+            )}
             <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
               <BadgeCheck className="h-3.5 w-3.5 text-white" />
             </div>
           </div>
 
+          {/* ── Info ── */}
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            {/* Name + badges */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
               <h2 className="text-xl font-bold text-slate-900 leading-tight">{farmer.name}</h2>
               <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold">
                 <BadgeCheck className="h-3 w-3" /> Verified
@@ -349,26 +380,28 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
               {farmer.source === "mobile_ocr" && <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-700 border border-teal-200 font-semibold">Mobile OCR</span>}
               {farmer.source === "manual" && <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200 font-semibold">Manual</span>}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 text-sm text-slate-600">
-              <span className="flex items-center gap-2"><Hash className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" /><span className="font-mono font-semibold text-slate-800">{farmer.farmerId}</span></span>
-              {farmer.mobile && <span className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />{farmer.mobile}</span>}
-              {farmer.email && <span className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />{farmer.email}</span>}
-              <span className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />{farmer.village}, {farmer.district}</span>
-            </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-start flex-shrink-0">
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 text-center min-w-[120px]">
-              <div className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-0.5">क्षेत्रफळ</div>
-              <div className="font-mono font-bold text-sm text-emerald-800 leading-snug">{formatLandHAR(farmer.land)}</div>
-            </div>
-            <div className="bg-lime-50 border border-lime-200 rounded-xl px-4 py-2.5 text-center min-w-[100px]">
-              <div className="text-[10px] text-lime-700 font-bold uppercase tracking-wider mb-0.5">पीक</div>
-              <div className="font-semibold text-sm text-lime-900">{farmer.crop || "—"}</div>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-center min-w-[100px]">
-              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">Reg. Date</div>
-              <div className="font-semibold text-xs text-slate-700">{regDate}</div>
+            {/* Detail grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2">
+              {[
+                { label: "पडताळणी दिनांक", value: verifiedDate },
+                { label: "शेतकरी ID",      value: farmer.farmerId,    mono: true },
+                { label: "गाव",            value: farmer.village && farmer.village !== "—" ? farmer.village : null },
+                { label: "तालुका",         value: farmer.taluka  && farmer.taluka  !== "—" ? farmer.taluka  : null },
+                { label: "जिल्हा",         value: farmer.district && farmer.district !== "—" ? farmer.district : null },
+                { label: "खाते क्र.",      value: farmer.khateNumber && farmer.khateNumber !== "—" ? farmer.khateNumber : null, mono: true },
+                { label: "भूमापन क्र.",    value: farmer.surveyNumber && farmer.surveyNumber !== "—" ? farmer.surveyNumber : null, mono: true },
+                { label: "आधार क्र.",      value: farmer.aadhaar && farmer.aadhaar !== "—" ? farmer.aadhaar : null, mono: true },
+                { label: "मोबाईल",         value: farmer.mobile || null },
+                { label: "पत्ता",          value: address !== "—" ? address : null },
+              ].map(item => (
+                <div key={item.label} className="flex flex-col">
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mb-0.5">{item.label}</span>
+                  <span className={`text-[13px] font-semibold text-slate-800 leading-snug ${item.mono ? "font-mono" : ""}`}>
+                    {item.value ?? <span className="text-slate-300 font-normal">—</span>}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
