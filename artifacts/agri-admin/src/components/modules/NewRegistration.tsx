@@ -1678,50 +1678,50 @@ function AiSummaryPanel({
   return (
     <div className="space-y-3">
       {/* Header */}
-      <div className={`rounded-lg border px-3 py-2.5 flex items-center gap-2.5 ${
+      <div className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${
         issues.length === 0 ? "bg-emerald-50 border-emerald-200" :
         highCount > 0 ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"
       }`}>
-        <div className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center ${
-          issues.length === 0 ? "bg-emerald-100" : highCount > 0 ? "bg-red-100" : "bg-amber-100"
+        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+          issues.length === 0 ? "bg-emerald-500" : highCount > 0 ? "bg-red-600" : "bg-amber-500"
         }`}>
           {issues.length === 0
-            ? <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-            : highCount > 0 ? <CircleAlert className="h-3.5 w-3.5 text-red-600" />
-            : <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />}
+            ? <ShieldCheck className="h-4 w-4 text-white" />
+            : highCount > 0 ? <img src="/warning-icon.png" className="h-4 w-4 object-contain" alt="warning" />
+            : <AlertTriangle className="h-4 w-4 text-white" />}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-xs">
+          <div className="font-semibold text-sm text-foreground">
             {issues.length === 0 ? "All clear" : `${issues.length} issue${issues.length !== 1 ? "s" : ""} to review`}
           </div>
           {resolvedCount > 0 && (
-            <p className="text-[10px] text-emerald-600 font-medium">{resolvedCount} resolved</p>
+            <p className="text-xs text-emerald-600 font-medium">{resolvedCount} resolved</p>
           )}
         </div>
       </div>
 
       {conflicts.length > 0 && (
-        <IssueGroup icon={<CircleAlert className="h-3.5 w-3.5 text-red-500" />}
+        <IssueGroup icon={<img src="/warning-icon.png" className="h-4 w-4 object-contain flex-shrink-0" alt="conflict" />}
           label="Conflicts" labelClass="text-red-700"
           issues={conflicts} accentClass="border-red-200 bg-white"
-          badgeClass="bg-red-100 text-red-700" onResolve={onResolve} />
+          badgeClass="bg-red-600 text-white" onResolve={onResolve} />
       )}
       {missing.length > 0 && (
-        <IssueGroup icon={<AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
+        <IssueGroup icon={<AlertTriangle className="h-4 w-4 text-amber-500" />}
           label="Missing Fields" labelClass="text-amber-700"
           issues={missing} accentClass="border-amber-200 bg-white"
-          badgeClass="bg-amber-100 text-amber-700" onResolve={onResolve} />
+          badgeClass="bg-amber-500 text-white" onResolve={onResolve} />
       )}
       {format.length > 0 && (
-        <IssueGroup icon={<Info className="h-3.5 w-3.5 text-orange-500" />}
+        <IssueGroup icon={<Info className="h-4 w-4 text-orange-500" />}
           label="Format Issues" labelClass="text-orange-700"
           issues={format} accentClass="border-orange-200 bg-white"
-          badgeClass="bg-orange-100 text-orange-700" onResolve={onResolve} />
+          badgeClass="bg-orange-500 text-white" onResolve={onResolve} />
       )}
 
       {issues.length === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-4">
-          <CheckCircle2 className="h-6 w-6 text-emerald-400 mx-auto mb-1.5" />
+        <div className="text-center text-sm text-muted-foreground py-4">
+          <CheckCircle2 className="h-7 w-7 text-emerald-500 mx-auto mb-2" />
           {allIssues.length === 0 ? "No issues detected." : "All issues resolved."}
         </div>
       )}
@@ -1762,42 +1762,42 @@ function IssueGroup({
   onResolve: (id: string) => void;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className={`flex items-center gap-1.5 font-semibold text-xs ${labelClass}`}>
+    <div className="space-y-2">
+      <div className={`flex items-center gap-2 font-semibold text-sm ${labelClass}`}>
         {icon}
         {label}
-        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}`}>{issues.length}</span>
+        <span className={`min-w-[20px] h-[20px] flex items-center justify-center rounded-full text-xs font-bold px-1 ${badgeClass}`}>{issues.length}</span>
       </div>
       {issues.map((issue) => (
-        <div key={issue.id} className={`rounded-md border p-3 ${accentClass}`}>
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <div className="font-medium text-xs text-foreground leading-snug flex-1">{issue.title}</div>
-            <span className={`flex-shrink-0 text-[9px] uppercase font-bold tracking-wide px-1.5 py-0.5 rounded ${
-              issue.severity === "high" ? "bg-red-100 text-red-600"
-              : issue.severity === "medium" ? "bg-amber-100 text-amber-600"
-              : "bg-slate-100 text-slate-500"
+        <div key={issue.id} className={`rounded-lg border p-3.5 ${accentClass}`}>
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="font-semibold text-sm text-foreground leading-snug flex-1">{issue.title}</div>
+            <span className={`flex-shrink-0 text-[10px] uppercase font-bold tracking-wide px-2 py-0.5 rounded-full ${
+              issue.severity === "high" ? "bg-red-600 text-white"
+              : issue.severity === "medium" ? "bg-amber-500 text-white"
+              : "bg-slate-500 text-white"
             }`}>{issue.severity}</span>
           </div>
-          <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">{issue.description}</p>
+          <p className="text-xs text-muted-foreground leading-relaxed mb-2.5">{issue.description}</p>
           {issue.details.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
               {issue.details.map((d, j) => (
-                <div key={j} className="flex items-center gap-1 bg-white/80 border border-white rounded px-2 py-0.5 text-[10px]">
-                  <span className="font-semibold text-muted-foreground">{d.doc}:</span>
+                <div key={j} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1 text-xs">
+                  <span className="font-semibold text-gray-500">{d.doc}:</span>
                   <span className="font-mono text-foreground break-all">{d.value}</span>
                 </div>
               ))}
             </div>
           )}
           {issue.fieldKeys.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
               {issue.fieldKeys.map(fk => (
                 <button
                   key={fk}
                   onClick={() => jumpToProfileField(fk)}
-                  className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-300 bg-blue-50/60 hover:bg-blue-50 rounded px-2 py-0.5 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full px-3 py-1 transition-colors"
                 >
-                  <ArrowRight className="h-2.5 w-2.5 flex-shrink-0" />
+                  <ArrowRight className="h-3 w-3 flex-shrink-0" />
                   {fieldKeyToLabel(fk)}
                 </button>
               ))}
@@ -1805,9 +1805,9 @@ function IssueGroup({
           )}
           <button
             onClick={() => onResolve(issue.id)}
-            className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors mt-1"
           >
-            <CheckCircle2 className="h-3 w-3" />
+            <CheckCircle2 className="h-4 w-4" />
             Mark as resolved
           </button>
         </div>
@@ -3036,7 +3036,7 @@ export default function NewRegistration() {
                 <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 600, color: "#000000" }} className="leading-tight">AI SUMMARY</p>
               </div>
               {issueCount > 0 && (
-                <span className="ml-auto min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 bg-red-100 text-red-600">
+                <span className="ml-auto min-w-[20px] h-[20px] flex items-center justify-center rounded-full text-[11px] font-bold px-1 bg-red-600 text-white">
                   {issueCount}
                 </span>
               )}

@@ -126,8 +126,8 @@ function NotifPanel({ onClose, onNavigate }: { onClose: () => void; onNavigate?:
 function HeaderLangSelector() {
   const { lang, setLang } = useLang();
   const opts: { code: LangCode; label: string }[] = [
-    { code: "mr", label: "MR" },
-    { code: "hi", label: "HI" },
+    { code: "mr", label: "मराठी" },
+    { code: "hi", label: "हिंदी" },
     { code: "en", label: "EN" },
   ];
   return (
@@ -190,7 +190,7 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
         {time.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-5">
         {/* Notification bell */}
         <div className="relative" ref={notifRef}>
           <button onClick={() => { setNotifOpen(o => !o); }}
@@ -205,15 +205,19 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
           {notifOpen && <NotifPanel onClose={() => setNotifOpen(false)} onNavigate={onNavigate}/>}
         </div>
 
+        <div className="w-px h-6 bg-border flex-shrink-0" />
+
         <div className="flex items-center gap-2 cursor-pointer" onClick={onAIOpen}>
           {airavataAnim && (
             <Lottie animationData={airavataAnim} loop style={{ width: 58, height: 58, flexShrink: 0 }} />
           )}
           <div className="hidden sm:block">
-            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px", fontWeight: 700, letterSpacing: "0.13em", color: "#D97706" }} className="uppercase leading-tight">AIRAVATA INTELLIGENCE</p>
+            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "13px", fontWeight: 500, letterSpacing: "0.13em", color: "#D97706" }} className="uppercase leading-tight">AIRAVATA INTELLIGENCE</p>
             <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 500, color: "#000000" }} className="leading-tight">AI Assistant</p>
           </div>
         </div>
+
+        <div className="w-px h-6 bg-border flex-shrink-0" />
 
         {/* Language selector */}
         <HeaderLangSelector />
