@@ -28,16 +28,15 @@ const TABS = [
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Pending:        "bg-yellow-100 text-yellow-800",
-    "Under Review": "bg-blue-100 text-blue-700",
-    Approved:       "bg-emerald-100 text-emerald-700",
-    Settled:        "bg-teal-100 text-teal-700",
-    Rejected:       "bg-red-100 text-red-700",
+    Pending:        "bg-amber-500 text-white",
+    "Under Review": "bg-blue-600 text-white",
+    Approved:       "bg-emerald-600 text-white",
+    Settled:        "bg-teal-600 text-white",
+    Rejected:       "bg-red-600 text-white",
   };
-  const icons: Record<string, string> = { Pending: "⏳", "Under Review": "🔍", Approved: "✅", Settled: "💰", Rejected: "❌" };
   return (
-    <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${map[status] ?? "bg-muted text-muted-foreground"}`}>
-      {icons[status] ?? ""} {status}
+    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${map[status] ?? "bg-slate-600 text-white"}`} style={{ fontFamily: "Poppins, sans-serif" }}>
+      {status}
     </span>
   );
 }
@@ -332,8 +331,8 @@ export default function InsuranceClaims() {
   }
 
   return (
-    <div className="space-y-4">
-      {toast && <div className="fixed top-4 right-4 z-50 bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-lg text-sm">{toast}</div>}
+    <div className="space-y-5" style={{ fontFamily: "Poppins, sans-serif" }}>
+      {toast && <div className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-3 rounded-lg shadow-lg text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>{toast}</div>}
 
       {/* Delete confirmation modal */}
       {deleteModal && (
@@ -399,89 +398,86 @@ export default function InsuranceClaims() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
         {[
-          { label: "Total",        value: counts.total,    icon: Shield,       color: "text-slate-700",   bg: "bg-slate-50   border-slate-200" },
-          { label: "Pending",      value: counts.pending,  icon: Clock,        color: "text-yellow-700",  bg: "bg-yellow-50  border-yellow-200" },
-          { label: "Under Review", value: counts.review,   icon: Search,       color: "text-blue-700",    bg: "bg-blue-50    border-blue-200" },
-          { label: "Approved",     value: counts.approved, icon: CheckCircle,  color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
-          { label: "Settled",      value: counts.settled,  icon: CheckCircle,  color: "text-teal-700",    bg: "bg-teal-50    border-teal-200" },
-          { label: "Rejected",     value: counts.rejected, icon: XCircle,      color: "text-red-700",     bg: "bg-red-50     border-red-200" },
+          { label: "Total",        value: counts.total,    bg: "bg-slate-700" },
+          { label: "Pending",      value: counts.pending,  bg: "bg-amber-500" },
+          { label: "Under Review", value: counts.review,   bg: "bg-blue-600" },
+          { label: "Approved",     value: counts.approved, bg: "bg-emerald-600" },
+          { label: "Settled",      value: counts.settled,  bg: "bg-teal-600" },
+          { label: "Rejected",     value: counts.rejected, bg: "bg-red-600" },
         ].map(s => (
-          <div key={s.label} className={`rounded-xl border p-3 ${s.bg}`}>
-            <div className="flex items-center justify-between mb-1">
-              <s.icon className={`h-4 w-4 ${s.color}`}/>
-              <span className={`text-xl font-bold ${s.color}`}>{s.value}</span>
-            </div>
-            <div className="text-[11px] text-muted-foreground">{s.label}</div>
+          <div key={s.label} className={`rounded-xl p-4 ${s.bg}`}>
+            <div className="text-3xl font-semibold text-white mb-1">{s.value}</div>
+            <div className="text-sm font-medium text-white/80">{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex gap-1 bg-muted/30 rounded-lg p-1 flex-1 min-w-0 flex-wrap">
+        <div className="flex gap-1 bg-black/5 rounded-lg p-1 flex-1 min-w-0 flex-wrap">
           {TABS.map(t => (
             <button key={t.key} onClick={() => { setTab(t.key); setPage(0); }}
-              className={`text-sm px-3 py-1.5 rounded-md transition-colors whitespace-nowrap ${tab === t.key ? "bg-card shadow-sm text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"}`}>
+              className={`text-sm px-4 py-1.5 rounded-md transition-colors whitespace-nowrap font-medium ${tab === t.key ? "bg-white shadow-sm text-black" : "text-black/50 hover:text-black"}`}>
               {t.label}
             </button>
           ))}
         </div>
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"/>
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/40"/>
           <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }}
-            placeholder="Search…" className="pl-8 pr-3 py-2 text-sm border border-border rounded-lg w-48 focus:outline-none focus:ring-2 focus:ring-secondary/30"/>
+            placeholder="Search…" className="pl-8 pr-3 py-2 text-sm border border-black/15 rounded-lg w-48 focus:outline-none focus:ring-2 focus:ring-black/20 text-black"/>
         </div>
-        <button onClick={() => load()} title="Refresh" className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
-          <RefreshCw className={`h-4 w-4 text-muted-foreground ${loading ? "animate-spin" : ""}`}/>
+        <button onClick={() => load()} title="Refresh" className="p-2 rounded-lg border border-black/15 hover:bg-black/5 transition-colors">
+          <RefreshCw className={`h-4 w-4 text-black/50 ${loading ? "animate-spin" : ""}`}/>
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="bg-white border border-black/10 rounded-xl overflow-hidden shadow-sm">
         {loading ? (
-          <div className="space-y-2 p-4">{[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-muted/40 rounded animate-pulse"/>)}</div>
+          <div className="space-y-2 p-4">{[1,2,3,4,5].map(i => <div key={i} className="h-12 bg-black/5 rounded-lg animate-pulse"/>)}</div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-2">
-            <Shield className="h-10 w-10 text-muted-foreground/40"/>
-            <p className="text-sm text-muted-foreground">No insurance claims yet. Farmers can file claims from the mobile app.</p>
+            <Shield className="h-10 w-10 text-black/20"/>
+            <p className="text-sm text-black/50">No insurance claims yet. Farmers can file claims from the mobile app.</p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="bg-muted/50 text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Claim ID</th>
-                  <th className="px-4 py-3 font-medium">Farmer</th>
-                  <th className="px-4 py-3 font-medium">Insurance</th>
-                  <th className="px-4 py-3 font-medium">Crop</th>
-                  <th className="px-4 py-3 font-medium">Land (Acres)</th>
-                  <th className="px-4 py-3 font-medium">Filed</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+              <table className="w-full">
+                <thead><tr className="bg-white border-b border-black/8 text-left">
+                  <th className="px-4 py-3 text-sm font-medium text-black">Claim ID</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Farmer</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Insurance</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Crop</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Land (Acres)</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Filed</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Status</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Actions</th>
                 </tr></thead>
                 <tbody>{pageData.map(a => (
-                  <tr key={a.applicationId} className="border-t border-border/50 hover:bg-muted/20 transition-colors">
-                    <td className="px-4 py-2.5 font-mono text-xs text-secondary">{a.applicationId}</td>
-                    <td className="px-4 py-2.5">
-                      <div className="font-semibold">{a.farmerName ?? "—"}</div>
-                      <div className="text-xs text-muted-foreground font-mono">{a.farmerId}</div>
+                  <tr key={a.applicationId} className="border-t border-black/6 hover:bg-black/2 transition-colors">
+                    <td className="px-4 py-3 font-mono text-sm text-black">{a.applicationId}</td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-black text-sm">{a.farmerName ?? "—"}</div>
+                      <div className="text-xs text-black/45 font-mono mt-0.5">{a.farmerId}</div>
                     </td>
-                    <td className="px-4 py-2.5 max-w-[160px]">
-                      <div className="truncate" title={a.schemeName}>{a.schemeName}</div>
+                    <td className="px-4 py-3 max-w-[160px]">
+                      <div className="truncate text-sm text-black" title={a.schemeName}>{a.schemeName}</div>
                     </td>
-                    <td className="px-4 py-2.5">{a.crop ?? "—"}</td>
-                    <td className="px-4 py-2.5">{a.land ?? "—"}</td>
-                    <td className="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{timeAgo(a.appliedAt)}</td>
-                    <td className="px-4 py-2.5"><StatusBadge status={a.status}/></td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3 text-sm text-black">{a.crop ?? "—"}</td>
+                    <td className="px-4 py-3 text-sm text-black">{a.land ?? "—"}</td>
+                    <td className="px-4 py-3 text-sm text-black whitespace-nowrap">{timeAgo(a.appliedAt)}</td>
+                    <td className="px-4 py-3"><StatusBadge status={a.status}/></td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => { setReview(a); setNotes(a.adminNotes ?? ""); }}
-                          className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 font-semibold">
+                          className="text-xs px-3 py-1.5 rounded-lg bg-black text-white hover:bg-black/80 font-medium">
                           Review
                         </button>
                         <button onClick={() => { setEditModal(a); setEditReply(a.adminReply ?? ""); setEditNotes(a.adminNotes ?? ""); }}
-                          className="p-1.5 rounded-lg border border-border hover:bg-muted transition-colors" title="Edit reply & notes">
-                          <Pencil className="h-3.5 w-3.5 text-muted-foreground"/>
+                          className="p-1.5 rounded-lg border border-black/15 hover:bg-black/5 transition-colors" title="Edit reply & notes">
+                          <Pencil className="h-3.5 w-3.5 text-black/50"/>
                         </button>
                         <button onClick={() => setDeleteModal({ id: a.applicationId, name: a.schemeName })}
                           className="p-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors" title="Delete">
@@ -493,12 +489,12 @@ export default function InsuranceClaims() {
                 ))}</tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
-              <span className="text-xs text-muted-foreground">Showing {filtered.length} claims</span>
-              <div className="flex gap-1">
-                <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-muted disabled:opacity-30"><ChevronLeft className="h-4 w-4"/></button>
-                <span className="px-2 py-1 text-xs text-muted-foreground">{page + 1}/{Math.max(1, totalPages)}</span>
-                <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-muted disabled:opacity-30"><ChevronRight className="h-4 w-4"/></button>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-black/8 bg-white">
+              <span className="text-sm text-black/50">Showing {filtered.length} claims</span>
+              <div className="flex gap-1 items-center">
+                <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded-lg border border-black/10 hover:bg-black/5 disabled:opacity-30"><ChevronLeft className="h-4 w-4 text-black"/></button>
+                <span className="px-3 py-1 text-sm text-black">{page + 1} / {Math.max(1, totalPages)}</span>
+                <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded-lg border border-black/10 hover:bg-black/5 disabled:opacity-30"><ChevronRight className="h-4 w-4 text-black"/></button>
               </div>
             </div>
           </>
