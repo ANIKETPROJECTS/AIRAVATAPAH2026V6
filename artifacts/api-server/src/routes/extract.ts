@@ -48,13 +48,20 @@ interface JobMeta {
 const jobs = new Map<string, JobMeta>();
 
 async function getNextFarmerId(col: ReturnType<ReturnType<typeof getDb>["collection"]>): Promise<string> {
+  const today = new Date();
+  const yy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const dateStr = `${yy}${mm}${dd}`;
+  const prefix = `F${dateStr}`;
   const farmers = await col.find({}, { projection: { farmerId: 1 } }).toArray();
   let maxNum = 0;
   for (const f of farmers) {
-    const m = String(f["farmerId"] ?? "").match(/F-(\d+)/);
+    const id = String(f["farmerId"] ?? "");
+    const m = id.match(new RegExp(`^F${dateStr}(\\d+)$`));
     if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
   }
-  return `F-${String(maxNum + 1).padStart(3, "0")}`;
+  return `${prefix}${String(maxNum + 1).padStart(2, "0")}`;
 }
 
 function buildFarmerFieldsFromSection(section: string, data: Record<string, unknown>): Record<string, unknown> {

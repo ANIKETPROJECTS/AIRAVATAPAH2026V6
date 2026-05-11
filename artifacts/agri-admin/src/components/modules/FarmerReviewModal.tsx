@@ -418,11 +418,28 @@ export default function FarmerReviewModal({
             </div>
           )}
 
-          {/* Name + status */}
+          {/* Name + status + quick-info strip */}
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-bold text-lg text-black" style={poppins}>{farmer.name}</h2>
               <StatusBadge status={farmer.status} />
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5">
+              {[
+                { label: "नोंदणी दिनांक", value: farmer.addedAt ? (() => { const d = new Date(farmer.addedAt); return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`; })() : null },
+                { label: "शेतकरी ID",      value: farmer.farmerId },
+                { label: "गाव",            value: farmer.village && farmer.village !== "—" ? farmer.village : null },
+                { label: "तालुका",         value: farmer.taluka  && farmer.taluka  !== "—" ? farmer.taluka  : null },
+                { label: "जिल्हा",         value: farmer.district && farmer.district !== "—" ? farmer.district : null },
+                { label: "खाते क्र.",      value: farmer.khateNumber && farmer.khateNumber !== "—" ? farmer.khateNumber : null },
+                { label: "भूमापन क्र.",    value: farmer.surveyNumber && farmer.surveyNumber !== "—" ? farmer.surveyNumber : null },
+                { label: "आधार क्र.",      value: farmer.aadhaar && farmer.aadhaar !== "—" ? farmer.aadhaar : null },
+              ].filter(item => item.value).map(item => (
+                <span key={item.label} className="flex items-center gap-1 text-[11px]" style={poppins}>
+                  <span className="text-black/40 font-medium">{item.label}</span>
+                  <span className="text-black font-semibold">{item.value}</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>

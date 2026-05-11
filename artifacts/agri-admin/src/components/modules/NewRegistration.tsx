@@ -947,13 +947,13 @@ export function SpannedTable({ headers, rows, lang = "mr" }: { headers: string[]
         )}
         <tbody>
           {grid.map((row, rIdx) => (
-            <tr key={rIdx}>
+            <tr key={rIdx} className="bg-white">
               {row.map((cell, cIdx) => {
                 if (cell === null) return null;
                 const hasContent = cell.value !== undefined && cell.value !== null && cell.value.length > 0;
                 const lines = (cell.value ?? "").split("\n");
                 return (
-                  <td key={cIdx} rowSpan={cell.rowspan > 1 ? cell.rowspan : undefined} className="border border-black px-2 py-1.5 align-top break-words text-black">
+                  <td key={cIdx} rowSpan={cell.rowspan > 1 ? cell.rowspan : undefined} className="border border-black px-2 py-1.5 align-top break-words text-black bg-white">
                     {hasContent ? (
                       <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 leading-relaxed">
                         {lines.flatMap((line, lIdx) => {

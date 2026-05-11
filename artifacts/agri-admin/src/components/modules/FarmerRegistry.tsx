@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
-import { Search, Plus, Upload, Download, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Search, Plus, Upload, Download, ChevronLeft, ChevronRight, Loader2, AlertCircle, ChevronDown } from "lucide-react";
 import { apiFetchFarmers, type FarmerRecord } from "@/data/farmerApi";
 import FarmerRegistrationForm from "@/components/forms/FarmerRegistrationForm";
 import FarmerDetailModal from "@/components/modules/FarmerDetailModal";
@@ -266,34 +266,46 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
         </div>
 
         {/* गाव filter */}
-        <select value={gavFilter} onChange={e => { setGavFilter(e.target.value); setPage(0); }}
-          className="text-[13px] bg-white border border-gray-300 rounded-full px-4 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40" style={poppins}>
-          <option value="">गाव</option>
-          {gavs.map(g => <option key={g} value={g}>{g}</option>)}
-        </select>
+        <div className="relative">
+          <select value={gavFilter} onChange={e => { setGavFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">गाव</option>
+            {gavs.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
 
         {/* तालुका filter */}
-        <select value={talukaFilter} onChange={e => { setTalukaFilter(e.target.value); setPage(0); }}
-          className="text-[13px] bg-white border border-gray-300 rounded-full px-4 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40" style={poppins}>
-          <option value="">तालुका</option>
-          {talukas.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <div className="relative">
+          <select value={talukaFilter} onChange={e => { setTalukaFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">तालुका</option>
+            {talukas.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
 
         {/* जिल्हा filter */}
-        <select value={distFilter} onChange={e => { setDistFilter(e.target.value); setPage(0); }}
-          className="text-[13px] bg-white border border-gray-300 rounded-full px-4 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40" style={poppins}>
-          <option value="">जिल्हा</option>
-          {dists.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
+        <div className="relative">
+          <select value={distFilter} onChange={e => { setDistFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">जिल्हा</option>
+            {dists.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
 
         {/* Priority filter */}
-        <select value={priorityFilter} onChange={e => { setPriorityFilter(e.target.value); setPage(0); }}
-          className="text-[13px] bg-white border border-gray-300 rounded-full px-4 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40" style={poppins}>
-          <option value="">Priority</option>
-          <option value="High">High</option>
-          <option value="Mid">Mid</option>
-          <option value="Low">Low</option>
-        </select>
+        <div className="relative">
+          <select value={priorityFilter} onChange={e => { setPriorityFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">Priority</option>
+            <option value="High">High</option>
+            <option value="Mid">Mid</option>
+            <option value="Low">Low</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
 
         {/* Clear filter button */}
         {(activeCard !== "all" || gavFilter || talukaFilter || distFilter || priorityFilter || search) && (
