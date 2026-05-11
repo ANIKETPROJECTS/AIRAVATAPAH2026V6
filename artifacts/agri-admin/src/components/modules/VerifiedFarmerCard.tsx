@@ -273,8 +273,7 @@ function QuickNav({ activeId, onJump, onNavigate }: { activeId: string; onJump: 
           <button
             key={s.id}
             onClick={() => s.navKey ? onNavigate(s.navKey) : onJump(s.id)}
-            className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 relative
-              ${isActive ? "text-black" : "text-slate-400 hover:text-slate-700"}`}
+            className="flex items-center gap-2 px-5 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors flex-shrink-0 relative text-black hover:text-black/70"
             style={{ fontFamily: "Poppins, sans-serif" }}
           >
             <img src={s.img} alt="" className="w-5 h-5 object-contain" />
@@ -301,8 +300,9 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
   const [docsLoading, setDocsLoading] = useState(false);
   const initials = farmer.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 
-  /* Aadhaar photo from extraction data */
-  const aadhaarPhoto: string | null = (farmer.extractionData as Record<string, Record<string, string | null>> | undefined)?.aadhar?.aadharPhoto ?? null;
+  /* Aadhaar photo from extraction data — coerce to string safely */
+  const _rawPhoto = (farmer.extractionData as Record<string, Record<string, unknown>> | undefined)?.aadhar?.aadharPhoto;
+  const aadhaarPhoto: string | null = typeof _rawPhoto === "string" && _rawPhoto.length > 0 ? _rawPhoto : null;
 
   /* Verification date */
   const verifiedDate = fmtDate((farmer as FarmerRecord & { verifiedAt?: string }).verifiedAt || farmer.updatedAt || farmer.addedAt);
@@ -351,21 +351,20 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
         <div className="flex gap-5 items-start">
 
           {/* ── Photo / Avatar ── */}
-          <div className="relative flex-shrink-0">
+          <div className="flex-shrink-0">
             {aadhaarPhoto ? (
               <img
-                src={`data:image/jpeg;base64,${aadhaarPhoto}`}
-                alt={farmer.name}
-                className="w-20 h-20 rounded-2xl object-cover border-2 border-emerald-200 shadow-md"
+                src={aadhaarPhoto.startsWith("data:") ? aadhaarPhoto : `data:image/jpeg;base64,${aadhaarPhoto}`}
+                alt=""
+                className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-200 shadow-md"
+                onError={e => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute("style"); }}
               />
-            ) : (
+            ) : null}
+            {(!aadhaarPhoto) && (
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-black text-2xl text-white shadow-md">
                 {initials}
               </div>
             )}
-            <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
-              <BadgeCheck className="h-3.5 w-3.5 text-white" />
-            </div>
           </div>
 
           {/* ── Info ── */}
@@ -373,12 +372,15 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
             {/* Name + badges */}
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <h2 className="text-xl font-bold text-slate-900 leading-tight">{farmer.name}</h2>
-              <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold">
-                <BadgeCheck className="h-3 w-3" /> Verified
+              <span className="text-[13px] px-3 py-1 rounded-full bg-[#16A34A] text-white font-semibold">
+                Verified
               </span>
-              {farmer.source === "ocr" && <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-700 border border-teal-200 font-semibold">AI-OCR</span>}
-              {farmer.source === "mobile_ocr" && <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-700 border border-teal-200 font-semibold">Mobile OCR</span>}
-              {farmer.source === "manual" && <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200 font-semibold">Manual</span>}
+              {(farmer.source === "ocr" || farmer.source === "manual" || farmer.source === "seed") && (
+                <span className="text-[13px] px-3 py-1 rounded-full bg-blue-600 text-white font-semibold">System</span>
+              )}
+              {farmer.source === "mobile_ocr" && (
+                <span className="text-[13px] px-3 py-1 rounded-full bg-violet-600 text-white font-semibold">Mobile</span>
+              )}
             </div>
 
             {/* Detail grid */}
@@ -414,7 +416,7 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
       <div className="p-4 space-y-3 bg-slate-50/50">
 
         {/* 1 ── Profile (OCR extracted data) */}
-        <Section id="sec-profile" title="Profile" icon={<UserCheck className="h-4 w-4" />}>
+        <Section id="sec-profile" title="Profile" icon={<img src={iconNavProfile} alt="" className="w-4 h-4 object-contain" />}>
           {docsLoading ? (
             <div className="flex items-center justify-center py-12 gap-3 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -426,7 +428,7 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
         </Section>
 
         {/* 2 ── Original Documents */}
-        <Section id="sec-docs" title="Original Documents" icon={<FileText className="h-4 w-4" />} badge={Object.keys(docImages).length}>
+        <Section id="sec-docs" title="Original Documents" icon={<img src={iconNavDocs} alt="" className="w-4 h-4 object-contain" />} badge={Object.keys(docImages).length}>
           <div className="space-y-4">
             {docsLoading && (
               <div className="flex items-center justify-center py-8 gap-3 text-muted-foreground">
@@ -497,7 +499,7 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
         </div>
 
         {/* 3 ── Applications (Scheme + Insurance + Subsidy) */}
-        <SummaryCard id="sec-apps" title="Applications" icon={<Shield className="h-4 w-4" />} onClick={() => nav("applications")}>
+        <SummaryCard id="sec-apps" title="Applications" icon={<img src={iconNavApps} alt="" className="w-4 h-4 object-contain" />} onClick={() => nav("applications")}>
           <p className="text-sm text-slate-600">View and manage all applications for this farmer — government schemes, crop &amp; life insurance (PMFBY, RWBCIS), and input subsidies (irrigation, fertilizer, equipment). Submit new applications and track status through approval.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="text-xs px-2.5 py-1 rounded-full bg-teal-100 text-teal-700 border border-teal-200 font-medium">
@@ -513,7 +515,7 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
         </SummaryCard>
 
         {/* 4 ── Grievances */}
-        <SummaryCard id="sec-grievances" title="Grievances" icon={<AlertCircle className="h-4 w-4" />} onClick={() => nav("grievances")}>
+        <SummaryCard id="sec-grievances" title="Grievances" icon={<img src={iconNavGrievance} alt="" className="w-4 h-4 object-contain" />} onClick={() => nav("grievances")}>
           <p className="text-sm text-slate-600">View, raise, and manage all grievances filed by or for this farmer — filter by status, priority, and category. Replies and resolution notes are tracked.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="text-xs px-2.5 py-1 rounded-full bg-lime-100 text-lime-700 border border-lime-200 font-medium">Open Grievances</span>

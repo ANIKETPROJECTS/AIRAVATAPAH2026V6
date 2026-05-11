@@ -100,8 +100,7 @@ function ProfileView({ farmer, onBack, onNavigate }: {
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold text-black" style={dmSerif}>Farmers</h1>
+      <div className="flex justify-end mb-5">
         <button onClick={onBack}
           className="flex items-center gap-2 text-sm font-semibold text-white bg-[#16A34A] hover:bg-[#14532D] px-4 py-2 rounded-xl transition-all flex-shrink-0"
           style={poppinsCss}>
@@ -118,8 +117,7 @@ function Breadcrumb({ farmer, subPage, onBack, onBackToProfile }: {
   farmer: FarmerRecord; subPage: SubPageKey | null; onBack: () => void; onBackToProfile: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between mb-5">
-      <h1 className="text-2xl font-bold text-black" style={dmSerif}>Farmers</h1>
+    <div className="flex justify-end mb-5">
       <button onClick={subPage ? onBackToProfile : onBack}
         className="flex items-center gap-2 text-sm font-semibold text-white bg-[#16A34A] hover:bg-[#14532D] px-4 py-2 rounded-xl transition-all flex-shrink-0"
         style={poppinsCss}>
