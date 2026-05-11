@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   BarChart3, Users, ClipboardList, IndianRupee, Shield, Megaphone,
   TrendingUp, Settings, ChevronLeft, ChevronRight, Smartphone,
   UserPlus, UserCheck, UsersRound, BookOpen, ShieldCheck, Coins,
   FolderOpen, Database as DatabaseIcon, BellRing,
 } from "lucide-react";
+import Lottie from "lottie-react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth, type SectionKey } from "@/contexts/AuthContext";
 import { t } from "@/i18n/translations";
@@ -69,7 +70,12 @@ interface SidebarProps {
 
 export default function Sidebar({ active, onNavigate, collapsed, onToggle }: SidebarProps) {
   const { lang } = useLang();
-  const { can } = useAuth();
+  const { can, currentUser } = useAuth();
+  const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
+
+  useEffect(() => {
+    fetch("/animations/airavata-sidebar.json").then(r => r.json()).then(setAiravataAnim).catch(() => {});
+  }, []);
 
   const [openGroup, setOpenGroup] = useState<{ key: string; top: number } | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -173,6 +179,51 @@ export default function Sidebar({ active, onNavigate, collapsed, onToggle }: Sid
             </>
           )}
         </nav>
+
+        {/* ── Airavata Intelligence section ── */}
+        {airavataAnim && (
+          <div className={`border-t border-white/10 pt-3 pb-1 ${collapsed ? "flex justify-center px-2" : "px-4"}`}>
+            {collapsed ? (
+              <Lottie animationData={airavataAnim} loop style={{ width: 32, height: 32 }} />
+            ) : (
+              <div className="flex items-center gap-2">
+                <Lottie animationData={airavataAnim} loop style={{ width: 40, height: 40, flexShrink: 0 }} />
+                <div>
+                  <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
+                  <p className="text-[10px] text-white/50">AI Assistant</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── User profile section ── */}
+        {currentUser && (
+          <div className={`border-t border-white/10 py-3 ${collapsed ? "flex justify-center px-2" : "px-4"}`}>
+            {collapsed ? (
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #16A34A, #14532D)" }}
+                title={currentUser.name}
+              >
+                {currentUser.name.trim().split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #16A34A, #14532D)" }}
+                >
+                  {currentUser.name.trim().split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-white truncate leading-tight">{currentUser.name}</p>
+                  <p className="text-[10px] truncate leading-tight" style={{ color: "rgba(255,255,255,0.45)" }}>{currentUser.designation}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <button
           onClick={onToggle}

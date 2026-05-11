@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import Lottie from "lottie-react";
 import {
-  Bell, MessageSquare, Shield, AlertTriangle, Ticket,
+  Bell, Shield, AlertTriangle, Ticket,
   CheckCircle2, Info, X, BellOff, CheckCheck,
   LogOut, User, Settings, ChevronDown, Clock, Mail, Phone, MapPin, Edit2,
 } from "lucide-react";
@@ -239,6 +240,7 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileEditOpen, setProfileEditOpen] = useState(false);
+  const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const { unreadCount } = useNotifications();
@@ -247,6 +249,10 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    fetch("/animations/airavata-sidebar.json").then(r => r.json()).then(setAiravataAnim).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -275,12 +281,15 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
       </div>
 
       <div className="flex items-center gap-3">
-        <button onClick={onAIOpen}
-          className="relative flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
-          <MessageSquare className="h-4 w-4"/>
-          <span className="hidden sm:inline">AI Assistant</span>
-          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"/>
-        </button>
+        <div className="flex items-center gap-1.5 cursor-pointer" onClick={onAIOpen}>
+          {airavataAnim && (
+            <Lottie animationData={airavataAnim} loop style={{ width: 36, height: 36, flexShrink: 0 }} />
+          )}
+          <div className="hidden sm:block">
+            <p className="text-[10px] font-bold tracking-widest uppercase leading-tight" style={{ color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">AI Assistant</p>
+          </div>
+        </div>
 
         {/* Notification bell */}
         <div className="relative" ref={notifRef}>

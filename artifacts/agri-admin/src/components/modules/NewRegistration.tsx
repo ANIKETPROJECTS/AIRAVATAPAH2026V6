@@ -1304,15 +1304,7 @@ function DocUploadCard({
   const fieldsCount = state.sections.reduce((n, s) => n + s.fields.filter(f => f.value && f.value !== "—").length, 0);
 
   return (
-    <div className={`rounded-xl border-2 bg-card shadow-sm overflow-hidden transition-all flex flex-col ${
-      isComplete
-        ? `${card.borderColor} ${card.bgColor}`
-        : isError
-        ? "border-red-200 bg-red-50/30"
-        : busy
-        ? "border-amber-200 bg-amber-50/30"
-        : "border-border bg-card hover:border-primary/30 hover:shadow-md"
-    }`}>
+    <div className="rounded-xl border-2 bg-white border-black shadow-sm overflow-hidden transition-all flex flex-col">
 
       {/* ── Card Header (fixed layout — same across all cards) ── */}
       <div className="px-4 pt-4 pb-3">
@@ -1325,10 +1317,10 @@ function DocUploadCard({
               className="w-8 h-8 flex-shrink-0 object-contain"
             />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-sm text-foreground leading-snug">
+              <p className="font-semibold text-sm text-black leading-snug">
                 {DOC_CARD_LABELS[card.id]?.[lang] ?? card.label}
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
+              <p className="text-[11px] text-black mt-0.5 leading-none">
                 {DOC_CARD_DESCS[card.id]?.[lang] ?? card.description}
               </p>
             </div>
@@ -1367,7 +1359,7 @@ function DocUploadCard({
       </div>
 
       {/* ── Divider ── */}
-      <div className="border-t border-border mx-4" />
+      <div className="border-t border-black mx-4" />
 
       {/* ── Card Body (dynamic per state) ── */}
       <div className="px-4 pb-4 pt-3 flex-1">
@@ -1377,13 +1369,13 @@ function DocUploadCard({
           <div
             onDrop={onDrop}
             onDragOver={(e) => e.preventDefault()}
-            className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all py-4 group"
+            className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-black hover:border-primary/40 hover:bg-primary/5 transition-all py-4 group"
           >
             <div className="flex items-center justify-center gap-3 mb-3">
               <img src={`${BASE_URL}/pdf-icon.png`} alt="PDF" style={{ width: 64, height: 64 }} className="object-contain pointer-events-none" />
               <img src={`${BASE_URL}/image-icon.png`} alt="Image" style={{ width: 64, height: 64 }} className="object-contain pointer-events-none" />
             </div>
-            <p className="text-[11px] text-muted-foreground text-center leading-relaxed px-2 mb-3">
+            <p className="text-[11px] text-black text-center leading-relaxed px-2 mb-3">
               {ui("dropUpload", lang)}
             </p>
             <button
@@ -1404,7 +1396,7 @@ function DocUploadCard({
             ) : (
               <Loader2 className="h-8 w-8 text-primary animate-spin" />
             )}
-            <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-xs font-normal text-primary text-center mt-1">
+            <p style={{ fontFamily: "'Poppins', sans-serif" }} className="text-xs font-normal text-black text-center mt-1">
               Airavata Intelligence is Working...
             </p>
           </div>
@@ -2933,7 +2925,7 @@ export default function NewRegistration() {
             <h1 className="font-heading text-2xl">New Registration</h1>
             <LangSelector lang={form8aLang} onChange={setForm8aLang} />
           </div>
-          <p className="text-sm text-muted-foreground mb-5">
+          <p className="text-sm text-black mb-5">
             {ui("newRegDesc", form8aLang)}
           </p>
 
@@ -2953,8 +2945,8 @@ export default function NewRegistration() {
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="text-sm text-muted-foreground">
             {completedCards.length > 0 ? (
-              <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                <CheckCircle2 className="h-4 w-4" />
+              <span className="flex items-center gap-1.5 text-black font-medium">
+                <img src={`${BASE_URL}/checked-icon.png`} alt="" className="h-4 w-4 object-contain" />
                 {translateValue(String(completedCards.length), form8aLang)} {ui("docsReady", form8aLang)}
                 {anyBusy && ` · ${ui("waitingProcessing", form8aLang)}`}
               </span>
