@@ -1705,7 +1705,7 @@ function AiSummaryPanel({
           badgeClass="bg-amber-500 text-white" onResolve={onResolve} />
       )}
       {format.length > 0 && (
-        <IssueGroup icon={<Info className="h-4 w-4 text-orange-500" />}
+        <IssueGroup icon={<img src="/crisis-icon.png" className="h-4 w-4 object-contain flex-shrink-0" alt="format issue" />}
           label="Format Issues" labelClass="text-orange-700"
           issues={format} accentClass="border-orange-200 bg-white"
           badgeClass="bg-orange-500 text-white" onResolve={onResolve} />
@@ -1774,9 +1774,9 @@ function IssueGroup({
           {issue.details.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-2.5">
               {issue.details.map((d, j) => (
-                <div key={j} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1 text-xs">
-                  <span className="font-semibold text-gray-500">{d.doc}:</span>
-                  <span className="font-mono text-foreground break-all">{d.value}</span>
+                <div key={j} className="flex items-center gap-1 bg-white border border-black rounded-md px-2.5 py-1 text-xs">
+                  <span className="font-semibold text-black">{d.doc}:</span>
+                  <span className="font-mono text-black break-all">{d.value}</span>
                 </div>
               ))}
             </div>
@@ -1797,9 +1797,9 @@ function IssueGroup({
           )}
           <button
             onClick={() => onResolve(issue.id)}
-            className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors mt-1"
+            className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
           >
-            <CheckCircle2 className="h-4 w-4" />
+            <img src="/checked-icon.png" className="h-4 w-4 object-contain" style={{ filter: "brightness(0) invert(1)" }} alt="resolved" />
             Mark as resolved
           </button>
         </div>
@@ -2732,8 +2732,8 @@ export function FarmerProfileCard({
         })}
 
         {!hideFooter && (approved ? (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-white border border-border text-black text-sm font-medium">
-            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-emerald-600 text-white text-sm font-semibold">
+            <img src="/checked-icon.png" className="h-5 w-5 object-contain flex-shrink-0" style={{ filter: "brightness(0) invert(1)" }} alt="approved" />
             {ui("approvedMsg", lang)}
           </div>
         ) : (
