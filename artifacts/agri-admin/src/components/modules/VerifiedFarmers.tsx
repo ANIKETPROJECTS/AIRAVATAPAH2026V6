@@ -1,8 +1,7 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
-  Search, Users, Loader2, AlertCircle, BadgeCheck,
-  Filter, RefreshCw, MapPin,
-  Shield, ChevronLeft, FileText, LifeBuoy, IndianRupee,
+  Search, Loader2, AlertCircle, ChevronLeft, ChevronRight, ChevronDown,
+  FileText, LifeBuoy, IndianRupee, Shield, Eye,
 } from "lucide-react";
 import { apiFetchFarmers, type FarmerRecord } from "@/data/farmerApi";
 import VerifiedFarmerCard from "@/components/modules/VerifiedFarmerCard";
@@ -15,148 +14,57 @@ import {
   AllApplicationsPage,
 } from "@/components/modules/FarmerSubPages";
 
-/* ─── helpers ─── */
-function formatLandHAR(val: number | string | undefined): string {
-  if (val === undefined || val === null || val === "" || val === "0" || val === 0) return "—";
-  const s = String(val).trim();
-  const parts = s.split(".");
-  if (parts.length === 3) return `${parts[0]} हे. ${parts[1]} आर. ${parts[2]} चौ.मी.`;
-  if (parts.length === 2) return parts[1] === "0" || parts[1] === "00" ? `${parts[0]} हे.` : `${parts[0]} हे. ${parts[1]} आर.`;
-  return `${s} हे.`;
+/* ── helpers ──────────────────────────────── */
+function formatDate(dateStr: string | undefined): string {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "—";
+    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getFullYear()).slice(-2)}`;
+  } catch { return "—"; }
 }
 
-const AVATAR_GRADIENTS = [
-  "from-emerald-500 to-teal-600",
-  "from-green-500 to-emerald-700",
-  "from-teal-500 to-emerald-600",
-  "from-lime-500 to-green-600",
-  "from-emerald-400 to-green-700",
-  "from-teal-400 to-teal-700",
-  "from-green-600 to-emerald-800",
-  "from-lime-400 to-teal-600",
-];
-function farmerGradient(id: string) {
-  return AVATAR_GRADIENTS[parseInt(id.replace(/\D/g, "") || "0") % AVATAR_GRADIENTS.length];
+/* ── Typewriter hook ──────────────────────── */
+const HINTS = ["Search by Name...", "Search by Aadhaar...", "Search by Farmer ID...", "Search by Village..."];
+function useTypewriter() {
+  const [display, setDisplay] = useState("");
+  const idx      = useRef(0);
+  const chr      = useRef(0);
+  const deleting = useRef(false);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    function tick() {
+      const word = HINTS[idx.current];
+      if (!deleting.current) {
+        chr.current++;
+        setDisplay(word.slice(0, chr.current));
+        if (chr.current === word.length) { deleting.current = true; timer = setTimeout(tick, 1400); }
+        else timer = setTimeout(tick, 68);
+      } else {
+        chr.current--;
+        setDisplay(word.slice(0, chr.current));
+        if (chr.current === 0) { deleting.current = false; idx.current = (idx.current + 1) % HINTS.length; timer = setTimeout(tick, 350); }
+        else timer = setTimeout(tick, 38);
+      }
+    }
+    timer = setTimeout(tick, 500);
+    return () => clearTimeout(timer);
+  }, []);
+  return display;
 }
 
-/* ─── sub-page metadata ─── */
+/* ── Sub-page types ───────────────────────── */
 type SubPageKey = "scheme_apps" | "insurance_apps" | "subsidy_apps" | "applications" | "grievances" | "documents";
 const SUB_PAGE_META: Record<SubPageKey, { label: string; icon: React.ReactNode }> = {
-  scheme_apps:    { label: "Scheme Applications",    icon: <Shield className="h-4 w-4" /> },
-  insurance_apps: { label: "Insurance Applications", icon: <LifeBuoy className="h-4 w-4" /> },
+  scheme_apps:    { label: "Scheme Applications",    icon: <Shield      className="h-4 w-4" /> },
+  insurance_apps: { label: "Insurance Applications", icon: <LifeBuoy    className="h-4 w-4" /> },
   subsidy_apps:   { label: "Subsidy Applications",   icon: <IndianRupee className="h-4 w-4" /> },
-  applications:   { label: "Applications",           icon: <Shield className="h-4 w-4" /> },
+  applications:   { label: "Applications",           icon: <Shield      className="h-4 w-4" /> },
   grievances:     { label: "Grievances",             icon: <AlertCircle className="h-4 w-4" /> },
-  documents:      { label: "Documents",              icon: <FileText className="h-4 w-4" /> },
+  documents:      { label: "Documents",              icon: <FileText    className="h-4 w-4" /> },
 };
 
-/* ─── Compact card (grid item) ─── */
-function CompactFarmerCard({ farmer, onClick }: { farmer: FarmerRecord; onClick: () => void }) {
-  const initials = farmer.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
-  const grad = farmerGradient(farmer.farmerId);
-  const regDate = new Date(farmer.addedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-
-  return (
-    <button
-      onClick={onClick}
-      className="group w-full text-left rounded-2xl border-2 border-border hover:border-secondary/60 hover:shadow-lg hover:shadow-secondary/10 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden bg-card cursor-pointer"
-    >
-      <div className={`h-1.5 w-full bg-gradient-to-r ${grad}`} />
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center font-bold text-white text-base shadow-sm flex-shrink-0`}>
-            {initials}
-          </div>
-          <div className="flex flex-col items-end gap-1">
-            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold border border-emerald-200">
-              <BadgeCheck className="h-2.5 w-2.5" /> Verified
-            </span>
-            {farmer.source === "ocr" && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-100 text-teal-700 font-semibold border border-teal-200">AI-OCR</span>
-            )}
-            {farmer.source === "mobile_ocr" && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-100 text-teal-700 font-semibold border border-teal-200">Mobile OCR</span>
-            )}
-            {farmer.source === "manual" && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold border border-green-200">Manual</span>
-            )}
-          </div>
-        </div>
-
-        <h3 className="font-bold text-sm text-foreground leading-tight truncate mb-0.5">{farmer.name}</h3>
-        <p className="text-[11px] text-muted-foreground font-mono mb-1">{farmer.farmerId}</p>
-
-        <div className="flex items-center gap-1 text-[11px] text-muted-foreground mb-3">
-          <MapPin className="h-3 w-3 flex-shrink-0" />
-          <span className="truncate">{farmer.village}, {farmer.district}</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5">
-            <div className="text-[9px] text-emerald-600 uppercase tracking-wide mb-0.5 font-semibold">क्षेत्रफळ</div>
-            <div className="text-[11px] font-semibold text-emerald-900 font-mono leading-tight">{formatLandHAR(farmer.land)}</div>
-          </div>
-          <div className="bg-lime-50 border border-lime-200 rounded-lg px-2.5 py-1.5">
-            <div className="text-[9px] text-lime-700 uppercase tracking-wide mb-0.5 font-semibold">पीक</div>
-            <div className="text-[11px] font-semibold text-lime-900 truncate leading-tight">{farmer.crop || "—"}</div>
-          </div>
-        </div>
-
-        {farmer.aadhaar && (
-          <div className="flex items-center gap-1.5 mb-3">
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-mono font-semibold truncate max-w-full">
-              Aadhaar: {farmer.aadhaar.replace(/(\d{4})(\d{4})(\d{4})/, "$1 $2 $3")}
-            </span>
-          </div>
-        )}
-
-        <div className="pt-3 border-t border-border/50 flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">Reg: {regDate}</span>
-          <span className="text-[10px] font-semibold text-secondary group-hover:underline">
-            View Profile →
-          </span>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-/* ─── Breadcrumb ─── */
-function Breadcrumb({ farmer, subPage, onBack, onBackToProfile }: {
-  farmer: FarmerRecord;
-  subPage: SubPageKey | null;
-  onBack: () => void;
-  onBackToProfile: () => void;
-}) {
-  return (
-    <div className="flex items-center gap-3 mb-5 flex-wrap">
-      <button
-        onClick={subPage ? onBackToProfile : onBack}
-        className="flex items-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 bg-secondary/8 hover:bg-secondary/15 border border-secondary/20 px-4 py-2 rounded-xl transition-all flex-shrink-0"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        {subPage ? `Back to ${farmer.name.split(" ")[0]}'s Profile` : "Back to Farmers"}
-      </button>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-        <button onClick={onBack} className="hover:text-foreground transition-colors">Farmers</button>
-        <span className="text-muted-foreground/40">›</span>
-        <button onClick={onBackToProfile} className={`${subPage ? "hover:text-foreground" : "font-semibold text-foreground"} transition-colors`}>
-          {farmer.name}
-          <span className="font-mono text-xs text-muted-foreground ml-1">({farmer.farmerId})</span>
-        </button>
-        {subPage && <>
-          <span className="text-muted-foreground/40">›</span>
-          <span className="font-semibold text-foreground flex items-center gap-1.5">
-            {SUB_PAGE_META[subPage].icon}
-            {SUB_PAGE_META[subPage].label}
-          </span>
-        </>}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Sub-page wrapper ─── */
+/* ── Sub-page wrapper ─────────────────────── */
 function SubPageView({ farmer, subPage }: { farmer: FarmerRecord; subPage: SubPageKey }) {
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [subPage]);
   const meta = SUB_PAGE_META[subPage];
@@ -181,20 +89,16 @@ function SubPageView({ farmer, subPage }: { farmer: FarmerRecord; subPage: SubPa
   );
 }
 
-/* ─── Profile page view ─── */
+/* ── Profile page view ────────────────────── */
 function ProfileView({ farmer, onBack, onNavigate }: {
-  farmer: FarmerRecord;
-  onBack: () => void;
-  onNavigate: (key: string) => void;
+  farmer: FarmerRecord; onBack: () => void; onNavigate: (key: string) => void;
 }) {
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
   return (
     <div>
       <div className="flex items-center gap-3 mb-5 flex-wrap">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 bg-secondary/8 hover:bg-secondary/15 border border-secondary/20 px-4 py-2 rounded-xl transition-all flex-shrink-0"
-        >
+        <button onClick={onBack}
+          className="flex items-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 bg-secondary/8 hover:bg-secondary/15 border border-secondary/20 px-4 py-2 rounded-xl transition-all flex-shrink-0">
           <ChevronLeft className="h-4 w-4" /> Back to Farmers
         </button>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -211,179 +115,310 @@ function ProfileView({ farmer, onBack, onNavigate }: {
   );
 }
 
-/* ─── Main page ─── */
+/* ── Breadcrumb ───────────────────────────── */
+function Breadcrumb({ farmer, subPage, onBack, onBackToProfile }: {
+  farmer: FarmerRecord; subPage: SubPageKey | null; onBack: () => void; onBackToProfile: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-3 mb-5 flex-wrap">
+      <button onClick={subPage ? onBackToProfile : onBack}
+        className="flex items-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 bg-secondary/8 hover:bg-secondary/15 border border-secondary/20 px-4 py-2 rounded-xl transition-all flex-shrink-0">
+        <ChevronLeft className="h-4 w-4" />
+        {subPage ? `Back to ${farmer.name.split(" ")[0]}'s Profile` : "Back to Farmers"}
+      </button>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+        <button onClick={onBack} className="hover:text-foreground transition-colors">Farmers</button>
+        <span className="text-muted-foreground/40">›</span>
+        <button onClick={onBackToProfile} className={`${subPage ? "hover:text-foreground" : "font-semibold text-foreground"} transition-colors`}>
+          {farmer.name}
+          <span className="font-mono text-xs text-muted-foreground ml-1">({farmer.farmerId})</span>
+        </button>
+        {subPage && <>
+          <span className="text-muted-foreground/40">›</span>
+          <span className="font-semibold text-foreground flex items-center gap-1.5">
+            {SUB_PAGE_META[subPage].icon}
+            {SUB_PAGE_META[subPage].label}
+          </span>
+        </>}
+      </div>
+    </div>
+  );
+}
+
+/* ── Main component ───────────────────────── */
 export default function VerifiedFarmers() {
-  const [farmers, setFarmers] = useState<FarmerRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [distFilter, setDistFilter] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [subPage, setSubPage] = useState<SubPageKey | null>(null);
+  const [farmers, setFarmers]         = useState<FarmerRecord[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState("");
+  const [search, setSearch]           = useState("");
+  const [gavFilter, setGavFilter]     = useState("");
+  const [talukaFilter, setTalukaFilter] = useState("");
+  const [distFilter, setDistFilter]   = useState("");
+  const [khateFilter, setKhateFilter] = useState("");
+  const [surveyFilter, setSurveyFilter] = useState("");
+  const [page, setPage]               = useState(0);
+  const [selectedId, setSelectedId]   = useState<string | null>(null);
+  const [subPage, setSubPage]         = useState<SubPageKey | null>(null);
+  const placeholder = useTypewriter();
+
+  const poppins = { fontFamily: "Poppins, sans-serif" } as const;
 
   const loadFarmers = useCallback(async () => {
     try {
       setError("");
       const data = await apiFetchFarmers();
-      setFarmers(data.filter(f => f.status === "Verified"));
-    } catch {
-      setError("Failed to load farmers. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+      setFarmers(data.filter(f => f.status === "Verified" || f.status === "Active"));
+    } catch { setError("Failed to load farmers. Please try again."); }
+    finally  { setLoading(false); }
   }, []);
 
   useEffect(() => { loadFarmers(); }, [loadFarmers]);
   useEffect(() => {
-    const handler = () => loadFarmers();
-    window.addEventListener("farmer-registry-changed", handler);
-    return () => window.removeEventListener("farmer-registry-changed", handler);
+    const h = () => loadFarmers();
+    window.addEventListener("farmer-registry-changed", h);
+    return () => window.removeEventListener("farmer-registry-changed", h);
   }, [loadFarmers]);
 
-  const districts = useMemo(() => [...new Set(farmers.map(f => f.district))].sort(), [farmers]);
+  const gavs    = useMemo(() => [...new Set(farmers.map(f => f.village).filter(Boolean))].sort(), [farmers]);
+  const talukas = useMemo(() => [...new Set(farmers.map(f => f.taluka).filter(Boolean))].sort() as string[], [farmers]);
+  const dists   = useMemo(() => [...new Set(farmers.map(f => f.district).filter(Boolean))].sort(), [farmers]);
+  const khates  = useMemo(() => [...new Set(farmers.map(f => f.khateNumber).filter(v => v && v !== "—"))].sort() as string[], [farmers]);
+  const surveys = useMemo(() => [...new Set(farmers.map(f => f.surveyNumber).filter(v => v && v !== "—"))].sort() as string[], [farmers]);
 
   const filtered = useMemo(() => farmers.filter(f => {
     const s = search.toLowerCase();
-    const matchSearch = !s || f.name.toLowerCase().includes(s) || f.farmerId.toLowerCase().includes(s) || f.aadhaar.includes(s) || f.village.toLowerCase().includes(s);
-    return matchSearch && (!distFilter || f.district === distFilter);
-  }), [search, distFilter, farmers]);
+    const matchSearch  = !s || f.name.toLowerCase().includes(s) || f.farmerId.toLowerCase().includes(s) || f.aadhaar.includes(s) || (f.village || "").toLowerCase().includes(s);
+    const matchGav     = !gavFilter    || f.village === gavFilter;
+    const matchTaluka  = !talukaFilter || f.taluka  === talukaFilter;
+    const matchDist    = !distFilter   || f.district === distFilter;
+    const matchKhate   = !khateFilter  || f.khateNumber === khateFilter;
+    const matchSurvey  = !surveyFilter || f.surveyNumber === surveyFilter;
+    return matchSearch && matchGav && matchTaluka && matchDist && matchKhate && matchSurvey;
+  }), [search, gavFilter, talukaFilter, distFilter, khateFilter, surveyFilter, farmers]);
+
+  const totalPages = Math.ceil(filtered.length / 10);
+  const pageData   = filtered.slice(page * 10, (page + 1) * 10);
 
   const selectedFarmer = farmers.find(f => f.farmerId === selectedId) ?? null;
 
-  const handleNavigate = useCallback((key: string) => {
-    setSubPage(key as SubPageKey);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-  const handleBackToGrid = useCallback(() => { setSelectedId(null); setSubPage(null); }, []);
+  const handleNavigate    = useCallback((key: string) => { setSubPage(key as SubPageKey); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
+  const handleBackToGrid  = useCallback(() => { setSelectedId(null); setSubPage(null); }, []);
   const handleBackToProfile = useCallback(() => { setSubPage(null); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
 
+  const hasFilters = !!(search || gavFilter || talukaFilter || distFilter || khateFilter || surveyFilter);
+  const clearFilters = () => { setSearch(""); setGavFilter(""); setTalukaFilter(""); setDistFilter(""); setKhateFilter(""); setSurveyFilter(""); setPage(0); };
+
   /* ── Loading ── */
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground gap-3">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="text-sm">Loading verified farmers...</span>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center py-24 text-muted-foreground gap-3">
+      <Loader2 className="h-6 w-6 animate-spin" />
+      <span className="text-sm" style={poppins}>Loading verified farmers...</span>
+    </div>
+  );
 
   /* ── Error ── */
-  if (error) {
-    return (
-      <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-        <AlertCircle className="h-5 w-5 flex-shrink-0" />
-        <span>{error}</span>
-        <button onClick={loadFarmers} className="ml-auto flex items-center gap-1 text-xs underline">
-          <RefreshCw className="h-3.5 w-3.5" /> Retry
-        </button>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+      <AlertCircle className="h-5 w-5 flex-shrink-0" />
+      <span>{error}</span>
+      <button onClick={loadFarmers} className="ml-auto text-xs underline">Retry</button>
+    </div>
+  );
 
   /* ── Sub-page (level 3) ── */
-  if (selectedFarmer && subPage) {
-    return (
-      <div>
-        <Breadcrumb farmer={selectedFarmer} subPage={subPage} onBack={handleBackToGrid} onBackToProfile={handleBackToProfile} />
-        <SubPageView farmer={selectedFarmer} subPage={subPage} />
-      </div>
-    );
-  }
+  if (selectedFarmer && subPage) return (
+    <div>
+      <Breadcrumb farmer={selectedFarmer} subPage={subPage} onBack={handleBackToGrid} onBackToProfile={handleBackToProfile} />
+      <SubPageView farmer={selectedFarmer} subPage={subPage} />
+    </div>
+  );
 
   /* ── Profile page (level 2) ── */
-  if (selectedFarmer) {
-    return (
-      <ProfileView farmer={selectedFarmer} onBack={handleBackToGrid} onNavigate={handleNavigate} />
-    );
-  }
+  if (selectedFarmer) return (
+    <ProfileView farmer={selectedFarmer} onBack={handleBackToGrid} onNavigate={handleNavigate} />
+  );
 
-  /* ── Grid page (level 1) ── */
+  /* ── List page (level 1) ── */
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" style={poppins}>
 
-      {/* Summary strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { icon: <BadgeCheck className="h-5 w-5 text-emerald-600" />, bg: "bg-emerald-100", value: farmers.length, label: "Verified Farmers" },
-          { icon: <MapPin className="h-5 w-5 text-teal-600" />, bg: "bg-teal-100", value: districts.length, label: "Districts Covered" },
-          { icon: <Shield className="h-5 w-5 text-green-700" />, bg: "bg-green-100", value: farmers.filter(f => f.source === "ocr" || f.source === "mobile_ocr").length, label: "AI-OCR Registered" },
-          { icon: <FileText className="h-5 w-5 text-lime-700" />, bg: "bg-lime-100", value: farmers.filter(f => f.docs && f.docs.length > 0).length, label: "With Documents" },
-        ].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full ${s.bg} flex items-center justify-center flex-shrink-0`}>{s.icon}</div>
-            <div>
-              <div className="text-2xl font-bold text-foreground">{s.value}</div>
-              <div className="text-xs text-muted-foreground leading-tight">{s.label}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Page title */}
+      <h1 className="font-heading text-2xl font-bold text-black" style={{ fontFamily: "DM Serif Display, serif" }}>Farmers</h1>
 
-      {/* Search + filter */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {/* ── Search + Filters ── */}
+      <div className="flex flex-wrap gap-2 items-center">
+
+        {/* Search pill */}
+        <div className="relative w-64">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
           <input
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, ID, Aadhaar, village..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/40"
+            onChange={e => { setSearch(e.target.value); setPage(0); }}
+            placeholder={placeholder}
+            className="w-full pl-10 pr-4 py-2 text-[13px] bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary/40 text-black"
+            style={poppins}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <select
-            value={distFilter}
-            onChange={e => setDistFilter(e.target.value)}
-            className="text-sm bg-card border border-border rounded-lg px-3 py-2"
-          >
-            <option value="">All Districts</option>
-            {districts.map(d => <option key={d} value={d}>{d}</option>)}
+
+        {/* गाव */}
+        <div className="relative">
+          <select value={gavFilter} onChange={e => { setGavFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">गाव</option>
+            {gavs.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
         </div>
-        <span className="text-xs text-muted-foreground ml-auto">
-          Showing {filtered.length} of {farmers.length} farmer{farmers.length !== 1 ? "s" : ""}
-        </span>
+
+        {/* तालुका */}
+        <div className="relative">
+          <select value={talukaFilter} onChange={e => { setTalukaFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">तालुका</option>
+            {talukas.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
+
+        {/* जिल्हा */}
+        <div className="relative">
+          <select value={distFilter} onChange={e => { setDistFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">जिल्हा</option>
+            {dists.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
+
+        {/* खाते क्र. */}
+        <div className="relative">
+          <select value={khateFilter} onChange={e => { setKhateFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">खाते क्र.</option>
+            {khates.map(k => <option key={k} value={k}>{k}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
+
+        {/* भूमापन क्र. */}
+        <div className="relative">
+          <select value={surveyFilter} onChange={e => { setSurveyFilter(e.target.value); setPage(0); }}
+            className="appearance-none text-[13px] bg-white border border-gray-300 rounded-full pl-4 pr-8 py-2 text-black focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer" style={poppins}>
+            <option value="">भूमापन क्र.</option>
+            {surveys.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+        </div>
+
+        {/* Clear */}
+        {hasFilters && (
+          <button onClick={clearFilters}
+            className="text-[13px] px-4 py-2 rounded-full bg-gray-100 border border-gray-200 hover:bg-gray-200 text-black" style={poppins}>
+            Clear ×
+          </button>
+        )}
       </div>
 
-      {/* Empty states */}
-      {farmers.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-          <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center">
-            <Users className="h-10 w-10 text-muted-foreground/30" />
+      {/* ── Table ── */}
+      <div className="bg-white border border-black/10 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse" style={poppins}>
+            <thead>
+              <tr className="bg-white border-b-2 border-black text-left">
+                {["पडताळणी दिनांक", "शेतकरी ID", "नाव", "गाव", "तालुका", "जिल्हा", "खाते क्र.", "भूमापन क्र.", "आधार क्र.", "Action"].map(h => (
+                  <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-black whitespace-nowrap border-r border-black/20 last:border-r-0">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {pageData.map((f, idx) => (
+                <tr key={f.farmerId}
+                  className={`bg-white hover:bg-gray-50 transition-colors ${idx < pageData.length - 1 ? "border-b border-black/15" : ""}`}>
+
+                  {/* पडताळणी दिनांक */}
+                  <td className="px-4 py-3 text-[13px] text-black font-mono whitespace-nowrap border-r border-black/10">
+                    {formatDate((f as FarmerRecord & { verifiedAt?: string }).verifiedAt || f.updatedAt || f.addedAt)}
+                  </td>
+
+                  {/* शेतकरी ID */}
+                  <td className="px-4 py-3 text-[13px] text-black font-mono whitespace-nowrap border-r border-black/10">{f.farmerId}</td>
+
+                  {/* नाव */}
+                  <td className="px-4 py-3 text-[13px] font-semibold text-black whitespace-nowrap border-r border-black/10">{f.name}</td>
+
+                  {/* गाव */}
+                  <td className="px-4 py-3 text-[13px] text-black border-r border-black/10">
+                    {f.village && f.village !== "—" ? f.village : <span className="text-gray-300">—</span>}
+                  </td>
+
+                  {/* तालुका */}
+                  <td className="px-4 py-3 text-[13px] text-black border-r border-black/10">
+                    {f.taluka && f.taluka !== "—" ? f.taluka : <span className="text-gray-300">—</span>}
+                  </td>
+
+                  {/* जिल्हा */}
+                  <td className="px-4 py-3 text-[13px] text-black border-r border-black/10">
+                    {f.district && f.district !== "—" ? f.district : <span className="text-gray-300">—</span>}
+                  </td>
+
+                  {/* खाते क्र. */}
+                  <td className="px-4 py-3 text-[13px] text-black font-mono border-r border-black/10">
+                    {f.khateNumber && f.khateNumber !== "—" ? f.khateNumber : <span className="text-gray-300">—</span>}
+                  </td>
+
+                  {/* भूमापन क्र. */}
+                  <td className="px-4 py-3 text-[13px] text-black font-mono border-r border-black/10">
+                    {f.surveyNumber && f.surveyNumber !== "—" ? f.surveyNumber : <span className="text-gray-300">—</span>}
+                  </td>
+
+                  {/* आधार क्र. */}
+                  <td className="px-4 py-3 text-[13px] text-black font-mono border-r border-black/10">
+                    {f.aadhaar && f.aadhaar !== "—" ? f.aadhaar : <span className="text-gray-300">—</span>}
+                  </td>
+
+                  {/* Action */}
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => { setSelectedId(f.farmerId); setSubPage(null); }}
+                      className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-full font-semibold text-white bg-blue-600 hover:opacity-85 transition-opacity whitespace-nowrap">
+                      <Eye className="h-3.5 w-3.5" />
+                      View Profile
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {pageData.length === 0 && (
+                <tr>
+                  <td colSpan={10} className="px-4 py-12 text-center text-[13px] text-gray-400" style={poppins}>
+                    {farmers.length === 0 ? "No verified farmers yet. Verify farmers from the Farmer Registry." : "No farmers match your filters."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t-2 border-black bg-white" style={poppins}>
+          <span className="text-[12px] text-black">
+            {filtered.length > 0
+              ? `Showing ${page * 10 + 1}–${Math.min((page + 1) * 10, filtered.length)} of ${filtered.length}`
+              : "No results"}
+            {hasFilters && <span className="ml-1 text-gray-400">(filtered)</span>}
+          </span>
+          <div className="flex gap-1">
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
+              className="p-1.5 rounded-full hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30">
+              <ChevronLeft className="h-4 w-4 text-black" />
+            </button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}
+              className="p-1.5 rounded-full hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30">
+              <ChevronRight className="h-4 w-4 text-black" />
+            </button>
           </div>
-          <div>
-            <div className="text-base font-semibold text-foreground mb-1">No Verified Farmers Yet</div>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              When a farmer is verified in the Farmer Registry, their full profile will appear here.
-            </p>
-          </div>
         </div>
-      )}
-
-      {farmers.length > 0 && filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 gap-2 text-center">
-          <Search className="h-8 w-8 text-muted-foreground/30" />
-          <p className="text-sm text-muted-foreground">No farmers match your search.</p>
-          <button onClick={() => { setSearch(""); setDistFilter(""); }} className="text-xs text-secondary underline">
-            Clear filters
-          </button>
-        </div>
-      )}
-
-      {/* 4-column grid */}
-      {filtered.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filtered.map(f => (
-            <CompactFarmerCard
-              key={f.farmerId}
-              farmer={f}
-              onClick={() => { setSelectedId(f.farmerId); setSubPage(null); }}
-            />
-          ))}
-        </div>
-      )}
-
+      </div>
     </div>
   );
 }

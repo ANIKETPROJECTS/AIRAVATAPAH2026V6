@@ -58,6 +58,8 @@ export interface FarmerRecord {
   status: "Active" | "Inactive" | "Pending" | "Verified" | "Cancelled";
   source: "ocr" | "manual" | "seed" | "mobile_ocr";
   addedAt: string;
+  updatedAt?: string;
+  verifiedAt?: string;
   fatherName?: string;
   dob?: string;
   gender?: string;

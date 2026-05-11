@@ -183,6 +183,10 @@ router.patch("/farmers/:id", async (req, res, next) => {
     const db = getDb();
     const col = db.collection("farmers");
     const { _id, farmerId, addedAt, ...updates } = req.body;
+    updates["updatedAt"] = new Date().toISOString();
+    if (updates["status"] === "Verified") {
+      updates["verifiedAt"] = updates["updatedAt"];
+    }
     await col.updateOne({ farmerId: req.params["id"] }, { $set: updates });
     const updated = await col.findOne({ farmerId: req.params["id"] }, { projection: { _id: 0 } });
     if (!updated) { res.status(404).json({ error: "Farmer not found" }); return; }
