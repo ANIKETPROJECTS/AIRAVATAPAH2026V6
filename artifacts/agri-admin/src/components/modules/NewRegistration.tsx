@@ -6,11 +6,12 @@ import {
   User, Landmark, FileStack, Sprout,
   ClipboardCheck, UserCheck, Pencil, ThumbsUp, Camera,
   ArrowRight, ArrowLeft, ChevronRight, ChevronDown,
-  Sparkles, AlertTriangle, CircleAlert, Info, ShieldCheck,
+  AlertTriangle, CircleAlert, Info, ShieldCheck,
   X, ZoomIn, Image,
 } from "lucide-react";
 import { apiCreateFarmer, apiSaveDocumentImages, notifyFarmerChange } from "@/data/farmerApi";
 import { sanitizeName } from "@/lib/textUtils";
+import { useLang } from "@/contexts/LanguageContext";
 
 
 const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
@@ -1702,19 +1703,19 @@ function AiSummaryPanel({
       {conflicts.length > 0 && (
         <IssueGroup icon={<CircleAlert className="h-3.5 w-3.5 text-red-500" />}
           label="Conflicts" labelClass="text-red-700"
-          issues={conflicts} accentClass="border-red-200 bg-red-50/50"
+          issues={conflicts} accentClass="border-red-200 bg-white"
           badgeClass="bg-red-100 text-red-700" onResolve={onResolve} />
       )}
       {missing.length > 0 && (
         <IssueGroup icon={<AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
           label="Missing Fields" labelClass="text-amber-700"
-          issues={missing} accentClass="border-amber-200 bg-amber-50/50"
+          issues={missing} accentClass="border-amber-200 bg-white"
           badgeClass="bg-amber-100 text-amber-700" onResolve={onResolve} />
       )}
       {format.length > 0 && (
         <IssueGroup icon={<Info className="h-3.5 w-3.5 text-orange-500" />}
           label="Format Issues" labelClass="text-orange-700"
-          issues={format} accentClass="border-orange-200 bg-orange-50/50"
+          issues={format} accentClass="border-orange-200 bg-white"
           badgeClass="bg-orange-100 text-orange-700" onResolve={onResolve} />
       )}
 
@@ -1964,9 +1965,11 @@ function DocReviewPanel({
       <div className="rounded-xl border-2 border-border bg-white p-5 mb-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-muted/30 shadow-sm">
-              <Icon className="h-6 w-6 text-black" />
-            </div>
+            <img
+              src="/google-docs-icon.png"
+              alt="document"
+              className="w-12 h-12 object-contain flex-shrink-0"
+            />
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-black mb-0.5">
                 {ui("docNo", lang)} {translateValue(String(index + 1), lang)} {ui("of", lang)} {translateValue(String(total), lang)}
@@ -1984,9 +1987,6 @@ function DocReviewPanel({
         </div>
       </div>
 
-      <div className="flex justify-end mb-4 -mt-2">
-        <LangSelector lang={lang} onChange={onLangChange} />
-      </div>
 
       {photoSrc && (
         <div className="mb-5 flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border">
@@ -2464,8 +2464,8 @@ export function FarmerProfileCard({
 
 
   return (
-    <div className="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 bg-white border-b border-border">
+    <div className="rounded-xl border-2 border-black bg-white shadow-md overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 bg-white border-b border-black">
         <div className="flex items-center gap-4">
           <div className="relative group flex-shrink-0">
             {displayPhoto ? (
@@ -2497,12 +2497,9 @@ export function FarmerProfileCard({
             </p>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <LangSelector lang={lang} onChange={onLangChange} />
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Pencil className="h-3.5 w-3.5" />
-            <span className="text-xs">{ui("editable", lang)}</span>
-          </div>
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <Pencil className="h-3.5 w-3.5" />
+          <span className="text-xs">{ui("editable", lang)}</span>
         </div>
       </div>
 
@@ -2523,7 +2520,7 @@ export function FarmerProfileCard({
                   onClose={() => setProfileLightbox(null)}
                 />
               )}
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-black">
                 <Image className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Submitted Documents</span>
                 <span className="ml-auto text-xs text-muted-foreground">{available.length} uploaded</span>
@@ -2571,7 +2568,7 @@ export function FarmerProfileCard({
               <button
                 type="button"
                 onClick={() => toggleSection(section.id)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border mb-4 bg-white cursor-pointer select-none"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-black mb-4 bg-white cursor-pointer select-none"
               >
                 <div className="flex items-center gap-2">
                   <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 text-black ${isCollapsed ? "-rotate-90" : ""}`} />
@@ -2591,13 +2588,13 @@ export function FarmerProfileCard({
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
                         {tSec(sub.key, lang)}
                       </p>
-                      <div className="rounded-md border border-border overflow-hidden">
+                      <div className="rounded-md border border-black overflow-hidden">
                         <table className="w-full text-sm">
                           <tbody>
                             {sub.fields.map(({ key, placeholder }) => {
                               const isHighlighted = highlightedFields?.has(key as keyof FarmerProfile);
                               return (
-                              <tr key={key} className={`border-b border-border last:border-0 ${isHighlighted ? "bg-amber-50/60" : ""}`}>
+                              <tr key={key} className={`border-b border-black last:border-0 ${isHighlighted ? "bg-amber-50/60" : ""}`}>
                                 <td className="px-4 py-2.5 text-muted-foreground font-medium w-2/5 align-middle whitespace-nowrap">
                                   {tProfileField(key, lang)}
                                   {isHighlighted && <span className="ml-1.5 inline-flex items-center"><AlertTriangle className="h-3 w-3 text-amber-500" /></span>}
@@ -2628,7 +2625,7 @@ export function FarmerProfileCard({
                         {ui("holdingsTitle", lang)}
                       </p>
                       {form8aRawTables.map((tbl, idx) => (
-                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-black bg-white border border-black rounded-md p-4">
                           <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
                             {ui("table", lang)} {idx + 1} <span className="normal-case font-normal text-muted-foreground ml-1">— {ui("clickToEdit", lang)}</span>
                           </p>
@@ -2659,7 +2656,7 @@ export function FarmerProfileCard({
                         {ui("ownershipTitle", lang)}
                       </p>
                       {form7RawTables.map((tbl, idx) => (
-                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+                        <div key={tbl.blockId ?? idx} className="border-l-4 border-l-black bg-white border border-black rounded-md p-4">
                           <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
                             {ui("table", lang)} {idx + 1} <span className="normal-case font-normal text-muted-foreground ml-1">— {ui("clickToEdit", lang)}</span>
                           </p>
@@ -2679,7 +2676,7 @@ export function FarmerProfileCard({
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {lang === "mr" ? "पीक" : lang === "hi" ? "फसल" : "Crop"}
                       </p>
-                      <div className="border-l-4 border-l-border bg-white border border-border rounded-md p-4">
+                      <div className="border-l-4 border-l-black bg-white border border-black rounded-md p-4">
                         <p className="text-[10px] font-semibold uppercase tracking-wide text-black mb-3">
                           {lang === "mr" ? "पीक पाहणी नोंदणी" : lang === "hi" ? "फसल निरीक्षण रजिस्टर" : "Crop Inspection Register"}
                         </p>
@@ -2768,7 +2765,11 @@ const INITIAL_DOC_STATES: DocStates = Object.fromEntries(
 ) as DocStates;
 
 export default function NewRegistration() {
-  const [form8aLang, setForm8aLang] = useState<LangCode>("en");
+  const { lang: form8aLang, setLang: setForm8aLang } = useLang();
+  const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
+  useEffect(() => {
+    fetch("/animations/airavata-sidebar.json").then(r => r.json()).then(setAiravataAnim).catch(() => {});
+  }, []);
   const [customPhoto, setCustomPhoto] = useState<string | null>(null);
   const [docStates, setDocStates] = useState<DocStates>(INITIAL_DOC_STATES);
   const [profile, setProfile] = useState<FarmerProfile>({ ...EMPTY_PROFILE });
@@ -2919,7 +2920,6 @@ export default function NewRegistration() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <h1 className="font-heading text-2xl">New Registration</h1>
-            <LangSelector lang={form8aLang} onChange={setForm8aLang} />
           </div>
           <p className="text-sm text-black mb-5">
             {ui("newRegDesc", form8aLang)}
@@ -3018,8 +3018,13 @@ export default function NewRegistration() {
           </div>
           <div className="w-72 flex-shrink-0 sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pb-4">
             <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-purple-500 flex-shrink-0" />
-              <span className="font-semibold text-sm text-foreground">AI Summary</span>
+              {airavataAnim && (
+                <Lottie animationData={airavataAnim} loop style={{ width: 44, height: 44, flexShrink: 0 }} />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="font-bold tracking-widest uppercase leading-tight" style={{ fontFamily: "'Poppins', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: "#D97706" }}>AIRAVATA INTELLIGENCE</p>
+                <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "11px", fontWeight: 600, color: "#000000" }} className="leading-tight">AI SUMMARY</p>
+              </div>
               {issueCount > 0 && (
                 <span className="ml-auto min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 bg-red-100 text-red-600">
                   {issueCount}

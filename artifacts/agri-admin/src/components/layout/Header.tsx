@@ -3,11 +3,9 @@ import Lottie from "lottie-react";
 import {
   Bell, Shield, AlertTriangle, Ticket,
   CheckCircle2, Info, X, BellOff, CheckCheck,
-  LogOut, User, Settings, ChevronDown, Clock, Mail, Phone, MapPin, Edit2,
 } from "lucide-react";
 import { useNotifications, type AppNotification, type NotificationType } from "@/contexts/NotificationContext";
-import { useAuth, ROLE_LABELS, SECTION_LABELS, type SectionKey } from "@/contexts/AuthContext";
-import MyProfile from "@/components/modules/MyProfile";
+import { useLang, type LangCode } from "@/contexts/LanguageContext";
 
 /* ── time-ago helper ── */
 function timeAgo(ts: number): string {
@@ -124,42 +122,31 @@ function NotifPanel({ onClose, onNavigate }: { onClose: () => void; onNavigate?:
   );
 }
 
-/* ── Avatar component ── */
-function UserAvatar({ size = "md" }: { size?: "sm" | "md" }) {
-  const { currentUser } = useAuth();
-  if (!currentUser) return null;
-  const sz = size === "sm" ? "w-6 h-6 text-[10px]" : "w-8 h-8 text-xs";
-  const initials = currentUser.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
-  if (currentUser.avatarUrl) {
-    return <img src={currentUser.avatarUrl} alt={currentUser.name} className={`${sz} rounded-full object-cover border-2 border-white/20`}/>;
-  }
+/* ── Language selector ── */
+function HeaderLangSelector() {
+  const { lang, setLang } = useLang();
+  const opts: { code: LangCode; label: string }[] = [
+    { code: "mr", label: "मराठी" },
+    { code: "hi", label: "हिंदी" },
+    { code: "en", label: "English" },
+  ];
   return (
-    <div className={`${sz} rounded-full bg-gradient-to-br ${currentUser.avatarColor} flex items-center justify-center font-bold text-white`}>
-      {initials}
-    </div>
-  );
-}
-
-/* ── Profile dropdown panel ── */
-function ProfilePanel({ onClose, onNavigateSettings, onEditProfile }: { onClose: () => void; onNavigateSettings: () => void; onEditProfile: () => void }) {
-  const { currentUser, logout, can } = useAuth();
-  if (!currentUser) return null;
-
-  const enabledSections = (Object.keys(currentUser.permissions) as SectionKey[]).filter(k => currentUser.permissions[k]);
-
-  return (
-    <div className="absolute right-0 top-full mt-2 w-[200px] bg-white border border-border rounded-xl shadow-xl shadow-black/10 z-50 overflow-hidden">
-      <div className="p-1.5">
-        {can("settings") && (
-          <button onClick={() => { onNavigateSettings(); onClose(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-            <Settings className="h-4 w-4 text-slate-400 flex-shrink-0"/><span>Settings &amp; Workflow</span>
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground font-medium hidden sm:block">Language</span>
+      <div className="flex items-center gap-1 bg-white rounded-full p-1 border border-border shadow-sm">
+        {opts.map(o => (
+          <button
+            key={o.code}
+            onClick={() => setLang(o.code)}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+              lang === o.code
+                ? "bg-primary text-white shadow-sm"
+                : "bg-white text-black hover:bg-muted/10"
+            }`}
+          >
+            {o.label}
           </button>
-        )}
-        <button onClick={() => { logout(); onClose(); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors">
-          <LogOut className="h-4 w-4 flex-shrink-0"/><span className="font-semibold">Sign Out</span>
-        </button>
+        ))}
       </div>
     </div>
   );
@@ -169,13 +156,9 @@ function ProfilePanel({ onClose, onNavigateSettings, onEditProfile }: { onClose:
 export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void; onNavigate?: (key: string) => void }) {
   const [time, setTime] = useState(new Date());
   const [notifOpen, setNotifOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [profileEditOpen, setProfileEditOpen] = useState(false);
   const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
   const { unreadCount } = useNotifications();
-  const { currentUser } = useAuth();
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
@@ -193,14 +176,13 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
   }, []);
 
   useEffect(() => {
-    if (!notifOpen && !profileOpen) return;
+    if (!notifOpen) return;
     const handler = (e: MouseEvent) => {
       if (notifOpen && notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
-      if (profileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [notifOpen, profileOpen]);
+  }, [notifOpen]);
 
   return (
     <>
@@ -224,7 +206,7 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
 
         {/* Notification bell */}
         <div className="relative" ref={notifRef}>
-          <button onClick={() => { setNotifOpen(o => !o); setProfileOpen(false); }}
+          <button onClick={() => { setNotifOpen(o => !o); }}
             className={`relative p-2 rounded-lg transition-colors ${notifOpen ? "bg-emerald-50 text-secondary" : "hover:bg-muted"}`}>
             <Bell className={`h-5 w-5 ${notifOpen ? "text-secondary" : "text-foreground"}`}/>
             {unreadCount > 0 && (
@@ -236,25 +218,10 @@ export default function Header({ onAIOpen, onNavigate }: { onAIOpen: () => void;
           {notifOpen && <NotifPanel onClose={() => setNotifOpen(false)} onNavigate={onNavigate}/>}
         </div>
 
-        {/* Profile button */}
-        <div className="relative" ref={profileRef}>
-          <button onClick={() => { setProfileOpen(o => !o); setNotifOpen(false); }}
-            className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl transition-colors ${profileOpen ? "bg-slate-100" : "hover:bg-muted"}`}>
-            <UserAvatar/>
-            <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${profileOpen ? "rotate-180" : ""}`}/>
-          </button>
-          {profileOpen && (
-            <ProfilePanel
-              onClose={() => setProfileOpen(false)}
-              onNavigateSettings={() => onNavigate?.("settings")}
-              onEditProfile={() => setProfileEditOpen(true)}
-            />
-          )}
-        
-        </div>
+        {/* Language selector */}
+        <HeaderLangSelector />
       </div>
     </header>
-    {profileEditOpen && <MyProfile onClose={() => setProfileEditOpen(false)}/>}
   </>
   );
 }
