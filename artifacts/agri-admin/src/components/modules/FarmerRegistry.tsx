@@ -2,36 +2,28 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
 import {
   Search, Plus, Upload, Download, ChevronLeft, ChevronRight,
-  Loader2, AlertCircle, Eye, CheckCircle2, Smartphone, Monitor,
-  Clock, AlertTriangle, ShieldCheck, XCircle, FileCheck
+  Loader2, AlertCircle, Eye, CheckCircle2
 } from "lucide-react";
 import { apiFetchFarmers, apiUpdateFarmer, notifyFarmerChange, type FarmerRecord } from "@/data/farmerApi";
 import FarmerRegistrationForm from "@/components/forms/FarmerRegistrationForm";
 import FarmerDetailModal from "@/components/modules/FarmerDetailModal";
 import FarmerReviewModal from "@/components/modules/FarmerReviewModal";
 
-function formatLandHAR(val: number | string | undefined): string {
-  if (val === undefined || val === null || val === "" || val === "0" || val === 0) return "—";
-  const s = String(val).trim();
-  const parts = s.split(".");
-  if (parts.length === 3) {
-    const [h, a, sm] = parts;
-    return `${h} हे. ${a} आर. ${sm} चौ.मी.`;
-  }
-  if (parts.length === 2) {
-    const [h, a] = parts;
-    if (a === "0" || a === "00") return `${h} हे.`;
-    return `${h} हे. ${a} आर.`;
-  }
-  return `${s} हे.`;
-}
+import iconVerified from "/icon-verified.png";
+import iconPending from "/icon-pending.png";
+import iconRejected from "/icon-rejected.png";
+import iconSystem from "/icon-system.png";
+import iconMobile from "/icon-mobile.png";
 
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "—";
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return "—";
-    return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yy = String(d.getFullYear()).slice(-2);
+    return `${dd}/${mm}/${yy}`;
   } catch {
     return "—";
   }
@@ -42,44 +34,29 @@ function daysSince(dateStr: string | undefined): number {
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return 0;
-    const now = new Date();
-    return Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
   } catch {
     return 0;
   }
 }
 
-function getPriority(farmer: FarmerRecord): { label: string; color: string; bg: string; border: string } | null {
+function getPriority(farmer: FarmerRecord): { label: string; days: number; bg: string } | null {
   if (farmer.status !== "Pending") return null;
   const days = daysSince(farmer.addedAt);
-  if (days > 7) return { label: "High", color: "text-red-700", bg: "bg-red-50", border: "border-red-200" };
-  if (days >= 3) return { label: "Mid", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200" };
-  return { label: "Low", color: "text-green-700", bg: "bg-green-50", border: "border-green-200" };
-}
-
-function getSourceInfo(source: string): { label: string; icon: React.ReactNode; color: string; bg: string } {
-  if (source === "mobile_ocr") {
-    return {
-      label: "Mobile App",
-      icon: <Smartphone className="h-3 w-3" />,
-      color: "text-purple-700",
-      bg: "bg-purple-50"
-    };
-  }
-  return {
-    label: "System",
-    icon: <Monitor className="h-3 w-3" />,
-    color: "text-blue-700",
-    bg: "bg-blue-50"
-  };
+  if (days > 7) return { label: "High", days, bg: "bg-red-600" };
+  if (days >= 3) return { label: "Mid", days, bg: "bg-orange-500" };
+  return { label: "Low", days, bg: "bg-green-600" };
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === "Verified") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">Verified</span>;
-  if (status === "Cancelled") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-700">Rejected</span>;
-  if (status === "Pending") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-yellow-100 text-yellow-700">Pending</span>;
-  if (status === "Active") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">Active</span>;
-  if (status === "Inactive") return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">Inactive</span>;
+  if (status === "Verified" || status === "Active")
+    return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">Verified</span>;
+  if (status === "Cancelled")
+    return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-700">Rejected</span>;
+  if (status === "Pending")
+    return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-yellow-100 text-yellow-700">Pending</span>;
+  if (status === "Inactive")
+    return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">Inactive</span>;
   return <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-muted text-muted-foreground">{status}</span>;
 }
 
@@ -88,34 +65,27 @@ type ActiveCard = "all" | "verified" | "pending" | "rejected" | "system" | "mobi
 interface StatCardProps {
   label: string;
   count: number;
-  icon: React.ReactNode;
+  icon: string;
   cardKey: ActiveCard;
   active: boolean;
   onClick: (key: ActiveCard) => void;
   accent: string;
-  iconBg: string;
 }
 
-function StatCard({ label, count, icon, cardKey, active, onClick, accent, iconBg }: StatCardProps) {
+function StatCard({ label, count, icon, cardKey, active, onClick, accent }: StatCardProps) {
   return (
     <button
       onClick={() => onClick(cardKey)}
-      className={`flex-1 min-w-[140px] bg-white rounded-xl border-2 p-4 text-left transition-all cursor-pointer hover:shadow-md ${
+      className={`flex-1 min-w-[150px] bg-white rounded-xl border-2 p-4 flex items-center gap-4 text-left transition-all cursor-pointer hover:shadow-md ${
         active ? `${accent} shadow-md` : "border-black/10 hover:border-black/20"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-2xl font-bold text-gray-900 leading-none">{count}</p>
-          <p className="text-xs font-medium text-gray-500 mt-1.5 leading-tight">{label}</p>
-        </div>
-        <div className={`rounded-lg p-2 ${iconBg} flex-shrink-0`}>
-          {icon}
-        </div>
+      <img src={icon} alt={label} className="w-12 h-12 object-contain flex-shrink-0" />
+      <div>
+        <p className="text-2xl font-bold text-gray-900 leading-none">{count}</p>
+        <p className="text-xs font-medium text-gray-500 mt-1 leading-snug">{label}</p>
+        {active && <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mt-1">Filtered ✓</p>}
       </div>
-      {active && (
-        <div className="mt-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Filtered ✓</div>
-      )}
     </button>
   );
 }
@@ -147,15 +117,13 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
   }, []);
 
   useEffect(() => { loadFarmers(); }, [loadFarmers]);
-
   useEffect(() => {
     const handler = () => loadFarmers();
     window.addEventListener("farmer-registry-changed", handler);
     return () => window.removeEventListener("farmer-registry-changed", handler);
   }, [loadFarmers]);
-
   useEffect(() => {
-    const interval = setInterval(() => { loadFarmers(); }, 15000);
+    const interval = setInterval(loadFarmers, 15000);
     return () => clearInterval(interval);
   }, [loadFarmers]);
 
@@ -179,14 +147,12 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
       const s = search.toLowerCase();
       const matchSearch = !s || f.name.toLowerCase().includes(s) || f.farmerId.toLowerCase().includes(s) || f.aadhaar.includes(s);
       const matchDist = !distFilter || f.district === distFilter;
-
       let matchCard = true;
       if (activeCard === "verified") matchCard = f.status === "Verified" || f.status === "Active";
       else if (activeCard === "pending") matchCard = f.status === "Pending";
       else if (activeCard === "rejected") matchCard = f.status === "Cancelled" || f.status === "Inactive";
       else if (activeCard === "system") matchCard = f.source !== "mobile_ocr";
       else if (activeCard === "mobile") matchCard = f.source === "mobile_ocr";
-
       return matchSearch && matchDist && matchCard;
     });
   }, [search, distFilter, activeCard, farmers]);
@@ -243,56 +209,11 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
 
       {/* ── 5 Stat Cards ── */}
       <div className="flex flex-wrap gap-3">
-        <StatCard
-          cardKey="verified"
-          label="Verified Farmers"
-          count={counts.verified}
-          icon={<ShieldCheck className="h-5 w-5 text-emerald-600" />}
-          iconBg="bg-emerald-50"
-          active={activeCard === "verified"}
-          onClick={handleCardClick}
-          accent="border-emerald-500"
-        />
-        <StatCard
-          cardKey="pending"
-          label="Pending Review"
-          count={counts.pending}
-          icon={<Clock className="h-5 w-5 text-yellow-600" />}
-          iconBg="bg-yellow-50"
-          active={activeCard === "pending"}
-          onClick={handleCardClick}
-          accent="border-yellow-500"
-        />
-        <StatCard
-          cardKey="rejected"
-          label="Rejected / Cancelled"
-          count={counts.rejected}
-          icon={<XCircle className="h-5 w-5 text-red-500" />}
-          iconBg="bg-red-50"
-          active={activeCard === "rejected"}
-          onClick={handleCardClick}
-          accent="border-red-500"
-        />
-        <StatCard
-          cardKey="system"
-          label="Via System (Admin / OCR)"
-          count={counts.system}
-          icon={<Monitor className="h-5 w-5 text-blue-600" />}
-          iconBg="bg-blue-50"
-          active={activeCard === "system"}
-          onClick={handleCardClick}
-          accent="border-blue-500"
-        />
-        <StatCard
-          cardKey="mobile"
-          label="Via Farmer Mobile App"
-          count={counts.mobile}
-          icon={<Smartphone className="h-5 w-5 text-purple-600" />}
-          iconBg="bg-purple-50"
-          active={activeCard === "mobile"}
-          onClick={handleCardClick}
-          accent="border-purple-500"
-        />
+        <StatCard cardKey="verified" label="Verified Farmers" count={counts.verified} icon={iconVerified} active={activeCard === "verified"} onClick={handleCardClick} accent="border-emerald-500" />
+        <StatCard cardKey="pending" label="Pending Review" count={counts.pending} icon={iconPending} active={activeCard === "pending"} onClick={handleCardClick} accent="border-yellow-500" />
+        <StatCard cardKey="rejected" label="Rejected / Cancelled" count={counts.rejected} icon={iconRejected} active={activeCard === "rejected"} onClick={handleCardClick} accent="border-red-500" />
+        <StatCard cardKey="system" label="Via System Admin" count={counts.system} icon={iconSystem} active={activeCard === "system"} onClick={handleCardClick} accent="border-blue-500" />
+        <StatCard cardKey="mobile" label="Via Farmer Mobile App" count={counts.mobile} icon={iconMobile} active={activeCard === "mobile"} onClick={handleCardClick} accent="border-purple-500" />
       </div>
 
       {/* ── Filters & Actions ── */}
@@ -306,38 +227,22 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
             className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/50"
           />
         </div>
-        <select
-          value={distFilter}
-          onChange={e => { setDistFilter(e.target.value); setPage(0); }}
-          className="text-sm bg-white border border-border rounded-lg px-3 py-2"
-        >
+        <select value={distFilter} onChange={e => { setDistFilter(e.target.value); setPage(0); }} className="text-sm bg-white border border-border rounded-lg px-3 py-2">
           <option value="">All Districts</option>
           {districts.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
         {activeCard !== "all" && (
-          <button
-            onClick={() => setActiveCard("all")}
-            className="text-sm px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 text-gray-700"
-          >
+          <button onClick={() => setActiveCard("all")} className="text-sm px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 text-gray-700">
             Clear Filter ×
           </button>
         )}
-        <button
-          onClick={() => onNavigate ? onNavigate("newregistration") : setShowAdd(true)}
-          className="flex items-center gap-1.5 text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90"
-        >
+        <button onClick={() => onNavigate ? onNavigate("newregistration") : setShowAdd(true)} className="flex items-center gap-1.5 text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90">
           <Plus className="h-4 w-4" /> Add Farmer
         </button>
-        <button
-          onClick={() => showToast("✅ CSV imported successfully — 24 records added")}
-          className="flex items-center gap-1.5 text-sm px-3 py-2 bg-white border border-border rounded-lg hover:bg-muted"
-        >
+        <button onClick={() => showToast("✅ CSV imported successfully — 24 records added")} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-white border border-border rounded-lg hover:bg-muted">
           <Upload className="h-4 w-4" /> Import
         </button>
-        <button
-          onClick={() => showToast("📁 Export started...")}
-          className="flex items-center gap-1.5 text-sm px-3 py-2 bg-white border border-border rounded-lg hover:bg-muted"
-        >
+        <button onClick={() => showToast("📁 Export started...")} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-white border border-border rounded-lg hover:bg-muted">
           <Download className="h-4 w-4" /> Export
         </button>
       </div>
@@ -362,84 +267,90 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Farmer ID</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Name</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Village</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">District</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">क्षेत्रफळ</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Aadhaar</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Reg. Date</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Source</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Priority</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Status</th>
-                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Action</th>
+                <tr className="bg-gray-50 text-left border-b border-gray-200">
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500 whitespace-nowrap">नोंदणी दिनांक</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">नाव</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">गाव</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">तालुका</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">जिल्हा</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500 whitespace-nowrap">खाते क्रमांक</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500 whitespace-nowrap">भूमापन क्रमांक</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">Source</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">Priority</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">Status</th>
+                  <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-gray-500">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {pageData.map((f, idx) => {
                   const priority = getPriority(f);
-                  const sourceInfo = getSourceInfo(f.source);
+                  const isMobile = f.source === "mobile_ocr";
                   return (
                     <tr
                       key={f.farmerId}
-                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors bg-white ${idx === pageData.length - 1 ? "border-b-0" : ""}`}
+                      className={`bg-white hover:bg-gray-50 transition-colors ${idx < pageData.length - 1 ? "border-b border-gray-100" : ""}`}
                     >
-                      <td className="px-4 py-3 font-mono text-xs text-gray-700 font-medium">{f.farmerId}</td>
-                      <td className="px-4 py-3 font-medium text-gray-900">{f.name}</td>
+                      {/* नोंदणी दिनांक */}
+                      <td className="px-4 py-3 font-mono text-xs text-gray-700 whitespace-nowrap">{formatDate(f.addedAt)}</td>
+
+                      {/* नाव */}
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{f.name}</td>
+
+                      {/* गाव */}
                       <td className="px-4 py-3 text-gray-600">{f.village || <span className="text-gray-300">—</span>}</td>
+
+                      {/* तालुका */}
+                      <td className="px-4 py-3 text-gray-600">{f.taluka || <span className="text-gray-300">—</span>}</td>
+
+                      {/* जिल्हा */}
                       <td className="px-4 py-3 text-gray-600">{f.district || <span className="text-gray-300">—</span>}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-gray-600">{formatLandHAR(f.land)}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-gray-600">{f.aadhaar}</td>
-                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">{formatDate(f.addedAt)}</td>
+
+                      {/* खाते क्रमांक */}
+                      <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                        {f.khateNumber && f.khateNumber !== "—" ? f.khateNumber : <span className="text-gray-300">—</span>}
+                      </td>
+
+                      {/* भूमापन क्रमांक */}
+                      <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                        {f.surveyNumber && f.surveyNumber !== "—" ? f.surveyNumber : <span className="text-gray-300">—</span>}
+                      </td>
+
+                      {/* Source — solid pill, white text, no icon */}
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${sourceInfo.bg} ${sourceInfo.color}`}>
-                          {sourceInfo.icon}
-                          {sourceInfo.label}
+                        <span className={`inline-block text-xs px-2.5 py-1 rounded-full font-semibold text-white whitespace-nowrap ${isMobile ? "bg-purple-600" : "bg-blue-600"}`}>
+                          {isMobile ? "Mobile" : "System"}
                         </span>
                       </td>
+
+                      {/* Priority — solid pill with days count, white text, no icon */}
                       <td className="px-4 py-3">
                         {priority ? (
-                          <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold border ${priority.bg} ${priority.color} ${priority.border}`}>
-                            {priority.label === "High" && <AlertTriangle className="h-3 w-3" />}
-                            {priority.label === "Mid" && <Clock className="h-3 w-3" />}
-                            {priority.label === "Low" && <FileCheck className="h-3 w-3" />}
-                            {priority.label}
+                          <span className={`inline-block text-xs px-2.5 py-1 rounded-full font-semibold text-white whitespace-nowrap ${priority.bg}`}>
+                            {priority.label} · {priority.days}d
                           </span>
                         ) : (
                           <span className="text-gray-300 text-xs">—</span>
                         )}
                       </td>
+
+                      {/* Status */}
                       <td className="px-4 py-3"><StatusBadge status={f.status} /></td>
+
+                      {/* Action */}
                       <td className="px-4 py-3">
-                        {/* Pending: Review */}
                         {f.status === "Pending" && (
-                          <button
-                            onClick={() => setReviewFarmer(f)}
-                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-85 font-medium transition-opacity"
-                          >
-                            <Eye className="h-3 w-3" />
-                            Review
+                          <button onClick={() => setReviewFarmer(f)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-85 font-medium transition-opacity whitespace-nowrap">
+                            <Eye className="h-3 w-3" /> Review
                           </button>
                         )}
-                        {/* Verified: View */}
                         {(f.status === "Verified" || f.status === "Active") && (
-                          <button
-                            onClick={() => setReviewFarmer(f)}
-                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium transition-colors"
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                            View
+                          <button onClick={() => setReviewFarmer(f)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium transition-colors whitespace-nowrap">
+                            <CheckCircle2 className="h-3 w-3" /> View
                           </button>
                         )}
-                        {/* Cancelled/Inactive: View */}
                         {(f.status === "Cancelled" || f.status === "Inactive") && (
-                          <button
-                            onClick={() => setReviewFarmer(f)}
-                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 font-medium transition-colors"
-                          >
-                            <Eye className="h-3 w-3" />
-                            View
+                          <button onClick={() => setReviewFarmer(f)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 font-medium transition-colors whitespace-nowrap">
+                            <Eye className="h-3 w-3" /> View
                           </button>
                         )}
                       </td>
@@ -465,18 +376,10 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
               {activeCard !== "all" && <span className="ml-1 text-gray-400">(filtered)</span>}
             </span>
             <div className="flex gap-1">
-              <button
-                disabled={page === 0}
-                onClick={() => setPage(p => p - 1)}
-                className="p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30"
-              >
+              <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30">
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <button
-                disabled={page >= totalPages - 1}
-                onClick={() => setPage(p => p + 1)}
-                className="p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30"
-              >
+              <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 disabled:opacity-30">
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
@@ -485,11 +388,7 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
       )}
 
       {reviewFarmer && (
-        <FarmerReviewModal
-          farmer={reviewFarmer}
-          onClose={() => setReviewFarmer(null)}
-          onUpdated={handleReviewUpdated}
-        />
+        <FarmerReviewModal farmer={reviewFarmer} onClose={() => setReviewFarmer(null)} onUpdated={handleReviewUpdated} />
       )}
 
       {viewFarmer && (
@@ -505,10 +404,7 @@ export default function FarmerRegistry({ onNavigate }: { onNavigate?: (key: stri
       )}
 
       {showAdd && (
-        <FarmerRegistrationForm
-          onClose={() => setShowAdd(false)}
-          onSuccess={handleRegistrationSuccess}
-        />
+        <FarmerRegistrationForm onClose={() => setShowAdd(false)} onSuccess={handleRegistrationSuccess} />
       )}
     </div>
   );
