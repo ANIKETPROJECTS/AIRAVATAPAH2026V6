@@ -44,8 +44,8 @@ function KpiCard({
       className="bg-white border border-black rounded-xl p-4 flex flex-col gap-1.5 animate-fade-in"
       style={{ opacity: 0, animationDelay: `${delay}s` }}
     >
-      <div className="text-2xl font-bold text-black leading-none">{value}</div>
-      <div className="text-xs font-semibold text-black leading-snug">{label}</div>
+      <div className="text-3xl font-heading text-black leading-none mb-1">{value}</div>
+      <div className="text-sm text-black font-medium">{label}</div>
       {sub && <div className="text-[11px] text-black/60 mt-0.5">{sub}</div>}
     </div>
   );
@@ -96,7 +96,7 @@ function AppTypeCard({
           <Icon className="h-4 w-4" style={{ color }} />
         </div>
         <div>
-          <div className="font-semibold text-sm text-black">{label}</div>
+          <div className="font-heading text-sm text-black">{label}</div>
           <div className="text-xs text-black/60">{stats.total} total applications</div>
         </div>
       </div>
@@ -238,7 +238,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
     : [];
 
   return (
-    <div className="space-y-6 pb-6" style={{ fontFamily: "Poppins, sans-serif" }}>
+    <div className="space-y-6 pb-6">
 
       {/* ── Section 1: 8-card KPI row ── */}
       <div className="grid grid-cols-4 xl:grid-cols-8 gap-3">
@@ -310,7 +310,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Monthly volume */}
         <div className="lg:col-span-3 bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.36s" }}>
-          <h3 className="font-bold text-base mb-4 text-black">Monthly Application Volume</h3>
+          <h3 className="font-heading text-base mb-4 text-black">Monthly Application Volume</h3>
           {loading ? (
             <Skeleton className="h-60 w-full" />
           ) : (
@@ -338,7 +338,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
 
         {/* Scheme distribution */}
         <div className="lg:col-span-2 bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.4s" }}>
-          <h3 className="font-bold text-base mb-2 text-black">Scheme Distribution</h3>
+          <h3 className="font-heading text-base mb-2 text-black">Scheme Distribution</h3>
           {loading ? (
             <Skeleton className="h-60 w-full" />
           ) : !s?.schemeDistribution?.length ? (
@@ -382,7 +382,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
 
       {/* ── Section 3: Quick Actions ── */}
       <div className="bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.44s" }}>
-        <h3 className="font-bold text-base mb-3 text-black">Quick Actions</h3>
+        <h3 className="font-heading text-base mb-3 text-black">Quick Actions</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { icon: UserPlus,      label: "New Registration",    key: "newregistration", color: "#1B4332" },
@@ -406,7 +406,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
 
       {/* ── Section 4: Application type breakdown ── */}
       <div>
-        <h3 className="font-bold text-base mb-3 text-black">Application Pipeline</h3>
+        <h3 className="font-heading text-base mb-3 text-black">Application Pipeline</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
@@ -429,7 +429,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
         {/* Farmer Status */}
         <div className="bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.6s" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-base text-black">Farmer Status Overview</h3>
+            <h3 className="font-heading text-base text-black">Farmer Status Overview</h3>
             <button onClick={() => nav("farmers")} className="text-xs text-black hover:underline flex items-center gap-1 font-medium">
               View all <ArrowUpRight className="h-3 w-3" />
             </button>
@@ -465,7 +465,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
         {/* Grievance Overview */}
         <div className="bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.64s" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-base text-black">Grievance Overview</h3>
+            <h3 className="font-heading text-base text-black">Grievance Overview</h3>
             <button onClick={() => nav("grievances")} className="text-xs text-black hover:underline flex items-center gap-1 font-medium">
               Manage <ArrowUpRight className="h-3 w-3" />
             </button>
@@ -530,7 +530,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pending Actions */}
         <div className="bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.68s" }}>
-          <h3 className="font-bold text-base mb-4 text-black">Pending Action Items</h3>
+          <h3 className="font-heading text-base mb-4 text-black">Pending Action Items</h3>
           {loading ? (
             <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
           ) : actionItems.length === 0 ? (
@@ -576,7 +576,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (key: string) =
         {/* Activity Feed */}
         <div className="bg-white border border-black rounded-xl p-5 animate-fade-in" style={{ opacity: 0, animationDelay: "0.72s" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-base text-black">Recent Activity</h3>
+            <h3 className="font-heading text-base text-black">Recent Activity</h3>
             <span className="text-xs text-black font-medium bg-gray-100 border border-black/20 px-2 py-0.5 rounded-full">Live</span>
           </div>
           {loading ? (
