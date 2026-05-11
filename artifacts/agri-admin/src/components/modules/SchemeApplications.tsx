@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { ChevronLeft, ChevronRight, Search, RefreshCw, CheckCircle, XCircle, Clock, FileText, ArrowLeft, AlertTriangle, Trash2, Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, RefreshCw, FileText, ArrowLeft, AlertTriangle, Trash2, Pencil } from "lucide-react";
 import { useNotifications } from "@/contexts/NotificationContext";
 
 const DOC_LABEL: Record<string, string> = {
@@ -16,13 +16,17 @@ interface Application {
   documentRefs?: string[];
 }
 
-const TABS = [
-  { key: "all",          label: "All" },
-  { key: "Pending",      label: "Pending" },
-  { key: "Under Review", label: "Under Review" },
-  { key: "Approved",     label: "Approved" },
-  { key: "Rejected",     label: "Rejected" },
-];
+function getPriority(iso: string): { label: string; days: number; color: string } {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days >= 15) return { label: "Critical", days, color: "bg-red-600 text-white" };
+  if (days >= 8)  return { label: "High",     days, color: "bg-orange-500 text-white" };
+  if (days >= 4)  return { label: "Medium",   days, color: "bg-amber-500 text-white" };
+  return            { label: "Normal",   days, color: "bg-emerald-600 text-white" };
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
@@ -381,16 +385,17 @@ export default function SchemeApplications() {
         </div>
       )}
 
-      {/* Stats */}
+      {/* Stats — clickable filter cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          { label: "Total",        value: counts.total,    bg: "bg-slate-700" },
-          { label: "Pending",      value: counts.pending,  bg: "bg-amber-500" },
-          { label: "Under Review", value: counts.review,   bg: "bg-blue-600" },
-          { label: "Approved",     value: counts.approved, bg: "bg-emerald-600" },
-          { label: "Rejected",     value: counts.rejected, bg: "bg-red-600" },
+          { label: "Total",        value: counts.total,    bg: "bg-slate-700",   key: "all" },
+          { label: "Pending",      value: counts.pending,  bg: "bg-amber-500",   key: "Pending" },
+          { label: "Under Review", value: counts.review,   bg: "bg-blue-600",    key: "Under Review" },
+          { label: "Approved",     value: counts.approved, bg: "bg-emerald-600", key: "Approved" },
+          { label: "Rejected",     value: counts.rejected, bg: "bg-red-600",     key: "Rejected" },
         ].map(s => (
-          <div key={s.label} className={`rounded-xl p-4 ${s.bg}`}>
+          <div key={s.label} onClick={() => { setTab(tab === s.key ? "all" : s.key); setPage(0); }}
+            className={`rounded-xl p-4 ${s.bg} cursor-pointer transition-all select-none ${tab === s.key ? "ring-4 ring-white/60 scale-[1.03] shadow-lg" : "hover:opacity-90 hover:scale-[1.01]"}`}>
             <div className="text-3xl font-semibold text-white mb-1">{s.value}</div>
             <div className="text-sm font-medium text-white/80">{s.label}</div>
           </div>
@@ -399,14 +404,13 @@ export default function SchemeApplications() {
 
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex gap-1 bg-black/5 rounded-lg p-1 flex-1 min-w-0 flex-wrap">
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => { setTab(t.key); setPage(0); }}
-              className={`text-sm px-4 py-1.5 rounded-md transition-colors whitespace-nowrap font-medium ${tab === t.key ? "bg-white shadow-sm text-black" : "text-black/50 hover:text-black"}`}>
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {tab !== "all" && (
+          <div className="flex items-center gap-2 text-sm font-medium text-black bg-black/6 rounded-full px-3 py-1.5">
+            <span>Filtered: {tab}</span>
+            <button onClick={() => { setTab("all"); setPage(0); }} className="text-black/40 hover:text-black leading-none">✕</button>
+          </div>
+        )}
+        <div className="flex-1"/>
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/40"/>
           <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }}
@@ -431,46 +435,54 @@ export default function SchemeApplications() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead><tr className="bg-white border-b border-black/8 text-left">
-                  <th className="px-4 py-3 text-sm font-medium text-black">App ID</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Application ID</th>
                   <th className="px-4 py-3 text-sm font-medium text-black">Farmer</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Date Applied</th>
                   <th className="px-4 py-3 text-sm font-medium text-black">Scheme</th>
-                  <th className="px-4 py-3 text-sm font-medium text-black">District</th>
-                  <th className="px-4 py-3 text-sm font-medium text-black">Applied</th>
+                  <th className="px-4 py-3 text-sm font-medium text-black">Priority</th>
                   <th className="px-4 py-3 text-sm font-medium text-black">Status</th>
                   <th className="px-4 py-3 text-sm font-medium text-black">Actions</th>
                 </tr></thead>
-                <tbody>{pageData.map(a => (
+                <tbody>{pageData.map(a => {
+                  const p = getPriority(a.appliedAt);
+                  return (
                   <tr key={a.applicationId} className="border-t border-black/6 hover:bg-black/2 transition-colors">
-                    <td className="px-4 py-3 font-mono text-sm text-black">{a.applicationId}</td>
+                    <td className="px-4 py-3 font-mono text-sm text-black font-medium">{a.applicationId}</td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-black text-sm">{a.farmerName ?? "—"}</div>
-                      <div className="text-xs text-black/45 font-mono mt-0.5">{a.farmerId}</div>
+                      <div className="text-xs text-black font-mono mt-0.5">{a.farmerId}</div>
                     </td>
+                    <td className="px-4 py-3 text-sm text-black whitespace-nowrap">{formatDate(a.appliedAt)}</td>
                     <td className="px-4 py-3">
                       <div className="text-sm text-black">{a.schemeName}</div>
                       {a.schemeType && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-600 text-white font-medium mt-0.5 inline-block">{a.schemeType}</span>}
                     </td>
-                    <td className="px-4 py-3 text-sm text-black">{a.district ?? "—"}</td>
-                    <td className="px-4 py-3 text-sm text-black whitespace-nowrap">{timeAgo(a.appliedAt)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium w-fit ${p.color}`}>{p.label}</span>
+                        <span className="text-xs text-black/50">{p.days}d elapsed</span>
+                      </div>
+                    </td>
                     <td className="px-4 py-3"><StatusBadge status={a.status}/></td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <button onClick={() => { setReview(a); setNotes(a.adminNotes ?? ""); }}
-                          className="text-xs px-3 py-1.5 rounded-lg bg-black text-white hover:bg-black/80 font-medium">
-                          Review
+                          className="p-2 rounded-lg hover:bg-black/8 transition-colors" title="View / Review">
+                          <img src="/icons/view.png" className="h-4 w-4" alt="view"/>
                         </button>
                         <button onClick={() => { setEditModal(a); setEditReply(a.adminReply ?? ""); setEditNotes(a.adminNotes ?? ""); }}
-                          className="p-1.5 rounded-lg border border-black/15 hover:bg-black/5 transition-colors" title="Edit reply & notes">
-                          <Pencil className="h-3.5 w-3.5 text-black/50"/>
+                          className="p-2 rounded-lg hover:bg-black/8 transition-colors" title="Edit reply & notes">
+                          <img src="/icons/edit.png" className="h-4 w-4" alt="edit"/>
                         </button>
                         <button onClick={() => setDeleteModal({ id: a.applicationId, name: a.schemeName })}
-                          className="p-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors" title="Delete">
-                          <Trash2 className="h-3.5 w-3.5 text-red-500"/>
+                          className="p-2 rounded-lg hover:bg-red-50 transition-colors" title="Delete">
+                          <img src="/icons/bin.png" className="h-4 w-4" alt="delete"/>
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}</tbody>
+                  );
+                })}</tbody>
               </table>
             </div>
             <div className="flex items-center justify-between px-4 py-3 border-t border-black/8 bg-white">

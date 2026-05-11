@@ -6,11 +6,18 @@ const router = Router();
 
 type AppType = "scheme" | "subsidy" | "insurance";
 
-function generateId(type: AppType): string {
-  const ts = Date.now();
-  const rand = Math.random().toString(36).slice(2, 5).toUpperCase();
-  const prefix = type === "scheme" ? "APP" : type === "subsidy" ? "SUB" : "INS";
-  return `${prefix}-${ts.toString(36).toUpperCase()}-${rand}`;
+async function generateId(type: AppType, db: ReturnType<typeof getDb>): Promise<string> {
+  const prefix = type === "scheme" ? "SCH" : type === "subsidy" ? "SUB" : "INS";
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const datePart = `${yyyy}${mm}${dd}`;
+  const count = await db.collection("applications").countDocuments({
+    applicationId: { $regex: `^${prefix}${datePart}` },
+  });
+  const seq = String(count + 1).padStart(2, "0");
+  return `${prefix}${datePart}${seq}`;
 }
 
 function typeLabel(type: AppType): string {
@@ -136,7 +143,7 @@ router.post("/applications", async (req, res): Promise<void> => {
       return;
     }
 
-    const applicationId = generateId(type);
+    const applicationId = await generateId(type, db);
     const now = new Date().toISOString();
     const application = {
       applicationId, type,
