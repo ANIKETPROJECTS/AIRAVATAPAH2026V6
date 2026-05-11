@@ -368,7 +368,7 @@ export default function FarmerReviewModal({
   const poppins = { fontFamily: "Poppins, sans-serif" } as const;
 
   const content = (
-    <div className="fixed inset-0 bg-white flex flex-col" style={{ zIndex: 9999 }}>
+    <div className="fixed inset-0 bg-background flex flex-col" style={{ zIndex: 9999 }}>
 
       {/* Rejection reason dialog */}
       {showRejectDialog && (
@@ -376,7 +376,7 @@ export default function FarmerReviewModal({
       )}
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black bg-white flex-shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card flex-shrink-0">
         <div className="flex items-center gap-4">
 
           {/* Aadhaar photo or placeholder avatar */}
@@ -414,7 +414,7 @@ export default function FarmerReviewModal({
       </div>
 
       {/* ── Tab bar ── */}
-      <div className="flex items-center gap-1 px-6 py-2 border-b-2 border-black bg-gray-50 flex-shrink-0 overflow-x-auto">
+      <div className="flex items-center gap-1 px-6 py-2 border-b border-border bg-muted/30 flex-shrink-0 overflow-x-auto">
         {completedCards.map(card => (
           <button key={card.id} onClick={() => setActiveTab(card.id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap ${
@@ -439,7 +439,7 @@ export default function FarmerReviewModal({
       </div>
 
       {/* ── Content area ── */}
-      <div className="flex-1 overflow-y-auto p-6 bg-white">
+      <div className="flex-1 overflow-y-auto p-6 bg-background">
 
         {/* No docs uploaded */}
         {completedCards.length === 0 && activeTab !== "profile" && (
@@ -514,7 +514,7 @@ export default function FarmerReviewModal({
       </div>
 
       {/* ── Footer actions ── */}
-      <div className="flex-shrink-0 border-t-2 border-black bg-white px-6 py-4">
+      <div className="flex-shrink-0 border-t border-border bg-card px-6 py-4">
 
         {/* Pending — step 1 */}
         {isPending && modalStep === "review" && (
