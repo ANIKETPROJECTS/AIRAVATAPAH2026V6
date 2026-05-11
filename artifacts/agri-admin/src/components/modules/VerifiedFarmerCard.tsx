@@ -98,7 +98,7 @@ function SummaryCard({ id, title, icon, badge, onClick, children }: {
   id: string; title: string; icon: React.ReactNode; badge?: string | number; onClick: () => void; children: React.ReactNode;
 }) {
   return (
-    <div id={id} className="border border-border rounded-xl overflow-hidden scroll-mt-4 group">
+    <div id={id} className="border border-border rounded-xl overflow-hidden scroll-mt-4">
       <button
         onClick={onClick}
         className="w-full flex items-center justify-between px-5 py-3.5 text-left bg-slate-50/70 hover:bg-secondary/5 transition-colors cursor-pointer"
@@ -108,10 +108,7 @@ function SummaryCard({ id, title, icon, badge, onClick, children }: {
           {title}
           {badge !== undefined && <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary/15 text-secondary font-bold border border-secondary/20">{badge}</span>}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-secondary font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Open page</span>
-          <ArrowRight className="h-4 w-4 text-secondary" />
-        </div>
+        <ArrowRight className="h-4 w-4 text-black" />
       </button>
       <div className="px-5 py-4 bg-white">{children}</div>
     </div>
@@ -196,30 +193,28 @@ function ProfileSection({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-1 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+      <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
         {completedCards.map(card => (
           <button
             key={card.id}
             onClick={() => setActiveTab(card.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+            className={`px-4 py-1.5 rounded-full text-[13px] font-semibold transition-colors whitespace-nowrap ${
               activeTab === card.id
                 ? "bg-secondary text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
-            <DocTabIcon id={card.id} />
             {DOC_CARD_SHORT[card.id]?.["en"] ?? card.id}
           </button>
         ))}
         <button
           onClick={() => setActiveTab("profile")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+          className={`px-4 py-1.5 rounded-full text-[13px] font-semibold transition-colors whitespace-nowrap ${
             activeTab === "profile"
               ? "bg-secondary text-white shadow-sm"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
-          <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
           Farmer Profile
         </button>
       </div>
@@ -300,9 +295,12 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
   const [docsLoading, setDocsLoading] = useState(false);
   const initials = farmer.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 
-  /* Aadhaar photo from extraction data — coerce to string safely */
-  const _rawPhoto = (farmer.extractionData as Record<string, Record<string, unknown>> | undefined)?.aadhar?.aadharPhoto;
-  const aadhaarPhoto: string | null = typeof _rawPhoto === "string" && _rawPhoto.length > 0 ? _rawPhoto : null;
+  /* Aadhaar photo from extraction data — aadharPhoto is { base64, mimeType } | null */
+  const _rawPhoto = (farmer.extractionData as Record<string, Record<string, { base64: string; mimeType: string } | null>> | undefined)?.aadhar?.aadharPhoto;
+  const aadhaarPhoto: string | null = (_rawPhoto && typeof _rawPhoto.base64 === "string" && _rawPhoto.base64.length > 0)
+    ? `data:${_rawPhoto.mimeType};base64,${_rawPhoto.base64}`
+    : null;
+  const [photoError, setPhotoError] = useState(false);
 
   /* Verification date */
   const verifiedDate = fmtDate((farmer as FarmerRecord & { verifiedAt?: string }).verifiedAt || farmer.updatedAt || farmer.addedAt);
@@ -352,15 +350,14 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
 
           {/* ── Photo / Avatar ── */}
           <div className="flex-shrink-0">
-            {aadhaarPhoto ? (
+            {aadhaarPhoto && !photoError ? (
               <img
-                src={aadhaarPhoto.startsWith("data:") ? aadhaarPhoto : `data:image/jpeg;base64,${aadhaarPhoto}`}
+                src={aadhaarPhoto}
                 alt=""
                 className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-200 shadow-md"
-                onError={e => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute("style"); }}
+                onError={() => setPhotoError(true)}
               />
-            ) : null}
-            {(!aadhaarPhoto) && (
+            ) : (
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-black text-2xl text-white shadow-md">
                 {initials}
               </div>
@@ -502,15 +499,9 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
         <SummaryCard id="sec-apps" title="Applications" icon={<img src={iconNavApps} alt="" className="w-4 h-4 object-contain" />} onClick={() => nav("applications")}>
           <p className="text-sm text-slate-600">View and manage all applications for this farmer — government schemes, crop &amp; life insurance (PMFBY, RWBCIS), and input subsidies (irrigation, fertilizer, equipment). Submit new applications and track status through approval.</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-teal-100 text-teal-700 border border-teal-200 font-medium">
-              <Shield className="h-3 w-3 inline mr-1" />Schemes
-            </span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium">
-              <LifeBuoy className="h-3 w-3 inline mr-1" />Insurance
-            </span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium">
-              <IndianRupee className="h-3 w-3 inline mr-1" />Subsidies
-            </span>
+            <span className="text-[13px] px-3 py-1 rounded-full bg-teal-600 text-white font-semibold">Schemes</span>
+            <span className="text-[13px] px-3 py-1 rounded-full bg-blue-600 text-white font-semibold">Insurance</span>
+            <span className="text-[13px] px-3 py-1 rounded-full bg-[#16A34A] text-white font-semibold">Subsidies</span>
           </div>
         </SummaryCard>
 
@@ -518,8 +509,8 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
         <SummaryCard id="sec-grievances" title="Grievances" icon={<img src={iconNavGrievance} alt="" className="w-4 h-4 object-contain" />} onClick={() => nav("grievances")}>
           <p className="text-sm text-slate-600">View, raise, and manage all grievances filed by or for this farmer — filter by status, priority, and category. Replies and resolution notes are tracked.</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-lime-100 text-lime-700 border border-lime-200 font-medium">Open Grievances</span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium">Resolution Tracking</span>
+            <span className="text-[13px] px-3 py-1 rounded-full bg-lime-600 text-white font-semibold">Open Grievances</span>
+            <span className="text-[13px] px-3 py-1 rounded-full bg-emerald-600 text-white font-semibold">Resolution Tracking</span>
           </div>
         </SummaryCard>
 

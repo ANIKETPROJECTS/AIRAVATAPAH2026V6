@@ -121,7 +121,7 @@ export default function Index() {
         <Header onAIOpen={() => setAiOpen(true)} onNavigate={navigate}/>
 
         <main className="p-6">
-          {active !== "newregistration" && active !== "farmers" && <h1 className="font-heading text-2xl mb-6">{pageTitle}</h1>}
+          {active !== "newregistration" && active !== "farmers" && active !== "verifiedfarmers" && <h1 className="font-heading text-2xl mb-6">{pageTitle}</h1>}
           {renderContent()}
         </main>
       </div>
