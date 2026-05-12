@@ -112,16 +112,16 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-row-reverse overflow-hidden min-h-0">
 
         {/* ── Right panel: Login form ── */}
-        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-2 px-8 pb-6 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-4 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
           <div className="w-full max-w-sm">
 
-            {/* Logo — big and prominent, hugging the header */}
-            <div className="flex flex-col items-center mb-3">
+            {/* Logo — big and prominent, zero top gap */}
+            <div className="flex flex-col items-center mb-1">
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
                 className="w-full object-contain mix-blend-multiply"
-                style={{ height: 270 }}
+                style={{ height: 320 }}
               />
             </div>
 
