@@ -131,8 +131,8 @@ export default function LoginPage() {
             ))}
           </datalist>
 
-          {/* Form — sits immediately below logo, no gap */}
-          <div className="px-8 shrink-0">
+          {/* Form — small breathing gap below logo */}
+          <div className="px-8 shrink-0" style={{ paddingTop: 14 }}>
             <div className="mb-2">
               <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 2 }}>
                 Welcome back
