@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, ActivityIndicator, Alert, Platform,
+  ScrollView, ActivityIndicator, Alert, Platform, Image,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { api, API_BASE } from '../api';
-import { COLORS, FONT_SIZE, RADIUS, SHADOW, T } from '../constants';
+import { RADIUS, T } from '../constants';
 import { REQUIRED_DOCUMENTS, DocUploadState, DocUploadStatus, DocumentTypeId } from '../types';
 
 interface Props {
@@ -54,10 +54,10 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
   }
 
   const mobile = state.mobile ?? '';
-
   const allDone = REQUIRED_DOCUMENTS.every((d) => docStates[d.id].status === 'done');
   const doneCount = REQUIRED_DOCUMENTS.filter((d) => docStates[d.id].status === 'done').length;
   const canSubmit = doneCount >= 1;
+  const pct = (doneCount / REQUIRED_DOCUMENTS.length) * 100;
 
   async function pollUntilDone(docId: DocumentTypeId, requestId: string) {
     const maxAttempts = 60;
@@ -65,17 +65,9 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
       await new Promise((r) => setTimeout(r, 4000));
       try {
         const result = await api.pollExtraction(requestId);
-        if (result.status === 'complete') {
-          setDoc(docId, { status: 'done' });
-          return;
-        }
-        if (result.status === 'error') {
-          setDoc(docId, { status: 'error', error: result.error ?? 'Processing failed' });
-          return;
-        }
-      } catch {
-        // keep polling
-      }
+        if (result.status === 'complete') { setDoc(docId, { status: 'done' }); return; }
+        if (result.status === 'error') { setDoc(docId, { status: 'error', error: result.error ?? 'Processing failed' }); return; }
+      } catch { /* keep polling */ }
     }
     setDoc(docId, { status: 'error', error: 'Processing timed out. Please re-upload.' });
   }
@@ -84,44 +76,22 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
     if (!mobile) { Alert.alert('Error', 'Session expired. Please login again.'); return; }
     setDoc(docId, { status: 'picking', error: undefined });
     try {
-      let fileUri = '';
-      let fileName = `${docId}.pdf`;
-      let fileMime = 'application/pdf';
-
+      let fileUri = '', fileName = `${docId}.pdf`, fileMime = 'application/pdf';
       addDebugLog(`Platform: ${Platform.OS} | API: ${API_BASE}`);
-
       if (Platform.OS === 'web') {
-        const result = await DocumentPicker.getDocumentAsync({
-          type: ['image/*', 'application/pdf'],
-          copyToCacheDirectory: false,
-        });
+        const result = await DocumentPicker.getDocumentAsync({ type: ['image/*', 'application/pdf'], copyToCacheDirectory: false });
         if (result.canceled || !result.assets?.[0]) { setDoc(docId, { status: 'idle' }); return; }
         const asset = result.assets[0];
-        fileUri = asset.uri;
-        fileName = asset.name ?? fileName;
-        fileMime = asset.mimeType ?? fileMime;
+        fileUri = asset.uri; fileName = asset.name ?? fileName; fileMime = asset.mimeType ?? fileMime;
       } else {
         const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!perm.granted) {
-          Alert.alert('Permission needed', 'Please allow access to your photos to upload documents.');
-          setDoc(docId, { status: 'idle' });
-          return;
-        }
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          quality: 0.85,
-          allowsMultipleSelection: false,
-        });
+        if (!perm.granted) { Alert.alert('Permission needed', 'Please allow access to your photos.'); setDoc(docId, { status: 'idle' }); return; }
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.85, allowsMultipleSelection: false });
         if (result.canceled || !result.assets?.[0]) { setDoc(docId, { status: 'idle' }); return; }
         const asset = result.assets[0];
-        fileUri = asset.uri;
-        fileName = `${docId}.jpg`;
-        fileMime = 'image/jpeg';
+        fileUri = asset.uri; fileName = `${docId}.jpg`; fileMime = 'image/jpeg';
       }
-
-      addDebugLog(`Uploading ${docId}: ${fileName} (${fileMime})`);
-      addDebugLog(`URI starts with: ${fileUri.substring(0, 40)}`);
-
+      addDebugLog(`Uploading ${docId}: ${fileName}`);
       setDoc(docId, { status: 'uploading', fileName });
       const submitResult = await api.uploadDocument(fileUri, fileName, fileMime, docId, mobile);
       const requestId = submitResult.request_id;
@@ -142,13 +112,7 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
       const farmer = await api.submitRegistration(mobile);
       updateFarmer(farmer);
     } catch {
-      updateFarmer({
-        farmerId: '',
-        mobile,
-        name: '—',
-        status: 'Pending',
-        addedAt: new Date().toISOString(),
-      });
+      updateFarmer({ farmerId: '', mobile, name: '—', status: 'Pending', addedAt: new Date().toISOString() });
     } finally {
       setSubmitting(false);
     }
@@ -156,164 +120,191 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
 
   function statusInfo(s: DocUploadStatus): { label: string; color: string; bg: string } {
     switch (s) {
-      case 'done': return { label: t('uploaded'), color: COLORS.primary, bg: COLORS.primaryBg };
-      case 'uploading': return { label: 'Uploading…', color: COLORS.info, bg: COLORS.infoLight };
-      case 'processing': return { label: t('processing'), color: COLORS.gold, bg: COLORS.goldLight };
-      case 'error': return { label: t('failed'), color: COLORS.error, bg: COLORS.errorLight };
-      case 'picking': return { label: 'Selecting…', color: COLORS.textMuted, bg: COLORS.borderLight };
-      default: return { label: 'Not uploaded', color: COLORS.textMuted, bg: '#F1F5F9' };
+      case 'done':       return { label: '✓ अपलोड झाले',    color: '#16A34A', bg: '#F0FDF4' };
+      case 'uploading':  return { label: 'अपलोड होत आहे…',  color: '#2563EB', bg: '#EFF6FF' };
+      case 'processing': return { label: 'प्रक्रिया होत आहे…', color: '#D97706', bg: '#FFFBEB' };
+      case 'error':      return { label: 'अयशस्वी',          color: '#DC2626', bg: '#FEF2F2' };
+      case 'picking':    return { label: 'निवडत आहे…',       color: '#6B7280', bg: '#F9FAFB' };
+      default:           return { label: 'अपलोड बाकी',       color: '#6B7280', bg: '#F1F5F9' };
     }
   }
 
   const docLabel = (d: typeof REQUIRED_DOCUMENTS[0]) =>
     state.lang === 'hi' ? d.labelHi : state.lang === 'mr' ? d.labelMr : d.label;
 
-  const pct = (doneCount / REQUIRED_DOCUMENTS.length) * 100;
-
   const reuploadTitle =
-    state.lang === 'hi' ? 'दस्तावेज़ पुनः अपलोड करें' :
     state.lang === 'mr' ? 'कागदपत्रे पुन्हा अपलोड करा' :
-    'Re-upload Documents';
-
-  const reuploadSub =
-    state.lang === 'hi' ? 'अस्वीकृति का कारण पढ़ें और सही दस्तावेज़ अपलोड करें।' :
-    state.lang === 'mr' ? 'नाकारण्याचे कारण वाचा आणि योग्य कागदपत्रे अपलोड करा.' :
-    'Review the rejection reason and upload the corrected documents.';
+    state.lang === 'hi' ? 'दस्तावेज़ पुनः अपलोड करें' : 'Re-upload Documents';
 
   return (
     <SafeAreaView style={styles.safe}>
+      {/* Header */}
       <View style={styles.topBar}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-          <Text style={styles.topBarSub}>
-            {isReupload
-              ? (state.lang === 'hi' ? 'दस्तावेज़ पुनः अपलोड'
-                : state.lang === 'mr' ? 'कागदपत्रे पुन्हा अपलोड'
-                : 'Document Re-upload')
-              : 'Farmer Registration'}
-          </Text>
-        </View>
         {isReupload && onCancelReupload ? (
-          <TouchableOpacity style={styles.backTopBtn} onPress={onCancelReupload}>
-            <Text style={styles.backTopText}>← Back</Text>
+          <TouchableOpacity onPress={onCancelReupload} style={styles.backBtn}>
+            <Text style={styles.backArrow}>←</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.logoutTopBtn} onPress={handleLogout}>
-            <Text style={styles.logoutTopText}>Logout</Text>
-          </TouchableOpacity>
+          <View style={styles.backBtn} />
         )}
+        <Image
+          source={require('../../assets/brand-logo-new.png')}
+          style={styles.headerLogo}
+          resizeMode="cover"
+        />
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Reupload banner */}
+        {/* Re-upload banner */}
         {isReupload && (
           <View style={styles.reuploadBanner}>
             <Text style={styles.reuploadBannerIcon}>🔄</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.reuploadBannerTitle}>{reuploadTitle}</Text>
-              <Text style={styles.reuploadBannerSub}>{reuploadSub}</Text>
+              <Text style={styles.reuploadBannerSub}>
+                नाकारण्याचे कारण वाचा आणि योग्य कागदपत्रे अपलोड करा.
+              </Text>
             </View>
           </View>
         )}
 
+        {/* Hero */}
         {!isReupload && (
-          <View style={styles.heroBox}>
-            <View style={styles.heroIconBox}>
-              <Text style={styles.heroIcon}>📑</Text>
-            </View>
-            <View style={styles.heroText}>
-              <Text style={styles.heroTitle}>{t('registerTitle')}</Text>
-              <Text style={styles.heroSub}>{t('registerSubtitle')}</Text>
-            </View>
+          <View style={styles.heroSection}>
+            <Image
+              source={require('../../assets/icon-docs.png')}
+              style={styles.heroIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.heroTitle}>शेतकरी नोंदणी</Text>
+            <Text style={styles.heroTitleEn}>Farmer Registration</Text>
+            <Text style={styles.heroSub}>
+              नोंदणीसाठी 5 कागदपत्रे अपलोड करा. आमचे AI आपले तपशील आपोआप वाचेल.
+            </Text>
           </View>
         )}
 
-        <View style={styles.progressCard}>
-          <View style={styles.progressRow}>
-            <Text style={styles.progressLabel}>{t('uploadDocs')}</Text>
-            <Text style={styles.progressCount}>{doneCount}<Text style={styles.progressTotal}> / {REQUIRED_DOCUMENTS.length}</Text></Text>
+        {/* Progress */}
+        <View style={styles.progressSection}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressLabel}>कागदपत्र अपलोड प्रगती</Text>
+            <Text style={styles.progressCount}>
+              <Text style={styles.progressDone}>{doneCount}</Text>
+              <Text style={styles.progressOf}> / {REQUIRED_DOCUMENTS.length}</Text>
+            </Text>
           </View>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${pct}%` as any }]} />
-          </View>
-          <View style={styles.progressSegments}>
+          <View style={styles.segmentRow}>
             {REQUIRED_DOCUMENTS.map((d, i) => (
-              <View key={d.id} style={[
-                styles.progressSegment,
-                i < doneCount ? styles.progressSegmentDone : {}
-              ]} />
+              <View
+                key={d.id}
+                style={[styles.segment, i < doneCount && styles.segmentDone]}
+              />
             ))}
           </View>
+          <Text style={styles.progressSub}>
+            {doneCount === 0
+              ? 'अद्याप कोणतेही कागदपत्र अपलोड केले नाही'
+              : doneCount === REQUIRED_DOCUMENTS.length
+              ? 'सर्व कागदपत्रे अपलोड झाली आहेत!'
+              : `${REQUIRED_DOCUMENTS.length - doneCount} कागदपत्रे बाकी आहेत`}
+          </Text>
         </View>
 
+        {/* Document Cards */}
         <View style={styles.docList}>
-          {REQUIRED_DOCUMENTS.map((doc) => {
+          {REQUIRED_DOCUMENTS.map((doc, index) => {
             const ds = docStates[doc.id];
             const si = statusInfo(ds.status);
             const isBusy = ds.status === 'uploading' || ds.status === 'processing' || ds.status === 'picking';
             const isDone = ds.status === 'done';
+            const isError = ds.status === 'error';
 
             return (
-              <View key={doc.id} style={[styles.docCard, isDone && styles.docCardDone]}>
-                <View style={[styles.docIconBox, { backgroundColor: isDone ? COLORS.primaryBg : '#F8FAFC', borderColor: isDone ? COLORS.primaryLight : COLORS.border }]}>
-                  <Text style={styles.docIcon}>{doc.icon}</Text>
-                </View>
-                <View style={styles.docInfo}>
-                  <Text style={styles.docName}>{docLabel(doc)}</Text>
-                  <Text style={styles.docDesc} numberOfLines={1}>{doc.description}</Text>
-                  <View style={[styles.statusChip, { backgroundColor: si.bg }]}>
-                    <Text style={[styles.statusChipText, { color: si.color }]}>{si.label}</Text>
+              <View key={doc.id} style={[styles.docRow, isDone && styles.docRowDone]}>
+                <View style={styles.docNumCol}>
+                  <View style={[styles.docNum, isDone && styles.docNumDone]}>
+                    <Text style={[styles.docNumText, isDone && styles.docNumTextDone]}>
+                      {isDone ? '✓' : `${index + 1}`}
+                    </Text>
                   </View>
-                  {ds.status === 'error' && ds.error && (
-                    <Text style={styles.errorText}>{ds.error}</Text>
+                  {index < REQUIRED_DOCUMENTS.length - 1 && (
+                    <View style={[styles.docConnector, index < doneCount - 1 && styles.docConnectorDone]} />
                   )}
                 </View>
-                <TouchableOpacity
-                  style={[
-                    styles.uploadBtn,
-                    isDone && styles.uploadBtnDone,
-                    isBusy && styles.uploadBtnBusy,
-                  ]}
-                  onPress={() => pickAndUpload(doc.id)}
-                  disabled={isBusy}
-                  activeOpacity={0.8}
-                >
-                  {isBusy
-                    ? <ActivityIndicator size="small" color={COLORS.white} />
-                    : <Text style={styles.uploadBtnIcon}>
-                        {isDone ? '✓' : ds.status === 'error' ? '↻' : '↑'}
-                      </Text>
-                  }
-                  <Text style={styles.uploadBtnLabel}>
-                    {isBusy ? '...' : isDone ? t('reUpload') : t('uploadDoc')}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.docBody}>
+                  <View style={styles.docTopRow}>
+                    <View style={styles.docTextCol}>
+                      <Text style={styles.docName}>{docLabel(doc)}</Text>
+                      <Text style={styles.docDesc} numberOfLines={1}>{doc.description}</Text>
+                      <View style={[styles.statusPill, { backgroundColor: si.bg }]}>
+                        <Text style={[styles.statusPillText, { color: si.color }]}>{si.label}</Text>
+                      </View>
+                      {isError && ds.error && (
+                        <Text style={styles.errorText} numberOfLines={2}>{ds.error}</Text>
+                      )}
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.uploadBtn, isDone && styles.uploadBtnDone, isBusy && styles.uploadBtnBusy]}
+                      onPress={() => pickAndUpload(doc.id)}
+                      disabled={isBusy}
+                      activeOpacity={0.8}
+                    >
+                      {isBusy
+                        ? <ActivityIndicator size="small" color="#FFFFFF" />
+                        : <>
+                            <Text style={styles.uploadBtnIcon}>{isDone ? '↑' : isError ? '↻' : '↑'}</Text>
+                            <Text style={styles.uploadBtnLabel}>
+                              {isDone ? 'पुन्हा' : 'अपलोड'}
+                            </Text>
+                          </>
+                      }
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             );
           })}
         </View>
 
+        {/* Tip boxes */}
         {!canSubmit && (
-          <View style={styles.tipBox}>
-            <Text style={styles.tipIcon}>📌</Text>
-            <Text style={styles.tipText}>
-              {isReupload
-                ? 'Upload at least one corrected document, then tap Submit to resubmit for review.'
-                : 'Upload at least one document to submit your registration. Accepted formats: JPG, PNG, PDF.'}
-            </Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoTitleRow}>
+              <Image source={require('../../assets/icon-info2.png')} style={styles.infoIcon} resizeMode="contain" />
+              <Text style={styles.infoTitle}>महत्त्वाची माहिती</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoBullet}>•</Text>
+              <Text style={styles.infoText}>किमान 1 कागदपत्र अपलोड करा, मग नोंदणी सबमिट करा</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoBullet}>•</Text>
+              <Text style={styles.infoText}>स्वीकृत फॉर्मेट: JPG, PNG, PDF</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoBullet}>•</Text>
+              <Text style={styles.infoText}>AI आपले तपशील आपोआप काढेल — फॉर्म भरण्याची गरज नाही</Text>
+            </View>
           </View>
         )}
 
         {canSubmit && !allDone && (
-          <View style={[styles.tipBox, { backgroundColor: '#FEF9C3', borderColor: '#FDE047' }]}>
-            <Text style={styles.tipIcon}>💡</Text>
-            <Text style={styles.tipText}>
-              {`${doneCount} of ${REQUIRED_DOCUMENTS.length} documents uploaded. You can submit now or upload more before submitting.`}
+          <View style={[styles.infoCard, { backgroundColor: '#FFFBEB' }]}>
+            <View style={styles.infoTitleRow}>
+              <Text style={{ fontSize: 16 }}>💡</Text>
+              <Text style={[styles.infoTitle, { color: '#92400E' }]}>आंशिक अपलोड</Text>
+            </View>
+            <Text style={[styles.infoText, { color: '#92400E', paddingLeft: 0 }]}>
+              {`${doneCount} / ${REQUIRED_DOCUMENTS.length} कागदपत्रे अपलोड झाली. तुम्ही आता सबमिट करू शकता किंवा आणखी कागदपत्रे अपलोड करू शकता.`}
             </Text>
           </View>
         )}
 
+        {/* Submit Button */}
         <TouchableOpacity
           style={[styles.submitBtn, (!canSubmit || submitting) && styles.submitBtnDisabled]}
           onPress={handleSubmit}
@@ -321,19 +312,21 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
           activeOpacity={0.85}
         >
           {submitting
-            ? <ActivityIndicator color={COLORS.white} />
+            ? <ActivityIndicator color="#FFFFFF" />
             : <Text style={styles.submitBtnText}>
-                {`✅  ${isReupload ? 'Resubmit for Review' : t('submitReg')}${!allDone ? ` (${doneCount}/${REQUIRED_DOCUMENTS.length})` : ''}`}
+                {isReupload
+                  ? `पुन्हा सबमिट करा  →`
+                  : `नोंदणी सबमिट करा  →${!allDone ? `  (${doneCount}/${REQUIRED_DOCUMENTS.length})` : ''}`}
               </Text>}
         </TouchableOpacity>
 
         {isReupload && onCancelReupload && (
-          <TouchableOpacity style={styles.cancelReuploadBtn} onPress={onCancelReupload}>
-            <Text style={styles.cancelReuploadText}>← Back to Status</Text>
+          <TouchableOpacity style={styles.cancelBtn} onPress={onCancelReupload}>
+            <Text style={styles.cancelText}>← स्थिती पानावर परत जा</Text>
           </TouchableOpacity>
         )}
 
-        {/* Debug Log Panel — shows after first upload attempt */}
+        {/* Debug Panel */}
         {debugLog.length > 0 && (
           <View style={styles.debugPanel}>
             <TouchableOpacity
@@ -361,110 +354,136 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+
   topBar: {
-    backgroundColor: COLORS.primaryDark, paddingHorizontal: 20, paddingVertical: 14,
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  topBarTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.gold },
-  topBarSub: { fontSize: FONT_SIZE.xs, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
-  logoutTopBtn: {
-    paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: RADIUS.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
+  backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
+  backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
+  headerLogo: { height: 54, width: 180 },
+  logoutBtn: {
+    paddingHorizontal: 14, paddingVertical: 6,
+    borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: '#D1D5DB',
   },
-  logoutTopText: { color: 'rgba(255,255,255,0.8)', fontSize: FONT_SIZE.sm, fontWeight: '600' },
-  backTopBtn: {
-    paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: RADIUS.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)',
-  },
-  backTopText: { color: COLORS.gold, fontSize: FONT_SIZE.sm, fontWeight: '700' },
-  scroll: { paddingHorizontal: 18, paddingTop: 20, paddingBottom: 20 },
+  logoutText: { fontSize: 12, fontFamily: 'Poppins', fontWeight: '500', color: '#374151' },
+
+  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 20 },
+
   reuploadBanner: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 12,
-    backgroundColor: '#FFF7ED', borderRadius: RADIUS.lg, padding: 16,
-    marginBottom: 16, borderWidth: 1.5, borderColor: '#FED7AA',
-    ...SHADOW.sm,
+    backgroundColor: '#FFF7ED', borderRadius: 14, padding: 16,
+    marginBottom: 18, borderWidth: 1.5, borderColor: '#FED7AA',
   },
-  reuploadBannerIcon: { fontSize: 28, marginTop: 2 },
-  reuploadBannerTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: '#9A3412', marginBottom: 4 },
-  reuploadBannerSub: { fontSize: FONT_SIZE.sm, color: '#C2410C', lineHeight: 20 },
-  heroBox: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: 14,
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 16,
-    marginBottom: 16, ...SHADOW.sm,
+  reuploadBannerIcon: { fontSize: 26 },
+  reuploadBannerTitle: { fontSize: 15, fontFamily: 'Poppins', fontWeight: '600', color: '#9A3412', marginBottom: 4 },
+  reuploadBannerSub: { fontSize: 12, fontFamily: 'Poppins', fontWeight: '400', color: '#C2410C', lineHeight: 18 },
+
+  heroSection: { alignItems: 'center', marginBottom: 24 },
+  heroIcon: { width: 88, height: 88, marginBottom: 12 },
+  heroTitle: { fontSize: 24, fontFamily: 'Poppins', fontWeight: '600', color: '#000000', marginBottom: 2 },
+  heroTitleEn: { fontSize: 13, fontFamily: 'Poppins', fontWeight: '400', color: '#000000', marginBottom: 10 },
+  heroSub: {
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#000000', textAlign: 'center', lineHeight: 20,
   },
-  heroIconBox: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: COLORS.primaryLight,
+
+  progressSection: {
+    marginBottom: 24,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  heroIcon: { fontSize: 26 },
-  heroText: { flex: 1 },
-  heroTitle: { fontSize: FONT_SIZE.lg, fontWeight: '800', color: COLORS.primaryDark, marginBottom: 4 },
-  heroSub: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, lineHeight: 20 },
-  progressCard: {
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 16,
-    marginBottom: 20, ...SHADOW.sm,
+  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 },
+  progressLabel: { fontSize: 12, fontFamily: 'Poppins', fontWeight: '500', color: '#000000' },
+  progressCount: {},
+  progressDone: { fontSize: 22, fontFamily: 'Poppins', fontWeight: '600', color: '#16A34A' },
+  progressOf: { fontSize: 14, fontFamily: 'Poppins', fontWeight: '400', color: '#6B7280' },
+  segmentRow: { flexDirection: 'row', gap: 6, marginBottom: 8 },
+  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: '#E5E7EB' },
+  segmentDone: { backgroundColor: '#16A34A' },
+  progressSub: { fontSize: 11, fontFamily: 'Poppins', fontWeight: '400', color: '#6B7280' },
+
+  docList: { gap: 0, marginBottom: 20 },
+
+  docRow: {
+    flexDirection: 'row',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  progressRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 },
-  progressLabel: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text },
-  progressCount: { fontSize: FONT_SIZE['2xl'], fontWeight: '800', color: COLORS.primary },
-  progressTotal: { fontSize: FONT_SIZE.base, color: COLORS.textMuted },
-  progressTrack: { height: 6, borderRadius: RADIUS.full, backgroundColor: COLORS.border, overflow: 'hidden', marginBottom: 8 },
-  progressFill: { height: '100%', borderRadius: RADIUS.full, backgroundColor: COLORS.primary },
-  progressSegments: { flexDirection: 'row', gap: 6 },
-  progressSegment: {
-    flex: 1, height: 4, borderRadius: 2, backgroundColor: COLORS.border,
+  docRowDone: {},
+
+  docNumCol: { width: 36, alignItems: 'center' },
+  docNum: {
+    width: 26, height: 26, borderRadius: 13,
+    backgroundColor: '#F1F5F9', borderWidth: 1.5, borderColor: '#D1D5DB',
+    alignItems: 'center', justifyContent: 'center',
   },
-  progressSegmentDone: { backgroundColor: COLORS.primary },
-  docList: { gap: 12, marginBottom: 16 },
-  docCard: {
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 14,
-    flexDirection: 'row', alignItems: 'center', gap: 12, ...SHADOW.sm,
-    borderWidth: 1.5, borderColor: COLORS.border,
-  },
-  docCardDone: { borderColor: COLORS.primary },
-  docIconBox: {
-    width: 48, height: 48, borderRadius: 12,
-    alignItems: 'center', justifyContent: 'center', borderWidth: 1.5,
-  },
-  docIcon: { fontSize: 24 },
-  docInfo: { flex: 1, gap: 4 },
-  docName: { fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.text },
-  docDesc: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted },
-  statusChip: {
+  docNumDone: { backgroundColor: '#16A34A', borderColor: '#16A34A' },
+  docNumText: { fontSize: 12, fontFamily: 'Poppins', fontWeight: '600', color: '#6B7280' },
+  docNumTextDone: { color: '#FFFFFF' },
+  docConnector: { width: 2, flex: 1, backgroundColor: '#E5E7EB', marginTop: 4 },
+  docConnectorDone: { backgroundColor: '#16A34A' },
+
+  docBody: { flex: 1, paddingLeft: 12 },
+  docTopRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  docTextCol: { flex: 1 },
+
+  docName: { fontSize: 14, fontFamily: 'Poppins', fontWeight: '500', color: '#000000', marginBottom: 2 },
+  docDesc: { fontSize: 11, fontFamily: 'Poppins', fontWeight: '400', color: '#6B7280', marginBottom: 6, lineHeight: 16 },
+
+  statusPill: {
     alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3,
-    borderRadius: RADIUS.full, marginTop: 2,
+    borderRadius: RADIUS.full,
   },
-  statusChipText: { fontSize: FONT_SIZE.xs, fontWeight: '700' },
-  errorText: { fontSize: FONT_SIZE.xs, color: COLORS.error, marginTop: 2 },
+  statusPillText: { fontSize: 11, fontFamily: 'Poppins', fontWeight: '500' },
+  errorText: { fontSize: 11, fontFamily: 'Poppins', color: '#DC2626', marginTop: 4, lineHeight: 16 },
+
   uploadBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md,
-    paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center', minWidth: 64, gap: 2,
+    backgroundColor: '#16A34A', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 10,
+    alignItems: 'center', minWidth: 60, gap: 2,
+    flexShrink: 0,
   },
-  uploadBtnDone: { backgroundColor: COLORS.primaryMid },
-  uploadBtnBusy: { backgroundColor: COLORS.gold },
-  uploadBtnIcon: { color: COLORS.white, fontSize: FONT_SIZE.lg, fontWeight: '800' },
-  uploadBtnLabel: { color: COLORS.white, fontSize: 10, fontWeight: '700' },
-  tipBox: {
-    padding: 14, backgroundColor: COLORS.primaryBg, borderRadius: RADIUS.md,
-    borderLeftWidth: 3, borderLeftColor: COLORS.primary, marginBottom: 16,
-    flexDirection: 'row', gap: 10, alignItems: 'flex-start',
+  uploadBtnDone: { backgroundColor: '#15803D' },
+  uploadBtnBusy: { backgroundColor: '#D97706' },
+  uploadBtnIcon: { color: '#FFFFFF', fontSize: 16, fontWeight: '500' },
+  uploadBtnLabel: { color: '#FFFFFF', fontSize: 10, fontFamily: 'Poppins', fontWeight: '500' },
+
+  infoCard: {
+    backgroundColor: '#16A34A', borderRadius: 14, padding: 16, marginBottom: 18,
   },
-  tipIcon: { fontSize: 16 },
-  tipText: { flex: 1, fontSize: FONT_SIZE.sm, color: COLORS.primaryMid, lineHeight: 20 },
+  infoTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  infoIcon: { width: 18, height: 18, tintColor: '#FFFFFF' },
+  infoTitle: { fontSize: 13, fontFamily: 'Poppins', fontWeight: '600', color: '#FFFFFF' },
+  infoRow: { flexDirection: 'row', gap: 8, marginBottom: 6, alignItems: 'flex-start' },
+  infoBullet: { color: '#FFFFFF', fontWeight: '700', fontSize: 15, lineHeight: 20 },
+  infoText: { flex: 1, fontSize: 12, fontFamily: 'Poppins', fontWeight: '400', color: '#FFFFFF', lineHeight: 19 },
+
   submitBtn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.lg,
-    paddingVertical: 18, alignItems: 'center', ...SHADOW.md,
+    backgroundColor: '#16A34A', borderRadius: RADIUS.full,
+    paddingVertical: 18, alignItems: 'center', marginBottom: 12,
+    shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
   },
-  submitBtnDisabled: { backgroundColor: COLORS.textMuted + '60' },
-  submitBtnText: { color: COLORS.white, fontSize: FONT_SIZE.base, fontWeight: '800' },
-  cancelReuploadBtn: {
-    marginTop: 12, paddingVertical: 14, alignItems: 'center',
-  },
-  cancelReuploadText: { color: COLORS.textMuted, fontSize: FONT_SIZE.base, fontWeight: '600' },
+  submitBtnDisabled: { backgroundColor: '#D1D5DB', shadowOpacity: 0 },
+  submitBtnText: { color: '#FFFFFF', fontSize: 16, fontFamily: 'Poppins', fontWeight: '600' },
+
+  cancelBtn: { alignItems: 'center', paddingVertical: 14 },
+  cancelText: { color: '#6B7280', fontSize: 14, fontFamily: 'Poppins', fontWeight: '400' },
+
   debugPanel: {
-    marginTop: 12, borderRadius: RADIUS.md,
+    marginTop: 12, borderRadius: 10,
     borderWidth: 1, borderColor: '#334155', backgroundColor: '#0F172A', overflow: 'hidden',
   },
   debugHeader: {
