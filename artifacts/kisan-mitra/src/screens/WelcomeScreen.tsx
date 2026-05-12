@@ -1,15 +1,8 @@
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator,
+  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  useFonts,
-  Poppins_300Light,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-} from '@expo-google-fonts/poppins';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../context/AuthContext';
 import { COLORS, RADIUS, T } from '../constants';
@@ -29,21 +22,6 @@ const LANGS: { id: Lang; native: string }[] = [
 export default function WelcomeScreen({ navigation }: Props) {
   const { state, setLang } = useAuth();
   const t = (k: string) => (T[state.lang] ?? T['en'])[k] ?? k;
-
-  const [fontsLoaded] = useFonts({
-    Poppins_300Light,
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-  });
-
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -103,9 +81,6 @@ export default function WelcomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center',
-  },
   safe: {
     flex: 1, backgroundColor: '#FFFFFF',
   },
@@ -125,7 +100,7 @@ const styles = StyleSheet.create({
     width: 56, height: 56,
   },
   separator: {
-    height: 1, backgroundColor: '#E5E7EB', marginHorizontal: 0,
+    height: 1, backgroundColor: '#E5E7EB',
   },
   container: {
     flex: 1,
@@ -182,9 +157,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: COLORS.primary,
   },
-  footer: {
-    gap: 0,
-  },
+  footer: {},
   primaryBtn: {
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.full,
