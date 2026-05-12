@@ -8,15 +8,62 @@ const DEMO_ACCOUNTS = [
   { label: "Taluka Officer",   email: "taluka@agri.mh.gov.in",  password: "Taluka@123",  role: "Field Access" },
 ];
 
-function LogoPlaceholder({ label, className = "" }: { label: string; className?: string }) {
-  return (
-    <div className={`flex flex-col items-center justify-center gap-1 ${className}`}>
-      <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
-        <span className="text-[10px] font-bold text-slate-400 text-center leading-tight px-1">{label}</span>
-      </div>
-    </div>
-  );
-}
+const STEPS = [
+  {
+    number: "01",
+    en: "Document Upload",
+    mr: "कागदपत्र अपलोड",
+    desc: "Officer uploads a photo of Aadhaar, land record, or bank passbook via the admin portal — OR — farmer photographs their own documents directly from the mobile app. Either path works. No physical copies needed.",
+    tag: "From portal or mobile app",
+    icon: "📄",
+    color: "#14532D",
+  },
+  {
+    number: "02",
+    en: "AI Reads Every Document Automatically",
+    mr: "AI कागदपत्र स्वयंचलित वाचन",
+    desc: "The AI (OCR engine) instantly extracts all data — name, Aadhaar number, date of birth, land survey number, crop type, bank account, IFSC — and fills the entire farmer profile. Zero typing. Zero manual entry.",
+    tag: "No form filling required",
+    icon: "🤖",
+    color: "#166534",
+  },
+  {
+    number: "03",
+    en: "Farmer Data Digitalized & Stored",
+    mr: "शेतकरी डेटा डिजिटल व संग्रहित",
+    desc: "A complete digital farmer profile is created — personal details, land records, crop info, KYC documents, and bank details — all stored securely with a unique Farmer ID. Searchable, editable, and accessible to authorised officers anytime.",
+    tag: "Permanent digital record",
+    icon: "🗄️",
+    color: "#15803D",
+  },
+  {
+    number: "04",
+    en: "Admin Verification",
+    mr: "अधिकारी पडताळणी",
+    desc: "The officer reviews the AI-extracted profile, confirms accuracy, and verifies the farmer. The status updates from Pending → Verified in one click. The farmer is notified instantly on their phone — no need to visit the office to check.",
+    tag: "One-click verification",
+    icon: "✅",
+    color: "#16A34A",
+  },
+  {
+    number: "05",
+    en: "AI Recommends Schemes, Insurance & Subsidies",
+    mr: "AI योजना, विमा व अनुदान शिफारस",
+    desc: "Based on the digitalized profile — crop type, land size, district, category — AI automatically matches the farmer to eligible government schemes, crop insurance, and subsidies. No form filling needed again. The farmer's existing data is used directly.",
+    tag: "Auto-matched — no re-entry",
+    icon: "🎯",
+    color: "#D97706",
+  },
+  {
+    number: "06",
+    en: "Farmer Applies & Gets Updated in Real Time",
+    mr: "शेतकरी अर्ज व तात्काळ अपडेट",
+    desc: "Farmer taps Apply Now on a recommended scheme in the mobile app — crop type and land area are pre-filled from their profile. Officer approves or rejects. The farmer gets an instant push notification the moment a decision is made.",
+    tag: "Instant notification on phone",
+    icon: "📲",
+    color: "#B45309",
+  },
+];
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -68,12 +115,11 @@ export default function LoginPage() {
       </header>
 
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col lg:flex-row-reverse overflow-y-auto">
+      <div className="flex-1 flex flex-col lg:flex-row-reverse overflow-hidden">
 
         {/* ── Right panel: Login form ── */}
-        <div className="flex-1 flex flex-col items-center justify-start pt-0 px-8 pb-8 bg-white lg:border-l lg:border-slate-200 relative overflow-visible">
-
-          <div className="w-full max-w-lg">
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-8 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
+          <div className="w-full max-w-sm">
 
             {/* Main logo */}
             <div className="flex flex-col items-center justify-center -mt-16 mb-0">
@@ -186,54 +232,49 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* ── Left panel: Project info ── */}
-        <div className="hidden lg:flex flex-1 items-center justify-center p-12 bg-white">
-          <div className="max-w-lg text-slate-900 w-full">
-            <div className="flex flex-col items-center text-center mb-10">
+        {/* ── Left panel: 6 Step Cards ── */}
+        <div className="hidden lg:flex flex-1 flex-col justify-center overflow-y-auto bg-[#F8FAFC] px-10 py-8">
 
-              {/* MoSPI / Dept logo placeholder */}
-              <div className="w-28 h-28 rounded-2xl bg-slate-100 border-2 border-slate-200 flex items-center justify-center mb-8">
-                <span className="text-xs font-bold text-slate-400 text-center leading-tight px-2">DEPT.<br/>LOGO</span>
-              </div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-[#14532D]">How Krushi Suvidha Works</h2>
+            <p className="text-sm text-slate-500 mt-1">End-to-end farmer digitisation — from document upload to scheme approval.</p>
+          </div>
 
-              <div className="space-y-6 w-full">
-                <div className="p-8 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm">
-                  <div className="grid grid-cols-1 gap-5 text-left">
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                      <span className="text-slate-500 font-medium uppercase tracking-wider text-xs">Platform</span>
-                      <span className="text-xl font-bold text-slate-900">Krushi Suvidha</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                      <span className="text-slate-500 font-medium uppercase tracking-wider text-xs">Module</span>
-                      <span className="text-xl font-bold text-slate-900">AgriAdmin Portal</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                      <span className="text-slate-500 font-medium uppercase tracking-wider text-xs">State</span>
-                      <span className="text-xl font-bold text-slate-900">Maharashtra</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                      <span className="text-slate-500 font-medium uppercase tracking-wider text-xs">Version</span>
-                      <span className="text-xl font-bold text-slate-900">v2.0</span>
-                    </div>
-                    <div className="pt-1">
-                      <span className="text-slate-500 font-medium uppercase tracking-wider text-xs block mb-3">About</span>
-                      <p className="text-base font-medium leading-relaxed text-slate-700">
-                        Maharashtra's integrated agriculture administration platform for district and taluka officers. Manage farmer registrations, scheme applications, grievances, and more — all in one place.
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {STEPS.map((step) => (
+              <div
+                key={step.number}
+                className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+              >
+                {/* Step header */}
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-black"
+                    style={{ backgroundColor: step.color }}
+                  >
+                    {step.number}
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-slate-900 leading-snug">{step.en}</div>
+                    <div className="text-xs text-slate-400 mt-0.5" style={{ fontFamily: "sans-serif" }}>{step.mr}</div>
+                  </div>
+                  <span className="text-xl flex-shrink-0">{step.icon}</span>
                 </div>
 
-                {/* Feature pills */}
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {["AI-Powered OCR", "Multi-Language", "Real-time Alerts", "Role-based Access", "DBT Integration"].map(f => (
-                    <span key={f} className="text-xs px-3 py-1.5 rounded-full font-medium border border-emerald-200 bg-emerald-50 text-emerald-700">
-                      {f}
-                    </span>
-                  ))}
+                {/* Description */}
+                <p className="text-xs text-slate-600 leading-relaxed">{step.desc}</p>
+
+                {/* Tag pill */}
+                <div className="mt-auto pt-1">
+                  <span
+                    className="inline-block text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                    style={{ backgroundColor: step.color + "15", color: step.color }}
+                  >
+                    {step.tag}
+                  </span>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

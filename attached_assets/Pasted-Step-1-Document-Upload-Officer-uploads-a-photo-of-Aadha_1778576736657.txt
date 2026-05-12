@@ -1,0 +1,54 @@
+Step 1
+
+Document Upload
+
+कागदपत्र अपलोड
+
+Officer uploads a photo of Aadhaar, land record, or bank passbook via the admin portal — OR — farmer photographs their own documents directly from the mobile app. Either path works. No physical copies needed.
+
+From portal or mobile app
+Step 2
+
+AI Reads Every Document Automatically
+
+AI कागदपत्र स्वयंचलित वाचन
+
+The AI (OCR engine) instantly extracts all data — name, Aadhaar number, date of birth, land survey number, crop type, bank account, IFSC — and fills the entire farmer profile. Zero typing. Zero manual entry. If any field is missing or unreadable, the system flags it and advises the officer exactly what is needed.
+
+No form filling required
+Step 3
+
+Farmer Data Digitalized & Stored
+
+शेतकरी डेटा डिजिटल व संग्रहित
+
+A complete digital farmer profile is created — personal details, land records, crop info, KYC documents, and bank details — all stored securely with a unique Farmer ID. Searchable, editable, and accessible to authorised officers anytime. No paper files. No lost records.
+
+Permanent digital record
+Step 4
+
+Admin Verification
+
+अधिकारी पडताळणी
+
+The officer reviews the AI-extracted profile, confirms accuracy, and verifies the farmer. The status updates from Pending → Verified in one click. The farmer is notified instantly on their phone — no need to visit the office to check.
+
+One-click verification
+Step 5
+
+AI Recommends Schemes, Insurance & Subsidies
+
+AI योजना, विमा व अनुदान शिफारस
+
+Based on the digitalized profile — crop type, land size, district, category — AI automatically matches the farmer to eligible government schemes, crop insurance, and subsidies. No form filling needed again. The farmer's existing data is used directly. Officer sees the recommendations; farmer sees them in the app.
+
+Auto-matched — no re-entry
+Step 6
+
+Farmer Applies & Gets Updated in Real Time
+
+शेतकरी अर्ज व तात्काळ अपडेट
+
+Farmer taps Apply Now on a recommended scheme in the mobile app — crop type and land area are pre-filled from their profile. Officer approves or rejects. The farmer gets an instant push notification the moment a decision is made. Application status is live — visible to both sides at all times.
+
+Instant notification on phone
