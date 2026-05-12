@@ -261,35 +261,36 @@ export default function LoginPage() {
                     fontFamily: "Poppins, sans-serif",
                   }}
                 >
-                  {/* Blurred step number — bottom right watermark */}
+                  {/* Step number — bottom right, crisp but faint */}
                   <span
-                    className="absolute bottom-2 right-3 select-none pointer-events-none"
+                    className="absolute bottom-1 right-3 select-none pointer-events-none"
                     style={{
-                      fontSize: 56,
+                      fontSize: 52,
                       lineHeight: 1,
-                      fontWeight: 800,
-                      color: "rgba(255,255,255,0.07)",
-                      filter: "blur(2px)",
+                      fontWeight: 700,
+                      color: "rgba(255,255,255,0.11)",
+                      fontFamily: "Poppins, sans-serif",
                     }}
                   >
                     {step.number}
                   </span>
 
                   {/* Title */}
-                  <p className="leading-snug mb-1 flex-shrink-0" style={{ color: "#ffffff", fontSize: 15, fontWeight: 500 }}>
+                  <p className="leading-snug mb-1" style={{ color: "#ffffff", fontSize: 16, fontWeight: 500 }}>
                     {step.en}
                   </p>
-                  <p className="mb-2 flex-shrink-0" style={{ color: "#86efac", fontSize: 12, fontWeight: 300 }}>
+                  {/* Marathi */}
+                  <p className="mb-2" style={{ color: "#86efac", fontSize: 12, fontWeight: 300 }}>
                     {step.mr}
                   </p>
-
                   {/* Description */}
-                  <p className="leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, fontWeight: 300 }}>
+                  <p className="leading-relaxed" style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, fontWeight: 300 }}>
                     {step.desc}
                   </p>
-
+                  {/* Spacer pushes tag to bottom */}
+                  <div className="flex-1" />
                   {/* Tag */}
-                  <div className="mt-2 flex-shrink-0">
+                  <div className="mt-2">
                     <span
                       className="inline-block px-2 py-0.5 rounded-full"
                       style={{ background: "rgba(255,255,255,0.13)", color: "rgba(255,255,255,0.9)", fontSize: 11, fontWeight: 400 }}
