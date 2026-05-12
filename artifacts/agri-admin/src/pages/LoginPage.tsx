@@ -50,16 +50,16 @@ export default function LoginPage() {
     <div className="h-screen flex flex-col bg-white relative overflow-hidden">
 
       {/* ── Header with 4 logos ── */}
-      <header className="relative z-50 w-full bg-white border-b border-slate-200 py-3 px-8 shrink-0">
+      <header className="relative z-50 w-full bg-white border-b border-slate-200 py-1 px-8 shrink-0">
         <div className="flex items-center justify-between w-full">
           <div className="flex-1 flex items-center justify-center border-r border-slate-200 py-1">
             <img src="/logo-govt-india.svg" alt="Government of India" className="h-16 w-auto object-contain"/>
           </div>
           <div className="flex-1 flex items-center justify-center border-r border-slate-200 py-1">
-            <img src="/logo-seal-maharashtra.svg" alt="Seal of Maharashtra" className="h-16 w-auto object-contain"/>
+            <img src="/logo-seal-maharashtra.svg" alt="Seal of Maharashtra" className="h-20 w-auto object-contain"/>
           </div>
           <div className="flex-1 flex items-center justify-center border-r border-slate-200 py-1">
-            <img src="/logo-dept-agriculture.png" alt="Department of Agriculture Maharashtra" className="h-16 w-auto object-contain"/>
+            <img src="/logo-dept-agriculture.png" alt="Department of Agriculture Maharashtra" className="h-20 w-auto object-contain"/>
           </div>
           <div className="flex-1 flex items-center justify-center py-1">
             <img src="/logo-pune-agri-hackathon.png" alt="Pune Agri Hackathon" className="h-14 w-auto object-contain"/>
