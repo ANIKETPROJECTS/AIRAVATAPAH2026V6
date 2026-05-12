@@ -137,23 +137,24 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingTop: 0,
     paddingBottom: 32,
   },
   hero: {
     alignItems: 'center',
-    paddingVertical: 0,
+    marginTop: -24,
+    marginBottom: -48,
   },
   brandLogo: {
     width: '100%',
-    height: 300,
+    height: 420,
   },
   infoCard: {
     backgroundColor: '#16A34A',
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 18,
-    marginTop: 2,
+    marginTop: 0,
     marginBottom: 18,
   },
   infoHeader: {
