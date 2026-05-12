@@ -6,7 +6,7 @@ import {
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
-import { api, API_BASE } from '../api';
+import { api } from '../api';
 import { RADIUS, T } from '../constants';
 import { REQUIRED_DOCUMENTS, DocUploadState, DocUploadStatus, DocumentTypeId } from '../types';
 
@@ -18,15 +18,6 @@ interface Props {
 export default function DocumentUploadScreen({ isReupload, onCancelReupload }: Props) {
   const { state, updateFarmer, logout } = useAuth();
   const t = (k: string) => (T[state.lang] ?? T['en'])[k] ?? k;
-
-  const [debugLog, setDebugLog] = useState<string[]>([]);
-  const [showDebug, setShowDebug] = useState(false);
-
-  function addDebugLog(msg: string) {
-    const ts = new Date().toISOString().substring(11, 23);
-    setDebugLog(prev => [`[${ts}] ${msg}`, ...prev].slice(0, 30));
-    setShowDebug(true);
-  }
 
   async function handleLogout() {
     if (Platform.OS === 'web') {
@@ -77,7 +68,6 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
     setDoc(docId, { status: 'picking', error: undefined });
     try {
       let fileUri = '', fileName = `${docId}.pdf`, fileMime = 'application/pdf';
-      addDebugLog(`Platform: ${Platform.OS} | API: ${API_BASE}`);
       if (Platform.OS === 'web') {
         const result = await DocumentPicker.getDocumentAsync({ type: ['image/*', 'application/pdf'], copyToCacheDirectory: false });
         if (result.canceled || !result.assets?.[0]) { setDoc(docId, { status: 'idle' }); return; }
@@ -91,16 +81,13 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
         const asset = result.assets[0];
         fileUri = asset.uri; fileName = `${docId}.jpg`; fileMime = 'image/jpeg';
       }
-      addDebugLog(`Uploading ${docId}: ${fileName}`);
       setDoc(docId, { status: 'uploading', fileName });
       const submitResult = await api.uploadDocument(fileUri, fileName, fileMime, docId, mobile);
       const requestId = submitResult.request_id;
-      addDebugLog(`Upload OK → requestId: ${requestId}`);
       setDoc(docId, { status: 'processing', requestId });
       pollUntilDone(docId, requestId);
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : 'Upload failed. Please try again.';
-      addDebugLog(`ERROR: ${errMsg}`);
       setDoc(docId, { status: 'error', error: errMsg });
     }
   }
@@ -180,11 +167,13 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
               style={styles.heroIcon}
               resizeMode="contain"
             />
-            <Text style={styles.heroTitle}>शेतकरी नोंदणी</Text>
-            <Text style={styles.heroTitleEn}>Farmer Registration</Text>
-            <Text style={styles.heroSub}>
-              नोंदणीसाठी 5 कागदपत्रे अपलोड करा. आमचे AI आपले तपशील आपोआप वाचेल.
-            </Text>
+            <View style={styles.heroTextCol}>
+              <Text style={styles.heroTitle}>शेतकरी नोंदणी</Text>
+              <Text style={styles.heroTitleEn}>Farmer Registration</Text>
+              <Text style={styles.heroSub}>
+                नोंदणीसाठी 5 कागदपत्रे अपलोड करा. आमचे AI आपले तपशील आपोआप वाचेल.
+              </Text>
+            </View>
           </View>
         )}
 
@@ -326,27 +315,6 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
           </TouchableOpacity>
         )}
 
-        {/* Debug Panel */}
-        {debugLog.length > 0 && (
-          <View style={styles.debugPanel}>
-            <TouchableOpacity
-              style={styles.debugHeader}
-              onPress={() => setShowDebug(v => !v)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.debugTitle}>🔧 Debug Log ({debugLog.length})</Text>
-              <Text style={styles.debugToggle}>{showDebug ? '▲ Hide' : '▼ Show'}</Text>
-            </TouchableOpacity>
-            {showDebug && (
-              <View style={styles.debugBody}>
-                {debugLog.map((line, i) => (
-                  <Text key={i} style={styles.debugLine}>{line}</Text>
-                ))}
-              </View>
-            )}
-          </View>
-        )}
-
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
@@ -368,7 +336,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 54, width: 180 },
+  headerLogo: { height: 38, width: 128 },
   logoutBtn: {
     paddingHorizontal: 14, paddingVertical: 6,
     borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: '#D1D5DB',
@@ -386,13 +354,17 @@ const styles = StyleSheet.create({
   reuploadBannerTitle: { fontSize: 15, fontFamily: 'Poppins', fontWeight: '600', color: '#9A3412', marginBottom: 4 },
   reuploadBannerSub: { fontSize: 12, fontFamily: 'Poppins', fontWeight: '400', color: '#C2410C', lineHeight: 18 },
 
-  heroSection: { alignItems: 'center', marginBottom: 24 },
-  heroIcon: { width: 88, height: 88, marginBottom: 12 },
-  heroTitle: { fontSize: 24, fontFamily: 'Poppins', fontWeight: '600', color: '#000000', marginBottom: 2 },
-  heroTitleEn: { fontSize: 13, fontFamily: 'Poppins', fontWeight: '400', color: '#000000', marginBottom: 10 },
+  heroSection: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    marginBottom: 20, paddingHorizontal: 2,
+  },
+  heroIcon: { width: 52, height: 52, flexShrink: 0 },
+  heroTextCol: { flex: 1 },
+  heroTitle: { fontSize: 18, fontFamily: 'Poppins', fontWeight: '600', color: '#000000', marginBottom: 1 },
+  heroTitleEn: { fontSize: 12, fontFamily: 'Poppins', fontWeight: '400', color: '#6B7280', marginBottom: 6 },
   heroSub: {
-    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
-    color: '#000000', textAlign: 'center', lineHeight: 20,
+    fontSize: 12, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#374151', lineHeight: 18,
   },
 
   progressSection: {
@@ -482,16 +454,4 @@ const styles = StyleSheet.create({
   cancelBtn: { alignItems: 'center', paddingVertical: 14 },
   cancelText: { color: '#6B7280', fontSize: 14, fontFamily: 'Poppins', fontWeight: '400' },
 
-  debugPanel: {
-    marginTop: 12, borderRadius: 10,
-    borderWidth: 1, borderColor: '#334155', backgroundColor: '#0F172A', overflow: 'hidden',
-  },
-  debugHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#1E293B',
-  },
-  debugTitle: { fontSize: 12, fontWeight: '700', color: '#94A3B8' },
-  debugToggle: { fontSize: 11, color: '#64748B' },
-  debugBody: { padding: 10, gap: 2 },
-  debugLine: { fontSize: 10, color: '#94A3B8', fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', lineHeight: 16 },
 });
