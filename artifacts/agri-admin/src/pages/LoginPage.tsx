@@ -13,55 +13,49 @@ const STEPS = [
     number: "01",
     en: "Document Upload",
     mr: "कागदपत्र अपलोड",
-    desc: "Officer uploads a photo of Aadhaar, land record, or bank passbook via the admin portal — OR — farmer photographs their own documents directly from the mobile app. Either path works. No physical copies needed.",
-    tag: "From portal or mobile app",
+    desc: "Officer or farmer uploads Aadhaar, land record, or bank passbook via portal or mobile app. No physical copies needed.",
+    tag: "Portal or mobile app",
     icon: "📄",
-    color: "#14532D",
   },
   {
     number: "02",
-    en: "AI Reads Every Document Automatically",
+    en: "AI Reads Documents Automatically",
     mr: "AI कागदपत्र स्वयंचलित वाचन",
-    desc: "The AI (OCR engine) instantly extracts all data — name, Aadhaar number, date of birth, land survey number, crop type, bank account, IFSC — and fills the entire farmer profile. Zero typing. Zero manual entry.",
+    desc: "OCR engine instantly extracts name, Aadhaar, DOB, survey number, bank account, IFSC — fills the entire farmer profile. Zero typing.",
     tag: "No form filling required",
     icon: "🤖",
-    color: "#166534",
   },
   {
     number: "03",
     en: "Farmer Data Digitalized & Stored",
     mr: "शेतकरी डेटा डिजिटल व संग्रहित",
-    desc: "A complete digital farmer profile is created — personal details, land records, crop info, KYC documents, and bank details — all stored securely with a unique Farmer ID. Searchable, editable, and accessible to authorised officers anytime.",
+    desc: "Complete digital profile created with unique Farmer ID — personal, land, crop, KYC, and bank details stored securely. No paper files.",
     tag: "Permanent digital record",
     icon: "🗄️",
-    color: "#15803D",
   },
   {
     number: "04",
     en: "Admin Verification",
     mr: "अधिकारी पडताळणी",
-    desc: "The officer reviews the AI-extracted profile, confirms accuracy, and verifies the farmer. The status updates from Pending → Verified in one click. The farmer is notified instantly on their phone — no need to visit the office to check.",
+    desc: "Officer reviews the AI-extracted profile and verifies in one click. Status updates from Pending → Verified. Farmer is notified instantly.",
     tag: "One-click verification",
     icon: "✅",
-    color: "#16A34A",
   },
   {
     number: "05",
-    en: "AI Recommends Schemes, Insurance & Subsidies",
+    en: "AI Recommends Schemes & Subsidies",
     mr: "AI योजना, विमा व अनुदान शिफारस",
-    desc: "Based on the digitalized profile — crop type, land size, district, category — AI automatically matches the farmer to eligible government schemes, crop insurance, and subsidies. No form filling needed again. The farmer's existing data is used directly.",
+    desc: "AI matches farmer to eligible government schemes, crop insurance, and subsidies based on crop, land, and district — no re-entry needed.",
     tag: "Auto-matched — no re-entry",
     icon: "🎯",
-    color: "#D97706",
   },
   {
     number: "06",
-    en: "Farmer Applies & Gets Updated in Real Time",
+    en: "Farmer Applies & Gets Real-Time Updates",
     mr: "शेतकरी अर्ज व तात्काळ अपडेट",
-    desc: "Farmer taps Apply Now on a recommended scheme in the mobile app — crop type and land area are pre-filled from their profile. Officer approves or rejects. The farmer gets an instant push notification the moment a decision is made.",
+    desc: "Farmer taps Apply Now — crop and land pre-filled. Officer approves or rejects. Instant push notification sent the moment a decision is made.",
     tag: "Instant notification on phone",
     icon: "📲",
-    color: "#B45309",
   },
 ];
 
@@ -94,9 +88,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white relative overflow-hidden">
+    <div className="h-screen flex flex-col bg-white overflow-hidden">
 
-      {/* ── Header with 4 logos ── */}
+      {/* ── Header ── */}
       <header className="relative z-50 w-full bg-white border-b border-slate-200 py-1 px-8 shrink-0">
         <div className="flex items-center justify-between w-full">
           <div className="flex-1 flex items-center justify-center border-r border-slate-200 py-1">
@@ -115,36 +109,33 @@ export default function LoginPage() {
       </header>
 
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col lg:flex-row-reverse overflow-hidden">
+      <div className="flex-1 flex flex-row-reverse overflow-hidden min-h-0">
 
         {/* ── Right panel: Login form ── */}
-        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-8 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-6 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
           <div className="w-full max-w-sm">
-
-            {/* Main logo */}
-            <div className="flex flex-col items-center justify-center -mt-16 mb-0">
+            <div className="flex flex-col items-center justify-center -mt-12 mb-0">
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
-                className="w-full h-80 object-contain mix-blend-multiply"
+                className="w-full h-72 object-contain mix-blend-multiply"
               />
             </div>
 
-            {/* Login card */}
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
-              <div className="mb-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-7">
+              <div className="mb-5">
                 <h2 className="text-2xl font-bold text-slate-900 mb-1">Welcome back</h2>
                 <p className="text-sm text-slate-500">Sign in to your AgriAdmin account</p>
               </div>
 
               {error && (
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 mb-5">
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 mb-4">
                   <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5"/>
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}
 
-              <form onSubmit={handleLogin} className="space-y-5">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Email Address</label>
                   <div className="relative">
@@ -208,16 +199,15 @@ export default function LoginPage() {
               </form>
             </div>
 
-            {/* Demo accounts */}
-            <div className="mt-4 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Demo Accounts — Click to fill</div>
-              <div className="space-y-2">
+            <div className="mt-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Demo Accounts — Click to fill</div>
+              <div className="space-y-1.5">
                 {DEMO_ACCOUNTS.map(d => (
                   <button key={d.email} onClick={() => fillDemo(d)}
-                    className="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/60 transition-all text-left group">
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/60 transition-all text-left group">
                     <div>
                       <div className="text-xs font-semibold text-slate-700 group-hover:text-emerald-800">{d.label}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">{d.email}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">{d.email}</div>
                     </div>
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
                       style={{ backgroundColor: "rgba(5,150,105,0.1)", color: "#059669" }}>{d.role}</span>
@@ -226,61 +216,119 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="text-center mt-4 text-[11px] text-slate-400">
+            <div className="text-center mt-3 text-[11px] text-slate-400">
               Maharashtra Department of Agriculture · AgriAdmin v2.0
             </div>
           </div>
         </div>
 
-        {/* ── Left panel: 6 Step Cards ── */}
-        <div className="hidden lg:flex flex-1 flex-col justify-center overflow-y-auto bg-[#F8FAFC] px-10 py-8">
+        {/* ── Left panel: Steps on green bg ── */}
+        <div
+          className="hidden lg:flex flex-1 flex-col overflow-hidden"
+          style={{ background: "linear-gradient(145deg, #0D2B1E 0%, #14532D 45%, #166534 100%)" }}
+        >
+          {/* Decorative circles */}
+          <div className="absolute pointer-events-none" style={{ top: 90, left: -60, width: 260, height: 260, borderRadius: "50%", background: "rgba(255,255,255,0.03)" }}/>
+          <div className="absolute pointer-events-none" style={{ bottom: 40, left: 100, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.03)" }}/>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-[#14532D]">How Krushi Suvidha Works</h2>
-            <p className="text-sm text-slate-500 mt-1">End-to-end farmer digitisation — from document upload to scheme approval.</p>
-          </div>
+          <div className="relative flex flex-col h-full px-8 py-6 gap-5">
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {STEPS.map((step) => (
-              <div
-                key={step.number}
-                className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
-              >
-                {/* Step header */}
-                <div className="flex items-start gap-3">
-                  <div
-                    className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-black"
-                    style={{ backgroundColor: step.color }}
-                  >
-                    {step.number}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-slate-900 leading-snug">{step.en}</div>
-                    <div className="text-xs text-slate-400 mt-0.5" style={{ fontFamily: "sans-serif" }}>{step.mr}</div>
-                  </div>
-                  <span className="text-xl flex-shrink-0">{step.icon}</span>
-                </div>
-
-                {/* Description */}
-                <p className="text-xs text-slate-600 leading-relaxed">{step.desc}</p>
-
-                {/* Tag pill */}
-                <div className="mt-auto pt-1">
-                  <span
-                    className="inline-block text-[10px] font-semibold px-2.5 py-1 rounded-full"
-                    style={{ backgroundColor: step.color + "15", color: step.color }}
-                  >
-                    {step.tag}
-                  </span>
+            {/* Header text */}
+            <div className="flex-shrink-0">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-8 rounded-full" style={{ backgroundColor: "#D97706" }}/>
+                <div>
+                  <p className="text-white font-bold text-lg leading-tight">
+                    Maharashtra's AI-Powered Agriculture Administration Platform
+                  </p>
+                  <p className="text-sm mt-0.5" style={{ color: "#86efac" }}>
+                    महाराष्ट्राचे AI-आधारित कृषी प्रशासन व्यासपीठ
+                  </p>
                 </div>
               </div>
-            ))}
+              <div className="flex items-center gap-2 mt-3">
+                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#D97706" }}>How it works</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.15)" }}/>
+                <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>6 steps</span>
+              </div>
+            </div>
+
+            {/* 3×2 Step cards grid */}
+            <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-3 min-h-0">
+              {STEPS.map((step, i) => (
+                <div
+                  key={step.number}
+                  className="flex flex-col rounded-2xl p-4 overflow-hidden relative"
+                  style={{
+                    background: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  {/* Faint number watermark */}
+                  <span
+                    className="absolute right-3 top-2 font-black select-none pointer-events-none"
+                    style={{ fontSize: 48, lineHeight: 1, color: "rgba(255,255,255,0.05)" }}
+                  >
+                    {step.number}
+                  </span>
+
+                  {/* Step badge + icon */}
+                  <div className="flex items-center gap-2 mb-2 flex-shrink-0">
+                    <div
+                      className="flex items-center justify-center rounded-lg text-xs font-black text-white flex-shrink-0"
+                      style={{
+                        width: 26, height: 26,
+                        backgroundColor: i < 4 ? "rgba(255,255,255,0.18)" : "#D97706",
+                      }}
+                    >
+                      {step.number}
+                    </div>
+                    <span className="text-lg">{step.icon}</span>
+                  </div>
+
+                  {/* Title */}
+                  <p className="text-white font-bold text-xs leading-snug mb-1 flex-shrink-0">
+                    {step.en}
+                  </p>
+                  <p className="text-xs mb-2 flex-shrink-0" style={{ color: "#86efac", fontFamily: "sans-serif" }}>
+                    {step.mr}
+                  </p>
+
+                  {/* Description */}
+                  <p className="text-xs leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    {step.desc}
+                  </p>
+
+                  {/* Tag */}
+                  <div className="mt-2 flex-shrink-0">
+                    <span
+                      className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)" }}
+                    >
+                      {step.tag}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom brand strip */}
+            <div className="flex-shrink-0 flex items-center justify-between pt-1">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#22c55e" }}/>
+                <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  All farmer data is encrypted & stored on secure Maharashtra government servers
+                </span>
+              </div>
+              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>v2.0</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── Footer ── */}
-      <footer className="w-full py-2.5 text-center border-t border-slate-100 bg-white shrink-0 z-50">
+      <footer className="w-full py-2 text-center border-t border-slate-100 bg-white shrink-0 z-50">
         <div className="flex items-center justify-center space-x-2 text-xs text-black px-4 flex-wrap gap-y-1">
           <span className="font-medium whitespace-nowrap">
             Developed by{" "}
