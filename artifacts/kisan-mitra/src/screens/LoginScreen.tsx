@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }: Props) {
         <Image
           source={require('../../assets/brand-logo-new.png')}
           style={styles.headerLogo}
-          resizeMode="contain"
+          resizeMode="cover"
         />
         <View style={styles.backBtnPlaceholder} />
       </View>
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backBtnPlaceholder: { width: 36 },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 64, width: 220 },
+  headerLogo: { height: 54, width: 180 },
 
   kav: { flex: 1 },
   container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
