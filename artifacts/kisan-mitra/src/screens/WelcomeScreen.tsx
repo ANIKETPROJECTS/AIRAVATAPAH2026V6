@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image,
+  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ScrollView,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -19,19 +19,16 @@ const LANGS: { id: Lang; native: string }[] = [
   { id: 'mr', native: 'मराठी' },
 ];
 
-const COL_A = [
-  'कागदपत्र अपलोड करा',
+const INFO_POINTS = [
+  'कागदपत्र अपलोड करा — बाकी काम AI करेल',
+  'आधार, 7/12, बँक तपशील आपोआप वाचले जातील',
   'फॉर्म भरायची गरज नाही',
-  'योजना व अनुदान सुचवले जातील',
-  'अर्जाची स्थिती मोबाईलवर पाहा',
-  'सुरक्षित व कागदविरहित सेवा',
-];
-
-const COL_B = [
-  'AI कागदपत्र आपोआप वाचेल',
-  'डिजिटल शेतकरी प्रोफाइल तयार',
+  'तुमचा डिजिटल शेतकरी प्रोफाइल तयार होईल',
+  'योजना व अनुदान आपोआप सुचवले जातील',
   'एका क्लिकमध्ये अर्ज करा',
-  'मंजुरी / नकाराची लगेच सूचना',
+  'अर्जाची स्थिती मोबाईलवर त्वरित पाहा',
+  'मंजुरी / नकाराची लगेच सूचना मिळवा',
+  'सुरक्षित व कागदविरहित सेवा',
 ];
 
 export default function WelcomeScreen({ navigation }: Props) {
@@ -41,7 +38,7 @@ export default function WelcomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topLogosBar}>
-        <GovtIndia width={150} height={66} />
+        <GovtIndia width={160} height={72} />
         <View style={styles.logoDivider} />
         <Image
           source={require('../../assets/logo-dept-agriculture.png')}
@@ -49,12 +46,16 @@ export default function WelcomeScreen({ navigation }: Props) {
           resizeMode="contain"
         />
         <View style={styles.logoDivider} />
-        <SealMaharashtra width={72} height={72} />
+        <SealMaharashtra width={80} height={80} />
       </View>
 
       <View style={styles.separator} />
 
-      <View style={styles.body}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.hero}>
           <Image
             source={require('../../assets/brand-logo-new.png')}
@@ -67,26 +68,13 @@ export default function WelcomeScreen({ navigation }: Props) {
           <Text style={styles.infoHeader}>
             महाराष्ट्राचे AI-आधारित कृषी प्रशासन व्यासपीठ
           </Text>
-          <View style={styles.cardDivider} />
-          <View style={styles.gridRow}>
-            <View style={styles.col}>
-              {COL_A.map((point, i) => (
-                <View key={i} style={styles.pointRow}>
-                  <View style={styles.dot} />
-                  <Text style={styles.pointText}>{point}</Text>
-                </View>
-              ))}
+          <View style={styles.divider} />
+          {INFO_POINTS.map((point, i) => (
+            <View key={i} style={styles.pointRow}>
+              <Text style={styles.bullet}>✦</Text>
+              <Text style={styles.pointText}>{point}</Text>
             </View>
-            <View style={styles.colDivider} />
-            <View style={styles.col}>
-              {COL_B.map((point, i) => (
-                <View key={i} style={styles.pointRow}>
-                  <View style={styles.dot} />
-                  <Text style={styles.pointText}>{point}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
+          ))}
         </View>
 
         <View style={styles.langSection}>
@@ -114,117 +102,100 @@ export default function WelcomeScreen({ navigation }: Props) {
         >
           <Text style={styles.primaryBtnText}>{t('getStarted')}  →</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
+    flex: 1, backgroundColor: '#FFFFFF',
   },
   topLogosBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 8,
-    gap: 14,
+    paddingVertical: 12,
+    gap: 16,
     backgroundColor: '#FFFFFF',
   },
   logoDivider: {
-    width: 1, height: 54, backgroundColor: '#E5E7EB',
+    width: 1, height: 60, backgroundColor: '#E5E7EB',
   },
   deptLogo: {
-    width: 72, height: 72,
+    width: 80, height: 80,
   },
   separator: {
     height: 1, backgroundColor: '#E5E7EB',
   },
-  body: {
+  scroll: {
     flex: 1,
-    paddingHorizontal: 14,
-    paddingBottom: 14,
-    justifyContent: 'space-between',
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 40,
   },
   hero: {
     alignItems: 'center',
-    paddingTop: 6,
-    paddingBottom: 2,
+    paddingVertical: 16,
   },
   brandLogo: {
-    width: '95%',
-    height: 130,
+    width: '100%',
+    height: 180,
   },
   infoCard: {
     backgroundColor: '#16A34A',
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingTop: 13,
-    paddingBottom: 14,
-    overflow: 'hidden',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginBottom: 28,
   },
   infoHeader: {
-    fontSize: 13.5,
+    fontSize: 16,
     fontFamily: 'Poppins',
-    fontWeight: '500',
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 10,
-    letterSpacing: 0.1,
+    lineHeight: 26,
+    marginBottom: 14,
   },
-  cardDivider: {
+  divider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    marginBottom: 10,
-  },
-  gridRow: {
-    flexDirection: 'row',
-    gap: 0,
-  },
-  col: {
-    flex: 1,
-    gap: 7,
-  },
-  colDivider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    marginHorizontal: 10,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    marginBottom: 14,
   },
   pointRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 7,
+    marginBottom: 10,
+    gap: 10,
   },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#D97706',
-    marginTop: 6,
-    flexShrink: 0,
+  bullet: {
+    color: '#D97706',
+    fontSize: 12,
+    lineHeight: 22,
+    marginTop: 1,
   },
   pointText: {
     flex: 1,
-    fontSize: 11,
+    fontSize: 13,
     fontFamily: 'Poppins',
     fontWeight: '400',
-    color: 'rgba(255,255,255,0.92)',
-    lineHeight: 17,
+    color: '#FFFFFF',
+    lineHeight: 22,
   },
   langSection: {
-    alignItems: 'center',
+    marginBottom: 24,
   },
   langTitle: {
-    fontSize: 11,
+    fontSize: 13,
     fontFamily: 'Poppins',
     fontWeight: '500',
-    color: '#6B7280',
+    color: '#000000',
     textAlign: 'center',
-    marginBottom: 10,
-    letterSpacing: 1.6,
+    marginBottom: 16,
+    letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
   langRow: {
@@ -233,11 +204,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   langBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingHorizontal: 22,
+    paddingVertical: 10,
     borderRadius: RADIUS.full,
     borderWidth: 1.5,
-    borderColor: '#D1D5DB',
+    borderColor: '#000000',
     backgroundColor: '#FFFFFF',
   },
   langBtnActive: {
@@ -245,10 +216,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   langBtnText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Poppins',
     fontWeight: '500',
-    color: '#374151',
+    color: '#000000',
   },
   langBtnTextActive: {
     fontFamily: 'Poppins',
@@ -258,17 +229,17 @@ const styles = StyleSheet.create({
   primaryBtn: {
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.full,
-    paddingVertical: 15,
+    paddingVertical: 18,
     alignItems: 'center',
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowRadius: 12,
     elevation: 6,
   },
   primaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Poppins',
     fontWeight: '600',
     letterSpacing: 0.3,
