@@ -112,129 +112,128 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-row-reverse overflow-hidden min-h-0">
 
         {/* ── Right panel: Login form ── */}
-        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-4 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
-          <div className="w-full max-w-sm">
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200 overflow-hidden">
 
-            {/* Logo — transparent PNG, collapse its internal whitespace via negative margins */}
-            <div className="flex flex-col items-center" style={{ marginTop: -155, marginBottom: -160 }}>
-              <img
-                src="/logo-krushi-suvidha-new.png"
-                alt="Krushi Suvidha"
-                className="w-full object-contain mix-blend-multiply"
-                style={{ height: 480 }}
-              />
+          {/* Krushi Suvidha logo — cropped tightly, no wasted space */}
+          <div style={{ overflow: "hidden", height: 170, flexShrink: 0 }}>
+            <img
+              src="/logo-krushi-suvidha-new.png"
+              alt="Krushi Suvidha"
+              className="w-full mix-blend-multiply"
+              style={{ height: 480, marginTop: -100, display: "block" }}
+            />
+          </div>
+
+          {/* Datalist for email suggestions */}
+          <datalist id="demo-emails">
+            {DEMO_ACCOUNTS.map(d => (
+              <option key={d.email} value={d.email} label={`${d.label} — ${d.role}`} />
+            ))}
+          </datalist>
+
+          {/* Form — sits immediately below logo, no gap */}
+          <div className="px-8 shrink-0">
+            <div className="mb-2">
+              <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 2 }}>
+                Welcome back
+              </h2>
+              <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 300, color: "#94a3b8" }}>
+                Sign in to your Krushi Suvidha account
+              </p>
             </div>
 
-            {/* Datalist for email suggestions */}
-            <datalist id="demo-emails">
-              {DEMO_ACCOUNTS.map(d => (
-                <option key={d.email} value={d.email} label={`${d.label} — ${d.role}`} />
-              ))}
-            </datalist>
-
-            <div className="p-2" style={{ marginTop: -32 }}>
-              <div className="mb-4">
-                <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 4 }}>
-                  Welcome back
-                </h2>
-                <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, color: "#64748b" }}>
-                  Sign in to your Krushi Suvidha account
-                </p>
+            {error && (
+              <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 mb-3">
+                <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5"/>
+                <p className="text-sm text-red-700">{error}</p>
               </div>
+            )}
 
-              {error && (
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 mb-4">
-                  <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5"/>
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 11, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
-                    <input
-                      type="email"
-                      list="demo-emails"
-                      value={email}
-                      onChange={e => {
-                        setEmail(e.target.value);
-                        const match = DEMO_ACCOUNTS.find(d => d.email === e.target.value);
-                        if (match) { setPassword(match.password); setError(""); }
-                      }}
-                      autoComplete="email"
-                      placeholder="you@agri.mh.gov.in"
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
-                      style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300 }}
-                      onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
-                      onBlur={e => e.target.style.boxShadow = ""}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 11, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
-                    <input
-                      ref={pwRef} type={showPw ? "text" : "password"} value={password}
-                      onChange={e => setPassword(e.target.value)} autoComplete="current-password"
-                      placeholder="Enter your password"
-                      className="w-full pl-10 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
-                      style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300 }}
-                      onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
-                      onBlur={e => e.target.style.boxShadow = ""}
-                    />
-                    <button type="button" onClick={() => setShowPw(v => !v)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors">
-                      {showPw ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2.5 cursor-pointer">
-                    <div
-                      onClick={() => setRemember(v => !v)}
-                      className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${remember ? "border-emerald-600" : "border-slate-300"}`}
-                      style={remember ? { backgroundColor: "#059669", borderColor: "#059669" } : {}}
-                    >
-                      {remember && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                    </div>
-                    <span style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 300, color: "#475569" }}>Remember me</span>
-                  </label>
-                  <button type="button" style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 400, color: "#059669" }}>
-                    Forgot password?
-                  </button>
-                </div>
-
-                <button
-                  type="submit" disabled={loading}
-                  className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-white transition-all disabled:opacity-70"
-                  style={{ backgroundColor: "#059669", fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 500 }}
-                  onMouseEnter={e => !loading && ((e.currentTarget).style.backgroundColor = "#047857")}
-                  onMouseLeave={e => ((e.currentTarget).style.backgroundColor = "#059669")}
-                >
-                  {loading
-                    ? <><Loader2 className="h-4 w-4 animate-spin"/>Signing in…</>
-                    : <><LogIn className="h-4 w-4"/>Sign In to Krushi Suvidha</>}
-                </button>
-
-                {/* Airavata Technologies logo — below sign-in button, centered */}
-                <div className="flex justify-center mt-5">
-                  <img
-                    src="/ATSVGNOBG.svg"
-                    alt="Airavata Technologies"
-                    style={{ height: 130, width: "auto", maxWidth: "100%" }}
+            <form onSubmit={handleLogin} className="space-y-2">
+              <div>
+                <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 10, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 3 }}>
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
+                  <input
+                    type="email"
+                    list="demo-emails"
+                    value={email}
+                    onChange={e => {
+                      setEmail(e.target.value);
+                      const match = DEMO_ACCOUNTS.find(d => d.email === e.target.value);
+                      if (match) { setPassword(match.password); setError(""); }
+                    }}
+                    autoComplete="email"
+                    placeholder="you@agri.mh.gov.in"
+                    className="w-full pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                    style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "8px 16px 8px 36px" }}
+                    onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
+                    onBlur={e => e.target.style.boxShadow = ""}
                   />
                 </div>
-              </form>
-            </div>
+              </div>
+
+              <div>
+                <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 10, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 3 }}>
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
+                  <input
+                    ref={pwRef} type={showPw ? "text" : "password"} value={password}
+                    onChange={e => setPassword(e.target.value)} autoComplete="current-password"
+                    placeholder="Enter your password"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                    style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "8px 44px 8px 36px" }}
+                    onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
+                    onBlur={e => e.target.style.boxShadow = ""}
+                  />
+                  <button type="button" onClick={() => setShowPw(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                    {showPw ? <EyeOff className="h-3.5 w-3.5"/> : <Eye className="h-3.5 w-3.5"/>}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between" style={{ paddingTop: 2 }}>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <div
+                    onClick={() => setRemember(v => !v)}
+                    className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${remember ? "border-emerald-600" : "border-slate-300"}`}
+                    style={remember ? { backgroundColor: "#059669", borderColor: "#059669" } : {}}
+                  >
+                    {remember && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <span style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 300, color: "#475569" }}>Remember me</span>
+                </label>
+                <button type="button" style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 400, color: "#059669" }}>
+                  Forgot password?
+                </button>
+              </div>
+
+              <button
+                type="submit" disabled={loading}
+                className="w-full flex items-center justify-center gap-2.5 rounded-xl text-white transition-all disabled:opacity-70"
+                style={{ backgroundColor: "#059669", fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 500, padding: "10px 0" }}
+                onMouseEnter={e => !loading && ((e.currentTarget).style.backgroundColor = "#047857")}
+                onMouseLeave={e => ((e.currentTarget).style.backgroundColor = "#059669")}
+              >
+                {loading
+                  ? <><Loader2 className="h-4 w-4 animate-spin"/>Signing in…</>
+                  : <><LogIn className="h-4 w-4"/>Sign In to Krushi Suvidha</>}
+              </button>
+            </form>
+          </div>
+
+          {/* Airavata Technologies logo — flex-1 fills ALL remaining bottom space */}
+          <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            <img
+              src="/ATSVGNOBG.svg"
+              alt="Airavata Technologies"
+              style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+            />
           </div>
         </div>
 
