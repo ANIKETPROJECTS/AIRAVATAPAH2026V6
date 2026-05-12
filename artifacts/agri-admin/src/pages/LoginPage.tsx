@@ -114,13 +114,13 @@ export default function LoginPage() {
         {/* ── Right panel: Login form ── */}
         <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200 overflow-hidden">
 
-          {/* Krushi Suvidha logo — cropped tightly, no wasted space */}
-          <div style={{ overflow: "hidden", height: 155, flexShrink: 0 }}>
+          {/* Krushi Suvidha logo — cropped to show emblem + name only */}
+          <div style={{ overflow: "hidden", height: 128, flexShrink: 0 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
               className="w-full mix-blend-multiply"
-              style={{ height: 460, marginTop: -95, display: "block" }}
+              style={{ height: 420, marginTop: -88, display: "block" }}
             />
           </div>
 
@@ -131,8 +131,8 @@ export default function LoginPage() {
             ))}
           </datalist>
 
-          {/* Form — small breathing gap below logo */}
-          <div className="px-8 shrink-0" style={{ paddingTop: 14 }}>
+          {/* Form — clear gap below logo */}
+          <div className="px-8 shrink-0" style={{ paddingTop: 20 }}>
             <div className="mb-2">
               <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 2 }}>
                 Welcome back
