@@ -124,7 +124,8 @@ const styles = StyleSheet.create({
   },
   langTitle: {
     fontSize: 11,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'Poppins',
+    fontWeight: '400',
     color: '#9CA3AF',
     textAlign: 'center',
     marginBottom: 14,
@@ -150,11 +151,13 @@ const styles = StyleSheet.create({
   },
   langBtnText: {
     fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'Poppins',
+    fontWeight: '400',
     color: '#6B7280',
   },
   langBtnTextActive: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'Poppins',
+    fontWeight: '600',
     color: COLORS.primary,
   },
   footer: {},
@@ -172,7 +175,8 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'Poppins',
+    fontWeight: '600',
     letterSpacing: 0.3,
   },
 });
