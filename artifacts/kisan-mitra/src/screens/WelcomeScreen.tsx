@@ -142,11 +142,11 @@ const styles = StyleSheet.create({
   },
   hero: {
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 0,
   },
   brandLogo: {
     width: '100%',
-    height: 220,
+    height: 300,
   },
   infoCard: {
     backgroundColor: '#16A34A',
