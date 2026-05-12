@@ -195,7 +195,7 @@ export default function OtpScreen({ navigation, route }: Props) {
           <View style={styles.infoCard}>
             <View style={styles.infoTitleRow}>
               <Image
-                source={require('../../assets/icon-info.png')}
+                source={require('../../assets/icon-info2.png')}
                 style={styles.infoTitleIcon}
                 resizeMode="contain"
               />
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   topBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backBtnPlaceholder: { width: 36 },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 52, width: 200 },
+  headerLogo: { height: 64, width: 220 },
 
   kav: { flex: 1 },
   container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
