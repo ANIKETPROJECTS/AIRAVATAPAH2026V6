@@ -253,7 +253,7 @@ export default function LoginPage() {
               {STEPS.map((step) => (
                 <div
                   key={step.number}
-                  className="flex flex-col rounded-2xl p-4 overflow-hidden"
+                  className="flex flex-col rounded-2xl p-4 overflow-hidden relative"
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.12)",
@@ -261,16 +261,30 @@ export default function LoginPage() {
                     fontFamily: "Poppins, sans-serif",
                   }}
                 >
+                  {/* Blurred step number — bottom right watermark */}
+                  <span
+                    className="absolute bottom-2 right-3 select-none pointer-events-none"
+                    style={{
+                      fontSize: 56,
+                      lineHeight: 1,
+                      fontWeight: 800,
+                      color: "rgba(255,255,255,0.07)",
+                      filter: "blur(2px)",
+                    }}
+                  >
+                    {step.number}
+                  </span>
+
                   {/* Title */}
-                  <p className="leading-snug mb-1 flex-shrink-0" style={{ color: "#ffffff", fontSize: 13, fontWeight: 500 }}>
+                  <p className="leading-snug mb-1 flex-shrink-0" style={{ color: "#ffffff", fontSize: 15, fontWeight: 500 }}>
                     {step.en}
                   </p>
-                  <p className="mb-2 flex-shrink-0" style={{ color: "#86efac", fontSize: 11, fontWeight: 300 }}>
+                  <p className="mb-2 flex-shrink-0" style={{ color: "#86efac", fontSize: 12, fontWeight: 300 }}>
                     {step.mr}
                   </p>
 
                   {/* Description */}
-                  <p className="leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.68)", fontSize: 12, fontWeight: 300 }}>
+                  <p className="leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, fontWeight: 300 }}>
                     {step.desc}
                   </p>
 
@@ -278,7 +292,7 @@ export default function LoginPage() {
                   <div className="mt-2 flex-shrink-0">
                     <span
                       className="inline-block px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", fontSize: 10, fontWeight: 400 }}
+                      style={{ background: "rgba(255,255,255,0.13)", color: "rgba(255,255,255,0.9)", fontSize: 11, fontWeight: 400 }}
                     >
                       {step.tag}
                     </span>
