@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,
-  KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
+  KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Image,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
-import { COLORS, FONT_SIZE, RADIUS, SHADOW, T } from '../constants';
+import { COLORS, RADIUS, T } from '../constants';
 
 type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'> };
 
@@ -43,24 +43,33 @@ export default function LoginScreen({ navigation }: Props) {
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav}>
         <View style={styles.container}>
+
           <View style={styles.header}>
-            <View style={styles.iconBox}>
-              <Text style={styles.iconEmoji}>📱</Text>
-            </View>
-            <Text style={styles.title}>{t('mobileNumber')}</Text>
-            <Text style={styles.subtitle}>{t('enterMobile')}</Text>
+            <Image
+              source={require('../../assets/icon-mobile.png')}
+              style={styles.headerIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>मोबाईल नंबर</Text>
+            <Text style={styles.titleEn}>Enter Your Mobile Number</Text>
+            <Text style={styles.subtitle}>
+              आपल्या नोंदणीकृत मोबाईल नंबरवर OTP पाठवला जाईल.{'\n'}
+              An OTP will be sent to verify your identity.
+            </Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardLabel}>Mobile Number</Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>मोबाईल नंबर / Mobile Number</Text>
             <View style={styles.inputRow}>
               <View style={styles.prefixBox}>
-                <Text style={styles.prefix}>🇮🇳  +91</Text>
+                <Text style={styles.flagText}>🇮🇳</Text>
+                <Text style={styles.prefixText}>+91</Text>
               </View>
+              <View style={styles.dividerLine} />
               <TextInput
                 style={styles.input}
                 placeholder="9876543210"
-                placeholderTextColor={COLORS.textMuted}
+                placeholderTextColor="#AAAAAA"
                 keyboardType="number-pad"
                 maxLength={10}
                 value={mobile}
@@ -69,6 +78,9 @@ export default function LoginScreen({ navigation }: Props) {
                 returnKeyType="done"
               />
             </View>
+            <Text style={styles.inputHint}>
+              {mobile.length}/10 digits entered
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -78,16 +90,33 @@ export default function LoginScreen({ navigation }: Props) {
             activeOpacity={0.85}
           >
             {loading
-              ? <ActivityIndicator color={COLORS.white} />
-              : <Text style={styles.btnText}>{t('sendOtp')}  →</Text>}
+              ? <ActivityIndicator color="#FFFFFF" />
+              : <Text style={styles.btnText}>OTP पाठवा  →</Text>}
           </TouchableOpacity>
 
-          <View style={styles.infoBox}>
+          <View style={styles.stepsCard}>
+            <Text style={styles.stepsTitle}>पुढे काय होईल?</Text>
+            <View style={styles.stepRow}>
+              <View style={styles.stepNum}><Text style={styles.stepNumText}>1</Text></View>
+              <Text style={styles.stepText}>आपल्या मोबाईलवर 6-अंकी OTP येईल</Text>
+            </View>
+            <View style={styles.stepRow}>
+              <View style={styles.stepNum}><Text style={styles.stepNumText}>2</Text></View>
+              <Text style={styles.stepText}>OTP टाकून ओळख सिद्ध करा</Text>
+            </View>
+            <View style={styles.stepRow}>
+              <View style={styles.stepNum}><Text style={styles.stepNumText}>3</Text></View>
+              <Text style={styles.stepText}>कृषी सुविधा डॅशबोर्डवर प्रवेश मिळवा</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoRow}>
             <Text style={styles.infoIcon}>🔒</Text>
             <Text style={styles.infoText}>
-              Your mobile number is used only for OTP verification and linked to your farmer profile on कृषी सुविधा.
+              आपला मोबाईल नंबर फक्त OTP पडताळणीसाठी वापरला जातो. कोणाशीही शेअर केला जाणार नाही.
             </Text>
           </View>
+
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -95,55 +124,89 @@ export default function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+  safe: { flex: 1, backgroundColor: '#FFFFFF' },
   topBar: {
-    backgroundColor: COLORS.primaryDark, paddingHorizontal: 20, paddingVertical: 14,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#14532D',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backBtn: { paddingVertical: 4, paddingHorizontal: 2 },
-  backText: { color: 'rgba(255,255,255,0.8)', fontSize: FONT_SIZE.base, fontWeight: '600' },
-  topBarTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.gold },
+  backText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'Poppins', fontWeight: '600' },
+  topBarTitle: { fontSize: 16, fontFamily: 'Poppins', fontWeight: '800', color: '#D97706' },
   kav: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 24, paddingTop: 36, paddingBottom: 40 },
-  header: { alignItems: 'center', marginBottom: 36 },
-  iconBox: {
-    width: 76, height: 76, borderRadius: 38,
-    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
-    marginBottom: 16, borderWidth: 2, borderColor: COLORS.primaryLight, ...SHADOW.sm,
+  container: { flex: 1, paddingHorizontal: 22, paddingTop: 24, paddingBottom: 32 },
+
+  header: { alignItems: 'center', marginBottom: 28 },
+  headerIcon: { width: 100, height: 100, marginBottom: 14 },
+  title: { fontSize: 26, fontFamily: 'Poppins', fontWeight: '700', color: '#000000', marginBottom: 2 },
+  titleEn: { fontSize: 14, fontFamily: 'Poppins', fontWeight: '500', color: '#000000', marginBottom: 10 },
+  subtitle: {
+    fontSize: 13, fontFamily: 'Poppins', color: '#000000',
+    textAlign: 'center', lineHeight: 20,
   },
-  iconEmoji: { fontSize: 36 },
-  title: { fontSize: FONT_SIZE['2xl'], fontWeight: '800', color: COLORS.primaryDark, marginBottom: 6 },
-  subtitle: { fontSize: FONT_SIZE.base, color: COLORS.textSecondary, textAlign: 'center' },
-  card: {
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg,
-    marginBottom: 20, borderWidth: 2, borderColor: COLORS.border, ...SHADOW.sm,
-    overflow: 'hidden',
+
+  inputGroup: { marginBottom: 20 },
+  inputLabel: {
+    fontSize: 12, fontFamily: 'Poppins', fontWeight: '600',
+    color: '#000000', marginBottom: 8, letterSpacing: 0.3,
   },
-  cardLabel: {
-    fontSize: FONT_SIZE.xs, fontWeight: '700', color: COLORS.primary,
-    textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4,
+  inputRow: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5, borderColor: '#D1D5DB',
+    borderRadius: 12, overflow: 'hidden',
   },
-  inputRow: { flexDirection: 'row', alignItems: 'center' },
   prefixBox: {
-    paddingHorizontal: 14, paddingVertical: 14,
-    backgroundColor: COLORS.primaryBg, borderRightWidth: 1, borderRightColor: COLORS.border,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 14, paddingVertical: 16, gap: 6,
+    backgroundColor: '#F9FAFB',
   },
-  prefix: { fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.primaryDark },
+  flagText: { fontSize: 18 },
+  prefixText: { fontSize: 16, fontFamily: 'Poppins', fontWeight: '700', color: '#000000' },
+  dividerLine: { width: 1, height: 28, backgroundColor: '#D1D5DB' },
   input: {
-    flex: 1, fontSize: FONT_SIZE.xl, fontWeight: '700', color: COLORS.text,
-    paddingVertical: 14, paddingHorizontal: 16, letterSpacing: 2,
+    flex: 1, fontSize: 20, fontFamily: 'Poppins', fontWeight: '700',
+    color: '#000000', paddingVertical: 16, paddingHorizontal: 16, letterSpacing: 3,
   },
+  inputHint: {
+    fontSize: 11, fontFamily: 'Poppins', color: '#6B7280',
+    marginTop: 5, textAlign: 'right',
+  },
+
   btn: {
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.lg,
-    paddingVertical: 18, alignItems: 'center', ...SHADOW.md,
+    backgroundColor: '#16A34A', borderRadius: RADIUS.full,
+    paddingVertical: 18, alignItems: 'center', marginBottom: 24,
+    shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
   },
-  btnDisabled: { backgroundColor: COLORS.textMuted + '80' },
-  btnText: { color: COLORS.white, fontSize: FONT_SIZE.lg, fontWeight: '800' },
-  infoBox: {
-    marginTop: 24, padding: 16, backgroundColor: COLORS.primaryBg,
-    borderRadius: RADIUS.md, borderLeftWidth: 3, borderLeftColor: COLORS.primary,
+  btnDisabled: { backgroundColor: '#D1D5DB', shadowOpacity: 0 },
+  btnText: { color: '#FFFFFF', fontSize: 18, fontFamily: 'Poppins', fontWeight: '700' },
+
+  stepsCard: {
+    backgroundColor: '#F8FAFC', borderRadius: 14,
+    padding: 16, marginBottom: 20,
+    borderWidth: 1, borderColor: '#E5E7EB',
+  },
+  stepsTitle: {
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '700',
+    color: '#000000', marginBottom: 12,
+  },
+  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
+  stepNum: {
+    width: 26, height: 26, borderRadius: 13,
+    backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center',
+  },
+  stepNumText: { color: '#FFFFFF', fontSize: 12, fontFamily: 'Poppins', fontWeight: '700' },
+  stepText: { flex: 1, fontSize: 13, fontFamily: 'Poppins', color: '#000000', lineHeight: 20 },
+
+  infoRow: {
     flexDirection: 'row', gap: 10, alignItems: 'flex-start',
+    backgroundColor: '#F0FDF4', borderRadius: 10, padding: 14,
+    borderLeftWidth: 3, borderLeftColor: '#16A34A',
   },
-  infoIcon: { fontSize: 18, marginTop: 1 },
-  infoText: { flex: 1, fontSize: FONT_SIZE.sm, color: COLORS.primaryMid, lineHeight: 20 },
+  infoIcon: { fontSize: 16, marginTop: 1 },
+  infoText: { flex: 1, fontSize: 12, fontFamily: 'Poppins', color: '#000000', lineHeight: 19 },
 });
