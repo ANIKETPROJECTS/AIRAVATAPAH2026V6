@@ -36,9 +36,14 @@ export default function LoginScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backText}>← {t('back')}</Text>
+          <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
+        <Image
+          source={require('../../assets/brand-logo-new.png')}
+          style={styles.headerLogo}
+          resizeMode="contain"
+        />
+        <View style={styles.backBtnPlaceholder} />
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav}>
@@ -60,11 +65,9 @@ export default function LoginScreen({ navigation }: Props) {
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>मोबाईल नंबर / Mobile Number</Text>
-            <View style={styles.inputRow}>
-              <View style={styles.prefixBox}>
-                <Text style={styles.flagText}>🇮🇳</Text>
-                <Text style={styles.prefixText}>+91</Text>
-              </View>
+            <View style={styles.inputPill}>
+              <Text style={styles.flagText}>🇮🇳</Text>
+              <Text style={styles.prefixText}>+91</Text>
               <View style={styles.dividerLine} />
               <TextInput
                 style={styles.input}
@@ -78,9 +81,7 @@ export default function LoginScreen({ navigation }: Props) {
                 returnKeyType="done"
               />
             </View>
-            <Text style={styles.inputHint}>
-              {mobile.length}/10 digits entered
-            </Text>
+            <Text style={styles.inputHint}>{mobile.length}/10 digits entered</Text>
           </View>
 
           <TouchableOpacity
@@ -111,7 +112,11 @@ export default function LoginScreen({ navigation }: Props) {
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>🔒</Text>
+            <Image
+              source={require('../../assets/icon-info.png')}
+              style={styles.infoIcon}
+              resizeMode="contain"
+            />
             <Text style={styles.infoText}>
               आपला मोबाईल नंबर फक्त OTP पडताळणीसाठी वापरला जातो. कोणाशीही शेअर केला जाणार नाही.
             </Text>
@@ -125,88 +130,107 @@ export default function LoginScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#FFFFFF' },
+
   topBar: {
-    backgroundColor: '#14532D',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  backBtn: { paddingVertical: 4, paddingHorizontal: 2 },
-  backText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'Poppins', fontWeight: '600' },
-  topBarTitle: { fontSize: 16, fontFamily: 'Poppins', fontWeight: '800', color: '#D97706' },
+  backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
+  backBtnPlaceholder: { width: 36 },
+  backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
+  headerLogo: { height: 44, width: 160 },
+
   kav: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 22, paddingTop: 24, paddingBottom: 32 },
+  container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
 
-  header: { alignItems: 'center', marginBottom: 28 },
-  headerIcon: { width: 100, height: 100, marginBottom: 14 },
-  title: { fontSize: 26, fontFamily: 'Poppins', fontWeight: '700', color: '#000000', marginBottom: 2 },
-  titleEn: { fontSize: 14, fontFamily: 'Poppins', fontWeight: '500', color: '#000000', marginBottom: 10 },
+  header: { alignItems: 'center', marginBottom: 24 },
+  headerIcon: { width: 90, height: 90, marginBottom: 12 },
+  title: {
+    fontSize: 26, fontFamily: 'Poppins', fontWeight: '600',
+    color: '#000000', marginBottom: 2,
+  },
+  titleEn: {
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#000000', marginBottom: 8,
+  },
   subtitle: {
-    fontSize: 13, fontFamily: 'Poppins', color: '#000000',
-    textAlign: 'center', lineHeight: 20,
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#000000', textAlign: 'center', lineHeight: 20,
   },
 
-  inputGroup: { marginBottom: 20 },
+  inputGroup: { marginBottom: 18 },
   inputLabel: {
-    fontSize: 12, fontFamily: 'Poppins', fontWeight: '600',
+    fontSize: 12, fontFamily: 'Poppins', fontWeight: '500',
     color: '#000000', marginBottom: 8, letterSpacing: 0.3,
   },
-  inputRow: {
+  inputPill: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5, borderColor: '#D1D5DB',
-    borderRadius: 12, overflow: 'hidden',
+    borderRadius: 50, overflow: 'hidden',
+    paddingHorizontal: 16,
   },
-  prefixBox: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 14, paddingVertical: 16, gap: 6,
-    backgroundColor: '#F9FAFB',
+  flagText: { fontSize: 18, marginRight: 6 },
+  prefixText: {
+    fontSize: 16, fontFamily: 'Poppins', fontWeight: '500',
+    color: '#000000', marginRight: 10,
   },
-  flagText: { fontSize: 18 },
-  prefixText: { fontSize: 16, fontFamily: 'Poppins', fontWeight: '700', color: '#000000' },
-  dividerLine: { width: 1, height: 28, backgroundColor: '#D1D5DB' },
+  dividerLine: { width: 1, height: 24, backgroundColor: '#D1D5DB', marginRight: 10 },
   input: {
-    flex: 1, fontSize: 20, fontFamily: 'Poppins', fontWeight: '700',
-    color: '#000000', paddingVertical: 16, paddingHorizontal: 16, letterSpacing: 3,
+    flex: 1, fontSize: 18, fontFamily: 'Poppins', fontWeight: '500',
+    color: '#000000', paddingVertical: 16, letterSpacing: 2,
   },
   inputHint: {
-    fontSize: 11, fontFamily: 'Poppins', color: '#6B7280',
-    marginTop: 5, textAlign: 'right',
+    fontSize: 11, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#6B7280', marginTop: 5, textAlign: 'right',
   },
 
   btn: {
     backgroundColor: '#16A34A', borderRadius: RADIUS.full,
-    paddingVertical: 18, alignItems: 'center', marginBottom: 24,
+    paddingVertical: 17, alignItems: 'center', marginBottom: 22,
     shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
   },
   btnDisabled: { backgroundColor: '#D1D5DB', shadowOpacity: 0 },
-  btnText: { color: '#FFFFFF', fontSize: 18, fontFamily: 'Poppins', fontWeight: '700' },
+  btnText: {
+    color: '#FFFFFF', fontSize: 17, fontFamily: 'Poppins', fontWeight: '600',
+  },
 
   stepsCard: {
-    backgroundColor: '#F8FAFC', borderRadius: 14,
-    padding: 16, marginBottom: 20,
-    borderWidth: 1, borderColor: '#E5E7EB',
+    backgroundColor: '#16A34A', borderRadius: 14,
+    padding: 16, marginBottom: 18,
   },
   stepsTitle: {
-    fontSize: 13, fontFamily: 'Poppins', fontWeight: '700',
-    color: '#000000', marginBottom: 12,
+    fontSize: 14, fontFamily: 'Poppins', fontWeight: '600',
+    color: '#FFFFFF', marginBottom: 14,
   },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
   stepNum: {
     width: 26, height: 26, borderRadius: 13,
-    backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.6)',
   },
-  stepNumText: { color: '#FFFFFF', fontSize: 12, fontFamily: 'Poppins', fontWeight: '700' },
-  stepText: { flex: 1, fontSize: 13, fontFamily: 'Poppins', color: '#000000', lineHeight: 20 },
+  stepNumText: {
+    color: '#FFFFFF', fontSize: 12, fontFamily: 'Poppins', fontWeight: '700',
+  },
+  stepText: {
+    flex: 1, fontSize: 13, fontFamily: 'Poppins',
+    fontWeight: '400', color: '#FFFFFF', lineHeight: 20,
+  },
 
   infoRow: {
     flexDirection: 'row', gap: 10, alignItems: 'flex-start',
-    backgroundColor: '#F0FDF4', borderRadius: 10, padding: 14,
-    borderLeftWidth: 3, borderLeftColor: '#16A34A',
   },
-  infoIcon: { fontSize: 16, marginTop: 1 },
-  infoText: { flex: 1, fontSize: 12, fontFamily: 'Poppins', color: '#000000', lineHeight: 19 },
+  infoIcon: { width: 22, height: 22, marginTop: 1, flexShrink: 0 },
+  infoText: {
+    flex: 1, fontSize: 12, fontFamily: 'Poppins',
+    fontWeight: '400', color: '#000000', lineHeight: 19,
+  },
 });

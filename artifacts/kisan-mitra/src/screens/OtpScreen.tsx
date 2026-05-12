@@ -111,9 +111,14 @@ export default function OtpScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.safe}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backText}>← {t('back')}</Text>
+          <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
+        <Image
+          source={require('../../assets/brand-logo-new.png')}
+          style={styles.headerLogo}
+          resizeMode="contain"
+        />
+        <View style={styles.backBtnPlaceholder} />
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav}>
@@ -215,83 +220,122 @@ export default function OtpScreen({ navigation, route }: Props) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#FFFFFF' },
-  topBar: {
-    backgroundColor: '#14532D',
-    paddingHorizontal: 20, paddingVertical: 14,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-  },
-  backBtn: { paddingVertical: 4 },
-  backText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'Poppins', fontWeight: '600' },
-  topBarTitle: { fontSize: 16, fontFamily: 'Poppins', fontWeight: '800', color: '#D97706' },
-  kav: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 22, paddingTop: 24, paddingBottom: 32 },
 
-  header: { alignItems: 'center', marginBottom: 20 },
-  headerIcon: { width: 100, height: 100, marginBottom: 12 },
-  title: { fontSize: 26, fontFamily: 'Poppins', fontWeight: '700', color: '#000000', marginBottom: 2 },
-  titleEn: { fontSize: 14, fontFamily: 'Poppins', fontWeight: '500', color: '#000000', marginBottom: 8 },
-  subtitle: { fontSize: 13, fontFamily: 'Poppins', color: '#000000', textAlign: 'center', lineHeight: 22 },
-  mobileText: { fontFamily: 'Poppins', fontWeight: '700', color: '#000000' },
+  topBar: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
+  backBtnPlaceholder: { width: 36 },
+  backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
+  headerLogo: { height: 44, width: 160 },
+
+  kav: { flex: 1 },
+  container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
+
+  header: { alignItems: 'center', marginBottom: 18 },
+  headerIcon: { width: 90, height: 90, marginBottom: 10 },
+  title: {
+    fontSize: 26, fontFamily: 'Poppins', fontWeight: '600',
+    color: '#000000', marginBottom: 2,
+  },
+  titleEn: {
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#000000', marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#000000', textAlign: 'center', lineHeight: 22,
+  },
+  mobileText: {
+    fontFamily: 'Poppins', fontWeight: '600', color: '#000000',
+  },
 
   devBanner: {
     backgroundColor: '#FEF9C3', borderRadius: 10, padding: 12,
-    marginBottom: 16, borderWidth: 1, borderColor: '#FDE047',
+    marginBottom: 14, borderWidth: 1, borderColor: '#FDE047',
   },
   devText: { fontSize: 13, fontFamily: 'Poppins', color: '#713F12', textAlign: 'center' },
   devOtp: { fontFamily: 'Poppins', fontWeight: '800', letterSpacing: 3 },
 
-  otpSection: { marginBottom: 22 },
+  otpSection: { marginBottom: 20 },
   otpLabel: {
-    fontSize: 12, fontFamily: 'Poppins', fontWeight: '600',
-    color: '#000000', marginBottom: 14, letterSpacing: 0.3,
+    fontSize: 12, fontFamily: 'Poppins', fontWeight: '500',
+    color: '#000000', marginBottom: 12, letterSpacing: 0.3,
   },
-  otpBoxRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+  otpBoxRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+  },
   otpBox: {
-    flex: 1, height: 60,
+    width: 46,
+    height: 54,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5, borderColor: '#D1D5DB',
-    borderRadius: 12,
-    fontSize: 26, fontFamily: 'Poppins', fontWeight: '700',
+    borderWidth: 1.5,
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    fontSize: 22,
+    fontFamily: 'Poppins',
+    fontWeight: '600',
     color: '#000000',
     textAlign: 'center',
   },
   otpBoxFilled: {
-    borderColor: '#16A34A', borderWidth: 2,
+    borderColor: '#16A34A',
+    borderWidth: 2,
     backgroundColor: '#F0FDF4',
   },
   otpHint: {
-    fontSize: 11, fontFamily: 'Poppins', color: '#6B7280',
-    marginTop: 8, textAlign: 'right',
+    fontSize: 11, fontFamily: 'Poppins', fontWeight: '400',
+    color: '#6B7280', marginTop: 8, textAlign: 'right',
   },
 
   btn: {
     backgroundColor: '#16A34A', borderRadius: RADIUS.full,
-    paddingVertical: 18, alignItems: 'center', marginBottom: 16,
+    paddingVertical: 17, alignItems: 'center', marginBottom: 14,
     shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
   },
   btnDisabled: { backgroundColor: '#D1D5DB', shadowOpacity: 0 },
-  btnText: { color: '#FFFFFF', fontSize: 18, fontFamily: 'Poppins', fontWeight: '700' },
+  btnText: {
+    color: '#FFFFFF', fontSize: 17, fontFamily: 'Poppins', fontWeight: '600',
+  },
 
-  resendRow: { alignItems: 'center', marginBottom: 20 },
+  resendRow: { alignItems: 'center', marginBottom: 18 },
   resendBtn: {
     paddingHorizontal: 24, paddingVertical: 10, borderRadius: RADIUS.full,
     borderWidth: 1.5, borderColor: '#16A34A',
   },
-  resendText: { color: '#16A34A', fontSize: 14, fontFamily: 'Poppins', fontWeight: '600' },
+  resendText: {
+    color: '#16A34A', fontSize: 14, fontFamily: 'Poppins', fontWeight: '500',
+  },
   timerBox: { flexDirection: 'row', alignItems: 'center' },
-  timerLabel: { fontSize: 13, fontFamily: 'Poppins', color: '#6B7280' },
-  timerValue: { fontSize: 14, fontFamily: 'Poppins', fontWeight: '700', color: '#000000' },
+  timerLabel: {
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '400', color: '#6B7280',
+  },
+  timerValue: {
+    fontSize: 14, fontFamily: 'Poppins', fontWeight: '600', color: '#000000',
+  },
 
   infoCard: {
     backgroundColor: '#F8FAFC', borderRadius: 14, padding: 16,
     borderWidth: 1, borderColor: '#E5E7EB',
   },
   infoTitle: {
-    fontSize: 13, fontFamily: 'Poppins', fontWeight: '700',
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '600',
     color: '#000000', marginBottom: 10,
   },
   infoRow: { flexDirection: 'row', gap: 8, marginBottom: 7, alignItems: 'flex-start' },
   infoBullet: { color: '#16A34A', fontWeight: '700', fontSize: 16, lineHeight: 20 },
-  infoText: { flex: 1, fontSize: 12, fontFamily: 'Poppins', color: '#000000', lineHeight: 19 },
+  infoText: {
+    flex: 1, fontSize: 12, fontFamily: 'Poppins',
+    fontWeight: '400', color: '#000000', lineHeight: 19,
+  },
 });
