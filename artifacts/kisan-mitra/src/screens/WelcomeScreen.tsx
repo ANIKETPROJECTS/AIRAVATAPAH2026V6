@@ -26,15 +26,15 @@ export default function WelcomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topLogosBar}>
-        <GovtIndia width={56} height={56} />
-        <View style={styles.logoDivider} />
-        <SealMaharashtra width={56} height={56} />
+        <GovtIndia width={80} height={80} />
         <View style={styles.logoDivider} />
         <Image
           source={require('../../assets/logo-dept-agriculture.png')}
           style={styles.deptLogo}
           resizeMode="contain"
         />
+        <View style={styles.logoDivider} />
+        <SealMaharashtra width={80} height={80} />
       </View>
 
       <View style={styles.separator} />
@@ -88,23 +88,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    gap: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 16,
     backgroundColor: '#FFFFFF',
   },
   logoDivider: {
-    width: 1, height: 44, backgroundColor: '#E5E7EB',
+    width: 1, height: 60, backgroundColor: '#E5E7EB',
   },
   deptLogo: {
-    width: 56, height: 56,
+    width: 80, height: 80,
   },
   separator: {
     height: 1, backgroundColor: '#E5E7EB',
   },
   container: {
     flex: 1,
-    paddingHorizontal: 32,
+    paddingHorizontal: 16,
     paddingBottom: 36,
     justifyContent: 'space-between',
     backgroundColor: '#FFFFFF',
@@ -113,22 +113,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
   brandLogo: {
-    width: 300,
-    height: 180,
+    width: '100%',
+    height: 220,
   },
   langSection: {
-    marginBottom: 28,
+    marginBottom: 24,
   },
   langTitle: {
-    fontSize: 11,
+    fontSize: 13,
     fontFamily: 'Poppins',
-    fontWeight: '400',
-    color: '#9CA3AF',
+    fontWeight: '500',
+    color: '#000000',
     textAlign: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -142,29 +142,29 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: RADIUS.full,
     borderWidth: 1.5,
-    borderColor: '#D1D5DB',
+    borderColor: '#000000',
     backgroundColor: '#FFFFFF',
   },
   langBtnActive: {
     borderColor: COLORS.primary,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: COLORS.primary,
   },
   langBtnText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Poppins',
-    fontWeight: '400',
-    color: '#6B7280',
+    fontWeight: '500',
+    color: '#000000',
   },
   langBtnTextActive: {
     fontFamily: 'Poppins',
     fontWeight: '600',
-    color: COLORS.primary,
+    color: '#FFFFFF',
   },
   footer: {},
   primaryBtn: {
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.full,
-    paddingVertical: 17,
+    paddingVertical: 18,
     alignItems: 'center',
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: 'Poppins',
     fontWeight: '600',
     letterSpacing: 0.3,
