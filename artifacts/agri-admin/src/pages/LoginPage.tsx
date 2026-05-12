@@ -87,9 +87,9 @@ export default function LoginPage() {
             {/* Main logo */}
             <div className="flex flex-col items-center justify-center mb-6">
               <img
-                src="/krishi-suvidha-logo.png"
+                src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
-                className="h-44 w-auto object-contain"
+                className="w-full max-w-sm h-auto object-contain mix-blend-multiply"
               />
             </div>
 
