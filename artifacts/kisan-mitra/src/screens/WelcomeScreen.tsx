@@ -26,7 +26,7 @@ export default function WelcomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topLogosBar}>
-        <GovtIndia width={80} height={80} />
+        <GovtIndia width={160} height={72} />
         <View style={styles.logoDivider} />
         <Image
           source={require('../../assets/logo-dept-agriculture.png')}
@@ -42,7 +42,7 @@ export default function WelcomeScreen({ navigation }: Props) {
       <View style={styles.container}>
         <View style={styles.hero}>
           <Image
-            source={require('../../assets/logo-krushi-suvidha.png')}
+            source={require('../../assets/logo-krushi-new.png')}
             style={styles.brandLogo}
             resizeMode="contain"
           />
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   brandLogo: {
     width: '100%',
-    height: 220,
+    height: 300,
   },
   langSection: {
     marginBottom: 24,
