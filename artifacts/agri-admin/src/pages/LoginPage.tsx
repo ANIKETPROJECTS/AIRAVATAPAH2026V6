@@ -111,30 +111,36 @@ export default function LoginPage() {
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-row-reverse overflow-hidden min-h-0">
 
-        {/* ── Right panel: Login form ── */}
-        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200 overflow-hidden">
+        {/* ── Right panel ── */}
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200" style={{ overflow: "hidden" }}>
 
-          {/* Krushi Suvidha logo — cropped to show emblem + name only */}
-          <div style={{ overflow: "hidden", height: 128, flexShrink: 0 }}>
-            <img
-              src="/logo-krushi-suvidha-new.png"
-              alt="Krushi Suvidha"
-              className="w-full mix-blend-multiply"
-              style={{ height: 420, marginTop: -88, display: "block" }}
-            />
-          </div>
-
-          {/* Datalist for email suggestions */}
+          {/* datalist (hidden, no layout impact) */}
           <datalist id="demo-emails">
             {DEMO_ACCOUNTS.map(d => (
               <option key={d.email} value={d.email} label={`${d.label} — ${d.role}`} />
             ))}
           </datalist>
 
-          {/* Form — clear gap below logo */}
-          <div className="px-8 shrink-0" style={{ paddingTop: 20 }}>
-            <div className="mb-2">
-              <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 2 }}>
+          {/* TOP: Krushi logo — 180px fixed, isolated stacking context, crop top 45% of 2000px square */}
+          <div style={{ height: 180, minHeight: 180, flexShrink: 0, overflow: "hidden", isolation: "isolate" }}>
+            <img
+              src="/logo-krushi-suvidha-new.png"
+              alt="Krushi Suvidha"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center 12%",
+                display: "block",
+                mixBlendMode: "multiply",
+              }}
+            />
+          </div>
+
+          {/* MIDDLE: Login form — flex-1, vertically centred */}
+          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 32px" }}>
+            <div style={{ marginBottom: 10 }}>
+              <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 3 }}>
                 Welcome back
               </h2>
               <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 300, color: "#94a3b8" }}>
@@ -143,13 +149,13 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 mb-3">
+              <div className="flex items-start gap-3 px-4 py-2 rounded-xl bg-red-50 border border-red-200" style={{ marginBottom: 8 }}>
                 <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5"/>
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-2">
+            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div>
                 <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 10, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 3 }}>
                   Email Address
@@ -157,17 +163,14 @@ export default function LoginPage() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
                   <input
-                    type="email"
-                    list="demo-emails"
-                    value={email}
+                    type="email" list="demo-emails" value={email}
                     onChange={e => {
                       setEmail(e.target.value);
                       const match = DEMO_ACCOUNTS.find(d => d.email === e.target.value);
                       if (match) { setPassword(match.password); setError(""); }
                     }}
-                    autoComplete="email"
-                    placeholder="you@agri.mh.gov.in"
-                    className="w-full pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                    autoComplete="email" placeholder="you@agri.mh.gov.in"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
                     style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "8px 16px 8px 36px" }}
                     onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
                     onBlur={e => e.target.style.boxShadow = ""}
@@ -191,13 +194,13 @@ export default function LoginPage() {
                     onBlur={e => e.target.style.boxShadow = ""}
                   />
                   <button type="button" onClick={() => setShowPw(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
                     {showPw ? <EyeOff className="h-3.5 w-3.5"/> : <Eye className="h-3.5 w-3.5"/>}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between" style={{ paddingTop: 2 }}>
+              <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <div
                     onClick={() => setRemember(v => !v)}
@@ -216,7 +219,7 @@ export default function LoginPage() {
               <button
                 type="submit" disabled={loading}
                 className="w-full flex items-center justify-center gap-2.5 rounded-xl text-white transition-all disabled:opacity-70"
-                style={{ backgroundColor: "#059669", fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 500, padding: "10px 0" }}
+                style={{ backgroundColor: "#059669", fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 500, padding: "11px 0" }}
                 onMouseEnter={e => !loading && ((e.currentTarget).style.backgroundColor = "#047857")}
                 onMouseLeave={e => ((e.currentTarget).style.backgroundColor = "#059669")}
               >
@@ -227,8 +230,8 @@ export default function LoginPage() {
             </form>
           </div>
 
-          {/* Airavata Technologies logo — flex-1 fills ALL remaining bottom space */}
-          <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          {/* BOTTOM: Airavata logo — 160px fixed */}
+          <div style={{ height: 160, minHeight: 160, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 24px 12px" }}>
             <img
               src="/ATSVGNOBG.svg"
               alt="Airavata Technologies"
