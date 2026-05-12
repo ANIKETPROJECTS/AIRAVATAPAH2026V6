@@ -42,7 +42,7 @@ export default function WelcomeScreen({ navigation }: Props) {
       <View style={styles.container}>
         <View style={styles.hero}>
           <Image
-            source={require('../../assets/logo-krushi-new.png')}
+            source={require('../../assets/brand-logo.png')}
             style={styles.brandLogo}
             resizeMode="contain"
           />
