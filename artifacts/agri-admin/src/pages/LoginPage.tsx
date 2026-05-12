@@ -235,93 +235,56 @@ export default function LoginPage() {
 
             {/* Header text */}
             <div className="flex-shrink-0">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-1 h-8 rounded-full" style={{ backgroundColor: "#D97706" }}/>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: "#D97706" }}/>
                 <div>
-                  <p className="text-white font-bold text-lg leading-tight">
+                  <p className="text-white text-lg leading-tight" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
                     Maharashtra's AI-Powered Agriculture Administration Platform
                   </p>
-                  <p className="text-sm mt-0.5" style={{ color: "#86efac" }}>
+                  <p className="text-sm mt-0.5" style={{ color: "#86efac", fontFamily: "Poppins, sans-serif", fontWeight: 300 }}>
                     महाराष्ट्राचे AI-आधारित कृषी प्रशासन व्यासपीठ
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 mt-3">
-                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#D97706" }}>How it works</span>
-                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.15)" }}/>
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>6 steps</span>
               </div>
             </div>
 
             {/* 3×2 Step cards grid */}
             <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-3 min-h-0">
-              {STEPS.map((step, i) => (
+              {STEPS.map((step) => (
                 <div
                   key={step.number}
-                  className="flex flex-col rounded-2xl p-4 overflow-hidden relative"
+                  className="flex flex-col rounded-2xl p-4 overflow-hidden"
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.12)",
                     backdropFilter: "blur(4px)",
+                    fontFamily: "Poppins, sans-serif",
                   }}
                 >
-                  {/* Faint number watermark */}
-                  <span
-                    className="absolute right-3 top-2 font-black select-none pointer-events-none"
-                    style={{ fontSize: 48, lineHeight: 1, color: "rgba(255,255,255,0.05)" }}
-                  >
-                    {step.number}
-                  </span>
-
-                  {/* Step badge + icon */}
-                  <div className="flex items-center gap-2 mb-2 flex-shrink-0">
-                    <div
-                      className="flex items-center justify-center rounded-lg text-xs font-black text-white flex-shrink-0"
-                      style={{
-                        width: 26, height: 26,
-                        backgroundColor: i < 4 ? "rgba(255,255,255,0.18)" : "#D97706",
-                      }}
-                    >
-                      {step.number}
-                    </div>
-                    <span className="text-lg">{step.icon}</span>
-                  </div>
-
                   {/* Title */}
-                  <p className="text-white font-bold text-xs leading-snug mb-1 flex-shrink-0">
+                  <p className="leading-snug mb-1 flex-shrink-0" style={{ color: "#ffffff", fontSize: 13, fontWeight: 500 }}>
                     {step.en}
                   </p>
-                  <p className="text-xs mb-2 flex-shrink-0" style={{ color: "#86efac", fontFamily: "sans-serif" }}>
+                  <p className="mb-2 flex-shrink-0" style={{ color: "#86efac", fontSize: 11, fontWeight: 300 }}>
                     {step.mr}
                   </p>
 
                   {/* Description */}
-                  <p className="text-xs leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.65)" }}>
+                  <p className="leading-relaxed flex-1" style={{ color: "rgba(255,255,255,0.68)", fontSize: 12, fontWeight: 300 }}>
                     {step.desc}
                   </p>
 
                   {/* Tag */}
                   <div className="mt-2 flex-shrink-0">
                     <span
-                      className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)" }}
+                      className="inline-block px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", fontSize: 10, fontWeight: 400 }}
                     >
                       {step.tag}
                     </span>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Bottom brand strip */}
-            <div className="flex-shrink-0 flex items-center justify-between pt-1">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#22c55e" }}/>
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
-                  All farmer data is encrypted & stored on secure Maharashtra government servers
-                </span>
-              </div>
-              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>v2.0</span>
             </div>
           </div>
         </div>
