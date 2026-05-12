@@ -140,14 +140,6 @@ export default function LoginPage() {
                 <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, color: "#64748b" }}>
                   Sign in to your Krushi Suvidha account
                 </p>
-                {/* Airavata Technologies logo */}
-                <div className="flex items-center mt-2 mb-0">
-                  <img
-                    src="/ATSVGNOBG.svg"
-                    alt="Airavata Technologies"
-                    style={{ height: 90, width: "auto", maxWidth: "100%" }}
-                  />
-                </div>
               </div>
 
               {error && (
@@ -232,6 +224,15 @@ export default function LoginPage() {
                     ? <><Loader2 className="h-4 w-4 animate-spin"/>Signing in…</>
                     : <><LogIn className="h-4 w-4"/>Sign In to Krushi Suvidha</>}
                 </button>
+
+                {/* Airavata Technologies logo — below sign-in button, centered */}
+                <div className="flex justify-center mt-5">
+                  <img
+                    src="/ATSVGNOBG.svg"
+                    alt="Airavata Technologies"
+                    style={{ height: 130, width: "auto", maxWidth: "100%" }}
+                  />
+                </div>
               </form>
             </div>
           </div>
