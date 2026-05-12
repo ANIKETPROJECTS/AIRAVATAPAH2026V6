@@ -8,7 +8,7 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
-import { COLORS, RADIUS, T } from '../constants';
+import { RADIUS, T } from '../constants';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Otp'>;
@@ -193,7 +193,14 @@ export default function OtpScreen({ navigation, route }: Props) {
           </View>
 
           <View style={styles.infoCard}>
-            <Text style={styles.infoTitle}>📋 महत्त्वाची माहिती</Text>
+            <View style={styles.infoTitleRow}>
+              <Image
+                source={require('../../assets/icon-info.png')}
+                style={styles.infoTitleIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.infoTitle}>महत्त्वाची माहिती</Text>
+            </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoBullet}>•</Text>
               <Text style={styles.infoText}>OTP फक्त 5 मिनिटांसाठी वैध आहे</Text>
@@ -234,20 +241,20 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backBtnPlaceholder: { width: 36 },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 44, width: 160 },
+  headerLogo: { height: 52, width: 200 },
 
   kav: { flex: 1 },
   container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
 
-  header: { alignItems: 'center', marginBottom: 18 },
+  header: { alignItems: 'center', marginBottom: 16 },
   headerIcon: { width: 90, height: 90, marginBottom: 10 },
   title: {
-    fontSize: 26, fontFamily: 'Poppins', fontWeight: '600',
+    fontSize: 24, fontFamily: 'Poppins', fontWeight: '600',
     color: '#000000', marginBottom: 2,
   },
   titleEn: {
     fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
-    color: '#000000', marginBottom: 8,
+    color: '#000000', marginBottom: 6,
   },
   subtitle: {
     fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
@@ -261,29 +268,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF9C3', borderRadius: 10, padding: 12,
     marginBottom: 14, borderWidth: 1, borderColor: '#FDE047',
   },
-  devText: { fontSize: 13, fontFamily: 'Poppins', color: '#713F12', textAlign: 'center' },
-  devOtp: { fontFamily: 'Poppins', fontWeight: '800', letterSpacing: 3 },
+  devText: { fontSize: 13, fontFamily: 'Poppins', fontWeight: '400', color: '#713F12', textAlign: 'center' },
+  devOtp: { fontFamily: 'Poppins', fontWeight: '700', letterSpacing: 3 },
 
   otpSection: { marginBottom: 20 },
   otpLabel: {
     fontSize: 12, fontFamily: 'Poppins', fontWeight: '500',
-    color: '#000000', marginBottom: 12, letterSpacing: 0.3,
+    color: '#000000', marginBottom: 14, letterSpacing: 0.3,
   },
   otpBoxRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 10,
+    alignItems: 'center',
+    gap: 8,
   },
   otpBox: {
-    width: 46,
-    height: 54,
+    width: 44,
+    height: 52,
+    flexShrink: 0,
+    flexGrow: 0,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: '#D1D5DB',
     borderRadius: 10,
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: 'Poppins',
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#000000',
     textAlign: 'center',
   },
@@ -325,17 +335,21 @@ const styles = StyleSheet.create({
   },
 
   infoCard: {
-    backgroundColor: '#F8FAFC', borderRadius: 14, padding: 16,
-    borderWidth: 1, borderColor: '#E5E7EB',
+    backgroundColor: '#16A34A', borderRadius: 14, padding: 16,
+  },
+  infoTitleRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12,
+  },
+  infoTitleIcon: {
+    width: 20, height: 20, tintColor: '#FFFFFF',
   },
   infoTitle: {
-    fontSize: 13, fontFamily: 'Poppins', fontWeight: '600',
-    color: '#000000', marginBottom: 10,
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '600', color: '#FFFFFF',
   },
   infoRow: { flexDirection: 'row', gap: 8, marginBottom: 7, alignItems: 'flex-start' },
-  infoBullet: { color: '#16A34A', fontWeight: '700', fontSize: 16, lineHeight: 20 },
+  infoBullet: { color: '#FFFFFF', fontWeight: '700', fontSize: 16, lineHeight: 20 },
   infoText: {
     flex: 1, fontSize: 12, fontFamily: 'Poppins',
-    fontWeight: '400', color: '#000000', lineHeight: 19,
+    fontWeight: '400', color: '#FFFFFF', lineHeight: 19,
   },
 });

@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backBtnPlaceholder: { width: 36 },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 44, width: 160 },
+  headerLogo: { height: 52, width: 200 },
 
   kav: { flex: 1 },
   container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
