@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     marginTop: -130,
-    marginBottom: -130,
+    marginBottom: -150,
   },
   brandLogo: {
     width: '100%',
