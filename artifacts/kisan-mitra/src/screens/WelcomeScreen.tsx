@@ -71,7 +71,10 @@ export default function WelcomeScreen({ navigation }: Props) {
           <View style={styles.divider} />
           {INFO_POINTS.map((point, i) => (
             <View key={i} style={styles.pointRow}>
-              <Text style={styles.bullet}>✦</Text>
+              <Image
+                source={require('../../assets/icon-check.png')}
+                style={styles.checkIcon}
+              />
               <Text style={styles.pointText}>{point}</Text>
             </View>
           ))}
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 10,
     gap: 16,
     backgroundColor: '#FFFFFF',
   },
@@ -134,59 +137,61 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingTop: 4,
+    paddingBottom: 32,
   },
   hero: {
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 4,
   },
   brandLogo: {
     width: '100%',
-    height: 180,
+    height: 220,
   },
   infoCard: {
     backgroundColor: '#16A34A',
     borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    marginBottom: 28,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    marginTop: 2,
+    marginBottom: 18,
   },
   infoHeader: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'Poppins',
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     textAlign: 'center',
-    lineHeight: 26,
-    marginBottom: 14,
+    lineHeight: 24,
+    marginBottom: 12,
   },
   divider: {
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.3)',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   pointRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 10,
+    alignItems: 'center',
+    marginBottom: 9,
     gap: 10,
   },
-  bullet: {
-    color: '#D97706',
-    fontSize: 12,
-    lineHeight: 22,
-    marginTop: 1,
+  checkIcon: {
+    width: 16,
+    height: 16,
+    tintColor: '#FFFFFF',
+    flexShrink: 0,
   },
   pointText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: 'Poppins',
     fontWeight: '400',
     color: '#FFFFFF',
     lineHeight: 22,
   },
   langSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   langTitle: {
     fontSize: 13,
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#000000',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
