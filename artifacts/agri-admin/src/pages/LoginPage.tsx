@@ -71,25 +71,16 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col lg:flex-row-reverse overflow-y-auto">
 
         {/* ── Right panel: Login form ── */}
-        <div className="flex-1 flex flex-col items-center justify-start pt-8 p-8 bg-white lg:border-l lg:border-slate-200 relative overflow-visible">
+        <div className="flex-1 flex flex-col items-center justify-start pt-0 px-8 pb-8 bg-white lg:border-l lg:border-slate-200 relative overflow-visible">
 
-          {/* Top-right badge placeholder */}
-          <div className="absolute top-4 right-4 flex flex-col items-end text-right">
-            <div className="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-1">
-              <span className="text-[9px] font-bold text-slate-400 text-center leading-tight">AWARD<br/>BADGE</span>
-            </div>
-            <span className="text-[11px] font-bold text-slate-500">AgriAdmin</span>
-            <span className="text-[10px] font-bold text-black uppercase tracking-tight">v2.0</span>
-          </div>
-
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-lg">
 
             {/* Main logo */}
-            <div className="flex flex-col items-center justify-center mb-6">
+            <div className="flex flex-col items-center justify-center -mt-16 mb-0">
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
-                className="w-full max-w-sm h-auto object-contain mix-blend-multiply"
+                className="w-full h-80 object-contain mix-blend-multiply"
               />
             </div>
 
