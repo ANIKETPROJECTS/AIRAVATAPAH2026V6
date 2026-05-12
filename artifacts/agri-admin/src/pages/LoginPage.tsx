@@ -115,12 +115,12 @@ export default function LoginPage() {
         <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200 overflow-hidden">
 
           {/* Krushi Suvidha logo — cropped tightly, no wasted space */}
-          <div style={{ overflow: "hidden", height: 170, flexShrink: 0 }}>
+          <div style={{ overflow: "hidden", height: 155, flexShrink: 0 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
               className="w-full mix-blend-multiply"
-              style={{ height: 480, marginTop: -100, display: "block" }}
+              style={{ height: 460, marginTop: -95, display: "block" }}
             />
           </div>
 
