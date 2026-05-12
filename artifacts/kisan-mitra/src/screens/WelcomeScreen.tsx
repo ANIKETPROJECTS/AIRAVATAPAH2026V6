@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image,
+  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ScrollView,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -17,6 +17,18 @@ const LANGS: { id: Lang; native: string }[] = [
   { id: 'en', native: 'English' },
   { id: 'hi', native: 'हिंदी' },
   { id: 'mr', native: 'मराठी' },
+];
+
+const INFO_POINTS = [
+  'कागदपत्र अपलोड करा — बाकी काम AI करेल',
+  'आधार, 7/12, बँक तपशील आपोआप वाचले जातील',
+  'फॉर्म भरायची गरज नाही',
+  'तुमचा डिजिटल शेतकरी प्रोफाइल तयार होईल',
+  'योजना व अनुदान आपोआप सुचवले जातील',
+  'एका क्लिकमध्ये अर्ज करा',
+  'अर्जाची स्थिती मोबाईलवर त्वरित पाहा',
+  'मंजुरी / नकाराची लगेच सूचना मिळवा',
+  'सुरक्षित व कागदविरहित सेवा',
 ];
 
 export default function WelcomeScreen({ navigation }: Props) {
@@ -39,13 +51,30 @@ export default function WelcomeScreen({ navigation }: Props) {
 
       <View style={styles.separator} />
 
-      <View style={styles.container}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.hero}>
           <Image
-            source={require('../../assets/brand-logo.png')}
+            source={require('../../assets/brand-logo-new.png')}
             style={styles.brandLogo}
             resizeMode="contain"
           />
+        </View>
+
+        <View style={styles.infoCard}>
+          <Text style={styles.infoHeader}>
+            महाराष्ट्राचे AI-आधारित कृषी प्रशासन व्यासपीठ
+          </Text>
+          <View style={styles.divider} />
+          {INFO_POINTS.map((point, i) => (
+            <View key={i} style={styles.pointRow}>
+              <Text style={styles.bullet}>✦</Text>
+              <Text style={styles.pointText}>{point}</Text>
+            </View>
+          ))}
         </View>
 
         <View style={styles.langSection}>
@@ -66,16 +95,14 @@ export default function WelcomeScreen({ navigation }: Props) {
           </View>
         </View>
 
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            onPress={() => navigation.navigate('Login')}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.primaryBtnText}>{t('getStarted')}  →</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+        <TouchableOpacity
+          style={styles.primaryBtn}
+          onPress={() => navigation.navigate('Login')}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.primaryBtnText}>{t('getStarted')}  →</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -102,22 +129,61 @@ const styles = StyleSheet.create({
   separator: {
     height: 1, backgroundColor: '#E5E7EB',
   },
-  container: {
+  scroll: {
     flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 36,
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    paddingBottom: 40,
   },
   hero: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 16,
   },
   brandLogo: {
     width: '100%',
-    height: 300,
+    height: 180,
+  },
+  infoCard: {
+    backgroundColor: '#16A34A',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginBottom: 28,
+  },
+  infoHeader: {
+    fontSize: 16,
+    fontFamily: 'Poppins',
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 26,
+    marginBottom: 14,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    marginBottom: 14,
+  },
+  pointRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+    gap: 10,
+  },
+  bullet: {
+    color: '#D97706',
+    fontSize: 12,
+    lineHeight: 22,
+    marginTop: 1,
+  },
+  pointText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#FFFFFF',
+    lineHeight: 22,
   },
   langSection: {
     marginBottom: 24,
@@ -160,7 +226,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  footer: {},
   primaryBtn: {
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.full,
