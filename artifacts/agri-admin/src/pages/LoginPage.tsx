@@ -116,7 +116,7 @@ export default function LoginPage() {
           <div className="w-full max-w-sm">
 
             {/* Logo — transparent PNG, collapse its internal whitespace via negative margins */}
-            <div className="flex flex-col items-center" style={{ marginTop: -155, marginBottom: -125 }}>
+            <div className="flex flex-col items-center" style={{ marginTop: -155, marginBottom: -140 }}>
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
@@ -132,7 +132,7 @@ export default function LoginPage() {
               ))}
             </datalist>
 
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-7">
+            <div className="p-2">
               <div className="mb-5">
                 <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 4 }}>
                   Welcome back
