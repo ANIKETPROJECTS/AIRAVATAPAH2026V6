@@ -261,7 +261,7 @@ export default function LoginPage() {
                     fontFamily: "Poppins, sans-serif",
                   }}
                 >
-                  {/* Step number — bottom right, crisp but faint */}
+                  {/* Step number — bottom right watermark */}
                   <span
                     className="absolute bottom-1 right-3 select-none pointer-events-none"
                     style={{
@@ -275,25 +275,32 @@ export default function LoginPage() {
                     {step.number}
                   </span>
 
-                  {/* Title */}
-                  <p className="leading-snug mb-1" style={{ color: "#ffffff", fontSize: 16, fontWeight: 500 }}>
-                    {step.en}
-                  </p>
-                  {/* Marathi */}
-                  <p className="mb-2" style={{ color: "#86efac", fontSize: 12, fontWeight: 300 }}>
-                    {step.mr}
-                  </p>
+                  {/* Title block with yellow accent line */}
+                  <div className="flex gap-2 mb-2">
+                    <div className="w-[3px] rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: "#D97706", minHeight: 36 }} />
+                    <div>
+                      <p className="leading-snug" style={{ color: "#ffffff", fontSize: 17, fontWeight: 500 }}>
+                        {step.en}
+                      </p>
+                      <p className="mt-0.5" style={{ color: "#86efac", fontSize: 13, fontWeight: 300 }}>
+                        {step.mr}
+                      </p>
+                    </div>
+                  </div>
+
                   {/* Description */}
-                  <p className="leading-relaxed" style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, fontWeight: 300 }}>
+                  <p className="leading-relaxed" style={{ color: "rgba(255,255,255,0.80)", fontSize: 13.5, fontWeight: 300 }}>
                     {step.desc}
                   </p>
+
                   {/* Spacer pushes tag to bottom */}
                   <div className="flex-1" />
+
                   {/* Tag */}
                   <div className="mt-2">
                     <span
                       className="inline-block px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255,255,255,0.13)", color: "rgba(255,255,255,0.9)", fontSize: 11, fontWeight: 400 }}
+                      style={{ background: "rgba(255,255,255,0.13)", color: "rgba(255,255,255,0.92)", fontSize: 11.5, fontWeight: 400 }}
                     >
                       {step.tag}
                     </span>
