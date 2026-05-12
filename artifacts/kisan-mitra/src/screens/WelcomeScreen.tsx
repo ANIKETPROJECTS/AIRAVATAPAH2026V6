@@ -142,12 +142,12 @@ const styles = StyleSheet.create({
   },
   hero: {
     alignItems: 'center',
-    marginTop: -90,
-    marginBottom: -60,
+    marginTop: -130,
+    marginBottom: -90,
   },
   brandLogo: {
     width: '100%',
-    height: 460,
+    height: 480,
   },
   infoCard: {
     backgroundColor: '#16A34A',
