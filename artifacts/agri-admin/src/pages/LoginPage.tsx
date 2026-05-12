@@ -115,13 +115,13 @@ export default function LoginPage() {
         <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-4 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
           <div className="w-full max-w-sm">
 
-            {/* Logo — big and prominent, zero top gap */}
-            <div className="flex flex-col items-center mb-1">
+            {/* Logo — pulled hard to top, large */}
+            <div className="flex flex-col items-center -mt-8 mb-0">
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
-                className="w-full object-contain mix-blend-multiply"
-                style={{ height: 320 }}
+                className="w-full object-contain object-top mix-blend-multiply"
+                style={{ height: 380 }}
               />
             </div>
 
