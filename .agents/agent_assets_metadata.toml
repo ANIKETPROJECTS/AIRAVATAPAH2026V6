@@ -17,3 +17,9 @@ id = "ryHFPq5V6Gq86YwMU4-8A"
 uri = "file://APK_Build_Guide.md"
 type = "text"
 title = "कृषी सुविधा — APK Build Guide (Fixed)"
+
+[[outputs]]
+id = "ND0MvOQTEIpgHEdE2hoQc"
+uri = "file://SYSTEM_DOCUMENTATION.md"
+type = "text"
+title = "Krushi Suvidha — Complete System Documentation"
