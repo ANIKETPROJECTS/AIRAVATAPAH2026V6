@@ -112,20 +112,34 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-row-reverse overflow-hidden min-h-0">
 
         {/* ── Right panel: Login form ── */}
-        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-start pt-0 px-8 pb-6 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col items-center justify-center px-8 pb-6 pt-4 bg-white lg:border-l lg:border-slate-200 overflow-y-auto">
           <div className="w-full max-w-sm">
-            <div className="flex flex-col items-center justify-center -mt-12 mb-0">
+
+            {/* Logo — larger, tight to card */}
+            <div className="flex flex-col items-center -mt-4 mb-0">
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
-                className="w-full h-72 object-contain mix-blend-multiply"
+                className="w-full object-contain mix-blend-multiply"
+                style={{ height: 200 }}
               />
             </div>
 
+            {/* Datalist for email suggestions */}
+            <datalist id="demo-emails">
+              {DEMO_ACCOUNTS.map(d => (
+                <option key={d.email} value={d.email} label={`${d.label} — ${d.role}`} />
+              ))}
+            </datalist>
+
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-7">
               <div className="mb-5">
-                <h2 className="text-2xl font-bold text-slate-900 mb-1">Welcome back</h2>
-                <p className="text-sm text-slate-500">Sign in to your AgriAdmin account</p>
+                <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 4 }}>
+                  Welcome back
+                </h2>
+                <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, color: "#64748b" }}>
+                  Sign in to your Krushi Suvidha account
+                </p>
               </div>
 
               {error && (
@@ -137,13 +151,24 @@ export default function LoginPage() {
 
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Email Address</label>
+                  <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 11, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                    Email Address
+                  </label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
                     <input
-                      type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email"
+                      type="email"
+                      list="demo-emails"
+                      value={email}
+                      onChange={e => {
+                        setEmail(e.target.value);
+                        const match = DEMO_ACCOUNTS.find(d => d.email === e.target.value);
+                        if (match) { setPassword(match.password); setError(""); }
+                      }}
+                      autoComplete="email"
                       placeholder="you@agri.mh.gov.in"
-                      className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                      style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300 }}
                       onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
                       onBlur={e => e.target.style.boxShadow = ""}
                     />
@@ -151,14 +176,17 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Password</label>
+                  <label style={{ fontFamily: "Poppins, sans-serif", fontSize: 11, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                    Password
+                  </label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
                     <input
                       ref={pwRef} type={showPw ? "text" : "password"} value={password}
                       onChange={e => setPassword(e.target.value)} autoComplete="current-password"
                       placeholder="Enter your password"
-                      className="w-full pl-10 pr-12 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                      className="w-full pl-10 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
+                      style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300 }}
                       onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
                       onBlur={e => e.target.style.boxShadow = ""}
                     />
@@ -178,46 +206,25 @@ export default function LoginPage() {
                     >
                       {remember && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                     </div>
-                    <span className="text-xs text-slate-600 select-none">Remember me</span>
+                    <span style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 300, color: "#475569" }}>Remember me</span>
                   </label>
-                  <button type="button" className="text-xs font-semibold transition-colors" style={{ color: "#059669" }}>
+                  <button type="button" style={{ fontFamily: "Poppins, sans-serif", fontSize: 12, fontWeight: 400, color: "#059669" }}>
                     Forgot password?
                   </button>
                 </div>
 
                 <button
                   type="submit" disabled={loading}
-                  className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-70"
-                  style={{ backgroundColor: "#059669" }}
+                  className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-white transition-all disabled:opacity-70"
+                  style={{ backgroundColor: "#059669", fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 500 }}
                   onMouseEnter={e => !loading && ((e.currentTarget).style.backgroundColor = "#047857")}
                   onMouseLeave={e => ((e.currentTarget).style.backgroundColor = "#059669")}
                 >
                   {loading
                     ? <><Loader2 className="h-4 w-4 animate-spin"/>Signing in…</>
-                    : <><LogIn className="h-4 w-4"/>Sign In to AgriAdmin</>}
+                    : <><LogIn className="h-4 w-4"/>Sign In to Krushi Suvidha</>}
                 </button>
               </form>
-            </div>
-
-            <div className="mt-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Demo Accounts — Click to fill</div>
-              <div className="space-y-1.5">
-                {DEMO_ACCOUNTS.map(d => (
-                  <button key={d.email} onClick={() => fillDemo(d)}
-                    className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/60 transition-all text-left group">
-                    <div>
-                      <div className="text-xs font-semibold text-slate-700 group-hover:text-emerald-800">{d.label}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{d.email}</div>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
-                      style={{ backgroundColor: "rgba(5,150,105,0.1)", color: "#059669" }}>{d.role}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="text-center mt-3 text-[11px] text-slate-400">
-              Maharashtra Department of Agriculture · AgriAdmin v2.0
             </div>
           </div>
         </div>
