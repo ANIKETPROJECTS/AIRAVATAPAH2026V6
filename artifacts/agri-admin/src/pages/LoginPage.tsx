@@ -116,12 +116,12 @@ export default function LoginPage() {
           <div className="w-full max-w-sm">
 
             {/* Logo — transparent PNG, collapse its internal whitespace via negative margins */}
-            <div className="flex flex-col items-center" style={{ marginTop: -155, marginBottom: -140 }}>
+            <div className="flex flex-col items-center" style={{ marginTop: -155, marginBottom: -160 }}>
               <img
                 src="/logo-krushi-suvidha-new.png"
                 alt="Krushi Suvidha"
                 className="w-full object-contain mix-blend-multiply"
-                style={{ height: 500 }}
+                style={{ height: 480 }}
               />
             </div>
 
@@ -132,14 +132,22 @@ export default function LoginPage() {
               ))}
             </datalist>
 
-            <div className="p-2">
-              <div className="mb-5">
+            <div className="p-2" style={{ marginTop: -32 }}>
+              <div className="mb-4">
                 <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 4 }}>
                   Welcome back
                 </h2>
                 <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, color: "#64748b" }}>
                   Sign in to your Krushi Suvidha account
                 </p>
+                {/* Airavata Technologies logo */}
+                <div className="flex items-center mt-2 mb-0">
+                  <img
+                    src="/ATSVGNOBG.svg"
+                    alt="Airavata Technologies"
+                    style={{ height: 90, width: "auto", maxWidth: "100%" }}
+                  />
+                </div>
               </div>
 
               {error && (
