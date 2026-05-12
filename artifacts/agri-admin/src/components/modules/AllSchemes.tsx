@@ -284,18 +284,13 @@ function checkEligibility(farmer: FarmerRecord, scheme: Scheme): EligibilityResu
 /* ═══════════ Shared Badges ════════════ */
 function TypeBadge({ type, compact }: { type: "CENTRAL" | "STATE"; compact?: boolean }) {
   if (compact) return (
-    <div className="flex flex-col items-center gap-0.5 w-fit">
-      <span className={`text-base leading-none ${type === "CENTRAL" ? "text-primary" : "text-secondary"}`}>
-        {type === "CENTRAL" ? "🏛" : "🏠"}
-      </span>
-      <span className={`text-[11px] font-semibold leading-none ${type === "CENTRAL" ? "text-primary" : "text-secondary"}`}>
-        {type === "CENTRAL" ? "Central" : "Maharashtra"}
-      </span>
-    </div>
+    <span className="text-sm font-normal text-black">
+      {type === "CENTRAL" ? "Central" : "State"}
+    </span>
   );
   return (
     <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${type === "CENTRAL" ? "bg-primary/10 text-primary" : "bg-secondary/15 text-secondary"}`}>
-      {type === "CENTRAL" ? "🏛 Central" : "🏠 Maharashtra"}
+      {type === "CENTRAL" ? "Central" : "State"}
     </span>
   );
 }
@@ -787,21 +782,27 @@ function TableRow({ scheme, onView, onStatusChange, onEdit, onDelete }: { scheme
   const [expanded, setExpanded] = useState(false);
   return (
     <>
-      <tr className="border-t border-border/50 hover:bg-success/5 transition-colors cursor-pointer">
+      <tr className="border-t border-black/10 hover:bg-gray-50 transition-colors cursor-pointer bg-white">
         <td className="px-4 py-3 w-[28%]">
-          <button onClick={onView} className="font-medium text-sm text-left hover:text-primary transition-colors leading-snug">{scheme.name}</button>
+          <button onClick={onView} className="font-normal text-base text-black text-left hover:underline transition-colors leading-snug">{scheme.name}</button>
         </td>
         <td className="px-4 py-3 w-[9%] align-middle"><TypeBadge type={scheme.type} compact/></td>
-        <td className="px-4 py-3 w-[13%] align-middle"><span className="text-xs text-muted-foreground font-medium">{scheme.category}</span></td>
-        <td className="px-4 py-3 w-[24%]"><p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{typeof scheme.eligibility === "object" ? scheme.eligibility.summary : scheme.eligibility}</p></td>
+        <td className="px-4 py-3 w-[13%] align-middle"><span className="text-sm text-black font-normal">{scheme.category}</span></td>
+        <td className="px-4 py-3 w-[24%]"><p className="text-sm text-black font-normal line-clamp-2 leading-relaxed">{typeof scheme.eligibility === "object" ? scheme.eligibility.summary : scheme.eligibility}</p></td>
         <td className="px-4 py-3 w-[9%] align-middle"><StatusToggle schemeId={scheme.id} status={scheme.status} onToggle={onStatusChange}/></td>
         <td className="px-4 py-3 w-[17%] align-middle">
-          <div className="flex gap-1 items-center flex-wrap">
-            <button onClick={onView} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:opacity-80 transition-opacity whitespace-nowrap">Details</button>
-            <button onClick={(e) => { e.stopPropagation(); onEdit(scheme); }} className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors whitespace-nowrap">Edit</button>
-            <button onClick={(e) => { e.stopPropagation(); onDelete(scheme); }} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors whitespace-nowrap">Delete</button>
-            <button onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }} className="p-1 rounded bg-muted hover:bg-muted/80 transition-colors flex-shrink-0" title="Toggle">
-              {expanded ? <ChevronUp className="h-3.5 w-3.5"/> : <ChevronDown className="h-3.5 w-3.5"/>}
+          <div className="flex gap-2 items-center">
+            <button onClick={onView} title="View Details" className="p-1.5 rounded hover:bg-gray-100 transition-colors">
+              <img src="/icons/icon-view.png" className="w-5 h-5 object-contain" alt="View"/>
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); onEdit(scheme); }} title="Edit" className="p-1.5 rounded hover:bg-gray-100 transition-colors">
+              <img src="/icons/icon-edit.png" className="w-5 h-5 object-contain" alt="Edit"/>
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(scheme); }} title="Delete" className="p-1.5 rounded hover:bg-red-50 transition-colors">
+              <img src="/icons/icon-delete.png" className="w-5 h-5 object-contain" alt="Delete"/>
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }} className="p-1.5 rounded hover:bg-gray-100 transition-colors flex-shrink-0" title="Toggle">
+              {expanded ? <ChevronUp className="h-3.5 w-3.5 text-black"/> : <ChevronDown className="h-3.5 w-3.5 text-black"/>}
             </button>
           </div>
         </td>
@@ -946,7 +947,7 @@ export default function AllSchemes() {
           {(["ALL", "CENTRAL", "STATE"] as const).map(t => (
             <button key={t} onClick={() => handleFilter(t)}
               className={`text-sm px-3.5 py-1.5 rounded-md transition-colors ${typeFilter === t ? "bg-card shadow-sm font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              {t === "ALL" ? "All" : t === "CENTRAL" ? "🏛 Central" : "🏠 Maharashtra"}
+              {t === "ALL" ? "All" : t === "CENTRAL" ? "Central" : "State"}
             </button>
           ))}
         </div>
@@ -977,17 +978,17 @@ export default function AllSchemes() {
       ) : filtered.length === 0 ? (
         <div className="bg-muted/20 rounded-lg p-10 text-center"><p className="text-muted-foreground text-sm">No schemes match your search.</p></div>
       ) : view === "table" ? (
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="bg-white border border-black rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full">
               <thead>
-                <tr className="bg-muted/50 text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Scheme Name</th>
-                  <th className="px-4 py-3 font-medium">Type</th>
-                  <th className="px-4 py-3 font-medium">Category</th>
-                  <th className="px-4 py-3 font-medium">Eligibility Summary</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+                <tr className="bg-white text-left border-b border-black">
+                  <th className="px-4 py-3 font-medium text-base text-black">Scheme Name</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Type</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Category</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Eligibility Summary</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Status</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Actions</th>
                 </tr>
               </thead>
               <tbody>

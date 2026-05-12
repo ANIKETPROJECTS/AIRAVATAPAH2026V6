@@ -156,8 +156,8 @@ function DeleteConfirm({ name, onCancel, onConfirm, loading }: { name: string; o
 function TypeBadge({ type }: { type: "Insurance" | "Subsidy" }) {
   const isInsurance = type === "Insurance";
   return (
-    <span className={`inline-flex items-center justify-center whitespace-nowrap gap-1 text-xs px-2.5 py-0.5 rounded-full font-semibold ${isInsurance ? "bg-success/15 text-success" : "bg-secondary/15 text-secondary"}`}>
-      {isInsurance ? "🛡️ Insurance" : "💰 Subsidy"}
+    <span className="text-sm font-normal text-black">
+      {isInsurance ? "Insurance" : "Subsidy"}
     </span>
   );
 }
@@ -165,8 +165,8 @@ function TypeBadge({ type }: { type: "Insurance" | "Subsidy" }) {
 function RegionBadge({ region }: { region: "Central" | "Maharashtra" }) {
   const isCentral = region === "Central";
   return (
-    <span className={`inline-flex items-center justify-center whitespace-nowrap gap-1 text-xs px-2.5 py-0.5 rounded-full font-medium ${isCentral ? "bg-primary/10 text-primary" : "bg-orange-100 text-orange-700"}`}>
-      {isCentral ? "🏛 Central" : "🏠 Maharashtra"}
+    <span className="text-sm font-normal text-black">
+      {isCentral ? "Central" : "State"}
     </span>
   );
 }
@@ -362,19 +362,25 @@ function DetailPage({ item, onBack, onEdit }: { item: InsuranceSubsidy; onBack: 
 /* ═══════════ Table Row ════════════ */
 function TableRow({ item, onView, onEdit, onDelete }: { item: InsuranceSubsidy; onView: () => void; onEdit: (i: InsuranceSubsidy) => void; onDelete: (i: InsuranceSubsidy) => void }) {
   return (
-    <tr className="border-t border-border/50 hover:bg-muted/30 transition-colors cursor-pointer">
+    <tr className="border-t border-black/10 hover:bg-gray-50 transition-colors cursor-pointer bg-white">
       <td className="px-4 py-3 w-[26%]">
-        <button onClick={onView} className="font-medium text-sm text-left hover:text-primary transition-colors leading-snug">{item.name}</button>
+        <button onClick={onView} className="font-normal text-base text-black text-left hover:underline transition-colors leading-snug">{item.name}</button>
       </td>
-      <td className="px-4 py-3 w-[10%] align-middle"><div className="flex justify-center"><TypeBadge type={item.type}/></div></td>
-      <td className="px-4 py-3 w-[11%] align-middle"><div className="flex justify-center"><RegionBadge region={item.region}/></div></td>
-      <td className="px-4 py-3 w-[20%]"><p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.eligibility}</p></td>
-      <td className="px-4 py-3 w-[17%]"><p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.parameters}</p></td>
+      <td className="px-4 py-3 w-[10%] align-middle"><TypeBadge type={item.type}/></td>
+      <td className="px-4 py-3 w-[11%] align-middle"><RegionBadge region={item.region}/></td>
+      <td className="px-4 py-3 w-[20%]"><p className="text-sm text-black font-normal line-clamp-2 leading-relaxed">{item.eligibility}</p></td>
+      <td className="px-4 py-3 w-[17%]"><p className="text-sm text-black font-normal line-clamp-2 leading-relaxed">{item.parameters}</p></td>
       <td className="px-4 py-3 w-[16%] align-middle">
-        <div className="flex gap-1 items-center flex-wrap">
-          <button onClick={onView} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:opacity-80 transition-opacity whitespace-nowrap">View</button>
-          <button onClick={(e) => { e.stopPropagation(); onEdit(item); }} className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors whitespace-nowrap">Edit</button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors whitespace-nowrap">Delete</button>
+        <div className="flex gap-2 items-center">
+          <button onClick={onView} title="View" className="p-1.5 rounded hover:bg-gray-100 transition-colors">
+            <img src="/icons/icon-view.png" className="w-5 h-5 object-contain" alt="View"/>
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); onEdit(item); }} title="Edit" className="p-1.5 rounded hover:bg-gray-100 transition-colors">
+            <img src="/icons/icon-edit.png" className="w-5 h-5 object-contain" alt="Edit"/>
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(item); }} title="Delete" className="p-1.5 rounded hover:bg-red-50 transition-colors">
+            <img src="/icons/icon-delete.png" className="w-5 h-5 object-contain" alt="Delete"/>
+          </button>
         </div>
       </td>
     </tr>
@@ -506,7 +512,7 @@ export default function AllInsuranceSubsidies({ defaultTypeFilter }: AllInsuranc
           {(["ALL", "Central", "Maharashtra"] as const).map(r => (
             <button key={r} onClick={() => { setRegionFilter(r); setPage(0); }}
               className={`text-sm px-3.5 py-1.5 rounded-md transition-colors ${regionFilter === r ? "bg-card shadow-sm font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              {r === "ALL" ? "All Regions" : r === "Central" ? "🏛 Central" : "🏠 Maharashtra"}
+              {r === "ALL" ? "All Regions" : r === "Central" ? "Central" : "State"}
             </button>
           ))}
         </div>
@@ -515,7 +521,7 @@ export default function AllInsuranceSubsidies({ defaultTypeFilter }: AllInsuranc
           {(["ALL", "Insurance", "Subsidy"] as const).map(t => (
             <button key={t} onClick={() => { setTypeFilter(t); setPage(0); }}
               className={`text-sm px-3.5 py-1.5 rounded-md transition-colors ${typeFilter === t ? "bg-card shadow-sm font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              {t === "ALL" ? "All Types" : t === "Insurance" ? "🛡️ Insurance" : "💰 Subsidy"}
+              {t === "ALL" ? "All Types" : t === "Insurance" ? "Insurance" : "Subsidy"}
             </button>
           ))}
         </div>
@@ -554,17 +560,17 @@ export default function AllInsuranceSubsidies({ defaultTypeFilter }: AllInsuranc
           <button onClick={() => { setEditItem(null); setShowForm(true); }} className="mt-3 text-xs px-3 py-1.5 rounded bg-primary text-primary-foreground hover:opacity-80">+ Add First Entry</button>
         </div>
       ) : view === "table" ? (
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="bg-white border border-black rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full">
               <thead>
-                <tr className="bg-muted/50 text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Type</th>
-                  <th className="px-4 py-3 font-medium">Region</th>
-                  <th className="px-4 py-3 font-medium">Eligibility</th>
-                  <th className="px-4 py-3 font-medium">Parameters</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+                <tr className="bg-white text-left border-b border-black">
+                  <th className="px-4 py-3 font-medium text-base text-black">Name</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Type</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Region</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Eligibility</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Parameters</th>
+                  <th className="px-4 py-3 font-medium text-base text-black">Actions</th>
                 </tr>
               </thead>
               <tbody>
