@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ActivityIndicator, View, Text } from 'react-native';
+import { ActivityIndicator, View, Text, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -49,26 +49,27 @@ export type TabParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const TAB_ICON_CHARS: Record<string, string> = {
-  Home:          '\u2302',
-  Schemes:       '\u2630',
-  Notifications: '\u25C9',
-  Analytics:     '\u25A6',
-  Profile:       '\u25CE',
+const TAB_ICONS: Record<string, ReturnType<typeof require>> = {
+  Home:          require('../../assets/icon-tab-home.png'),
+  Schemes:       require('../../assets/icon-tab-schemes.png'),
+  Notifications: require('../../assets/icon-tab-notifications.png'),
+  Analytics:     require('../../assets/icon-tab-analytics.png'),
+  Profile:       require('../../assets/icon-tab-profile.png'),
 };
 
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
-  const char = TAB_ICON_CHARS[name] ?? '\u25CF';
+  const source = TAB_ICONS[name];
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', width: 28, height: 24 }}>
-      <Text style={{
-        fontSize: 19,
-        color: focused ? COLORS.primary : COLORS.textMuted,
-        fontWeight: focused ? '700' : '400',
-        lineHeight: 22,
-      }}>
-        {char}
-      </Text>
+    <View style={{ alignItems: 'center', justifyContent: 'center', width: 28, height: 26 }}>
+      <Image
+        source={source}
+        tintColor={focused ? COLORS.primary : COLORS.textMuted}
+        style={{
+          width: 22,
+          height: 22,
+          resizeMode: 'contain',
+        }}
+      />
     </View>
   );
 }
