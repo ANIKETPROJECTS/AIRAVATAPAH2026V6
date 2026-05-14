@@ -63,7 +63,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     <View style={{ alignItems: 'center', justifyContent: 'center', width: 28, height: 26 }}>
       <Image
         source={source}
-        tintColor={focused ? COLORS.primary : COLORS.textMuted}
+        tintColor={focused ? '#000000' : COLORS.textMuted}
         style={{
           width: 22,
           height: 22,
