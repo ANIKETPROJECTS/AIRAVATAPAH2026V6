@@ -5,7 +5,10 @@ import { logger } from "../lib/logger";
 
 const router = Router();
 
-const JWT_SECRET = process.env["JWT_SECRET"] ?? "krushi-suvidha-secret-2026";
+const JWT_SECRET = process.env["JWT_SECRET"];
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required but was not provided.");
+}
 const JWT_EXPIRES_DAYS = 7;
 const OTP_TTL_MS = 5 * 60 * 1000;
 
