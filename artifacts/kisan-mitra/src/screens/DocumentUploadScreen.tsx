@@ -134,11 +134,12 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
         ) : (
           <View style={styles.backBtn} />
         )}
-        <Image
-          source={require('../../assets/brand-logo-new.png')}
-          style={styles.headerLogo}
-          resizeMode="cover"
-        />
+        <View style={styles.headerLogoWrap}>
+          <Image
+            source={require('../../assets/brand-logo-new.png')}
+            style={styles.headerLogo}
+          />
+        </View>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
@@ -336,7 +337,8 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 74, width: 250 },
+  headerLogoWrap: { width: 250, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 250, height: 250, marginTop: -65 },
   logoutBtn: {
     paddingHorizontal: 14, paddingVertical: 6,
     borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: '#D1D5DB',
