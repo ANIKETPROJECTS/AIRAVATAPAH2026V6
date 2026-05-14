@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 54, width: 180 },
+  headerLogo: { height: 58, width: 230 },
   logoutBtn: {
     paddingHorizontal: 14, paddingVertical: 6,
     borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: '#D1D5DB',
