@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   topBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 46, width: 154 },
+  headerLogo: { height: 54, width: 180 },
   logoutBtn: {
     paddingHorizontal: 14, paddingVertical: 6,
     borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: '#D1D5DB',
