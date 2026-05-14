@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   topBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 2,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backBtnPlaceholder: { width: 36 },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogo: { height: 38, width: 128 },
+  headerLogo: { height: 46, width: 154 },
 
   kav: { flex: 1 },
   container: { flex: 1, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 32 },
