@@ -9,7 +9,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
-import { COLORS, FONT_SIZE, RADIUS, SHADOW, T } from '../constants';
+import { COLORS, RADIUS, SHADOW, T } from '../constants';
 import { Scheme, InsuranceSubsidy, Application, REQUIRED_DOCUMENTS, DocumentTypeId, DocUploadState } from '../types';
 import { RootStackParamList, TabParamList } from '../navigation/AppNavigator';
 
@@ -104,8 +104,8 @@ const APP_STATUS_DESC: Record<string, { en: string; hi: string; mr: string }> = 
   Pending:        { en: 'Your application has been submitted and is awaiting review by the district officer.', hi: 'आपका आवेदन सफलतापूर्वक जमा हो गया है और जिला अधिकारी द्वारा समीक्षा की प्रतीक्षा है।', mr: 'तुमचा अर्ज यशस्वीरित्या सादर केला गेला आहे आणि जिल्हा अधिकाऱ्याच्या पुनरावलोकनाची प्रतीक्षा आहे.' },
   'Under Review': { en: 'Your application is currently being reviewed by the district officer.', hi: 'आपका आवेदन वर्तमान में जिला अधिकारी द्वारा समीक्षा में है।', mr: 'तुमचा अर्ज सध्या जिल्हा अधिकाऱ्याद्वारे पुनरावलोकनाधीन आहे.' },
   Approved:       { en: 'Congratulations! Your application has been approved.', hi: 'बधाई! आपका आवेदन स्वीकृत हो गया है।', mr: 'अभिनंदन! तुमचा अर्ज मंजूर झाला आहे.' },
-  Rejected:       { en: 'Your application has been rejected. You may re-apply or contact the office for details.', hi: 'आपका आवेदन अस्वीकृत कर दिया गया है। आप पुनः आवेदन कर सकते हैं या विवरण के लिए कार्यालय से संपर्क करें।', mr: 'तुमचा अर्ज नाकारला गेला आहे. तुम्ही पुन्हा अर्ज करू शकता किंवा तपशीलांसाठी कार्यालयाशी संपर्क साधा.' },
-  Settled:        { en: 'Your claim has been settled. Funds will be transferred to your registered bank account.', hi: 'आपका दावा निपटा दिया गया है। धनराशि आपके पंजीकृत बैंक खाते में स्थानांतरित की जाएगी।', mr: 'तुमचा दावा निकाला गेला आहे. निधी तुमच्या नोंदणीकृत बँक खात्यात हस्तांतरित केला जाईल.' },
+  Rejected:       { en: 'Your application has been rejected. You may re-apply or contact the office for details.', hi: 'आपका आवेदन अस्वीकृत कर दिया गया है। आप पुनः आवेदन कर सकते हैं।', mr: 'तुमचा अर्ज नाकारला गेला आहे. तुम्ही पुन्हा अर्ज करू शकता.' },
+  Settled:        { en: 'Your claim has been settled. Funds will be transferred to your registered bank account.', hi: 'आपका दावा निपटा दिया गया है।', mr: 'तुमचा दावा निकाला गेला आहे.' },
 };
 
 export default function SchemesScreen() {
@@ -170,45 +170,28 @@ export default function SchemesScreen() {
     try {
       const appsRes = await api.getMyApplications(mobile);
       setMyApplications(appsRes);
-    } catch { /* silent — keep existing data */ }
+    } catch {}
   }, [farmer?.mobile, state.mobile]);
 
   const handlePullRefresh = useCallback(async () => {
     setRefreshing(true);
-    try {
-      await loadData();
-    } finally {
-      setRefreshing(false);
-    }
+    try { await loadData(); } finally { setRefreshing(false); }
   }, [loadData]);
 
   useEffect(() => { loadData(); }, [loadData]);
+  useFocusEffect(useCallback(() => { refreshApplications(); }, [refreshApplications]));
 
-  useFocusEffect(
-    useCallback(() => {
-      refreshApplications();
-    }, [refreshApplications]),
-  );
-
-  const handleManualRefresh = useCallback(() => {
-    handlePullRefresh();
-  }, [handlePullRefresh]);
+  const handleManualRefresh = useCallback(() => { handlePullRefresh(); }, [handlePullRefresh]);
 
   const getApplicationForItem = (itemId: string, type: 'scheme' | 'subsidy' | 'insurance'): Application | undefined =>
     myApplications.find(a => a.type === type && (a.schemeId === itemId || a.schemeName === itemId));
 
-  // ── Document upload modal state ─────────────────────────────────────────────
+  // ── Document upload modal state
   const [docModal, setDocModal] = useState<{
-    visible: boolean;
-    itemId: string;
-    itemName: string;
-    appType: 'scheme' | 'subsidy' | 'insurance';
-    itemType?: string | null;
-    requiredDocIds: DocumentTypeId[];
-    pendingEligible: boolean;
-    pendingEligibilityText: string;
+    visible: boolean; itemId: string; itemName: string;
+    appType: 'scheme' | 'subsidy' | 'insurance'; itemType?: string | null;
+    requiredDocIds: DocumentTypeId[]; pendingEligible: boolean; pendingEligibilityText: string;
   } | null>(null);
-
   const [modalDocStates, setModalDocStates] = useState<Record<string, DocUploadState>>({});
   const pollingRef = useRef<Record<string, boolean>>({});
 
@@ -225,7 +208,7 @@ export default function SchemesScreen() {
         const result = await api.pollExtraction(requestId);
         if (result.status === 'complete') { setModalDoc(docId, { status: 'done' }); pollingRef.current[docId] = false; return; }
         if (result.status === 'error') { setModalDoc(docId, { status: 'error', error: result.error ?? 'Processing failed' }); pollingRef.current[docId] = false; return; }
-      } catch { /* keep polling */ }
+      } catch {}
     }
     setModalDoc(docId, { status: 'error', error: 'Timed out. Please re-upload.' });
     pollingRef.current[docId] = false;
@@ -278,21 +261,15 @@ export default function SchemesScreen() {
   }
 
   function getMissingDocIds(requiredDocIds: DocumentTypeId[]): DocumentTypeId[] {
-    const totalUploaded = Math.max(
-      (farmer?.docs ?? []).length,
-      farmer?.documentsCount ?? 0,
-    );
+    const totalUploaded = Math.max((farmer?.docs ?? []).length, farmer?.documentsCount ?? 0);
     if (totalUploaded >= 5) return [];
     const uploadedSections = new Set((farmer?.docs ?? []).map(d => d.section));
     return requiredDocIds.filter(id => !uploadedSections.has(id));
   }
 
   async function proceedWithApply(
-    type: 'scheme' | 'subsidy' | 'insurance',
-    itemId: string,
-    itemName: string,
-    itemType?: string | null,
-    docIds: DocumentTypeId[] = [],
+    type: 'scheme' | 'subsidy' | 'insurance', itemId: string, itemName: string,
+    itemType?: string | null, docIds: DocumentTypeId[] = [],
   ) {
     if (!farmer) return;
     const mobile = farmer.mobile ?? state.mobile;
@@ -308,17 +285,10 @@ export default function SchemesScreen() {
         setMyApplications(prev => prev.map(a => a.applicationId === app.applicationId ? app : a));
       } else {
         app = await api.applyForScheme({
-          type,
-          farmerId: farmer.farmerId,
-          farmerName: farmer.name ?? null,
-          mobile,
-          district: farmer.district ?? null,
-          village: farmer.village ?? null,
-          schemeId: itemId,
-          schemeName: itemName,
-          schemeType: itemType ?? null,
-          crop: farmer.crop ?? null,
-          land: farmer.land != null ? parseFloat(String(farmer.land)) : null,
+          type, farmerId: farmer.farmerId, farmerName: farmer.name ?? null, mobile,
+          district: farmer.district ?? null, village: farmer.village ?? null,
+          schemeId: itemId, schemeName: itemName, schemeType: itemType ?? null,
+          crop: farmer.crop ?? null, land: farmer.land != null ? parseFloat(String(farmer.land)) : null,
           documentRefs: docIds,
         });
         setMyApplications(prev => [...prev, app]);
@@ -339,21 +309,14 @@ export default function SchemesScreen() {
   }
 
   async function handleApply(
-    type: 'scheme' | 'subsidy' | 'insurance',
-    item: Scheme | InsuranceSubsidy,
-    itemType?: string | null,
-    eligible?: boolean,
-    eligibilityText?: string,
-    currentTab?: Tab,
+    type: 'scheme' | 'subsidy' | 'insurance', item: Scheme | InsuranceSubsidy,
+    itemType?: string | null, eligible?: boolean, eligibilityText?: string, currentTab?: Tab,
   ) {
     if (!farmer) return;
-
     const itemId = item.id;
     const itemName = item.name;
     const requiredDocIds = getRequiredDocIds(item, currentTab ?? 'schemes');
     const missingDocIds = getMissingDocIds(requiredDocIds);
-
-    // If missing required documents → open upload modal
     if (missingDocIds.length > 0) {
       const initStates: Record<string, DocUploadState> = {};
       requiredDocIds.forEach(id => {
@@ -361,27 +324,13 @@ export default function SchemesScreen() {
         initStates[id] = { status: alreadyUploaded ? 'done' : 'idle' };
       });
       setModalDocStates(initStates);
-      setDocModal({
-        visible: true,
-        itemId,
-        itemName,
-        appType: type,
-        itemType,
-        requiredDocIds,
-        pendingEligible: eligible ?? true,
-        pendingEligibilityText: eligibilityText ?? '',
-      });
+      setDocModal({ visible: true, itemId, itemName, appType: type, itemType, requiredDocIds, pendingEligible: eligible ?? true, pendingEligibilityText: eligibilityText ?? '' });
       return;
     }
-
     proceedWithApply(type, itemId, itemName, itemType, requiredDocIds);
   }
 
-  function handleKnowMore(
-    item: Scheme | InsuranceSubsidy,
-    currentTab: Tab,
-    existingApp?: Application,
-  ) {
+  function handleKnowMore(item: Scheme | InsuranceSubsidy, currentTab: Tab, existingApp?: Application) {
     navigation.navigate('SchemeDetail', {
       itemJson: JSON.stringify(item),
       tabType: currentTab,
@@ -390,12 +339,8 @@ export default function SchemesScreen() {
   }
 
   function getEligibilityCategory(_item: Scheme | InsuranceSubsidy, _itemTab: Tab): EligibilityFilter {
-    const uploadedCount = Math.max(
-      (farmer?.docs ?? []).length,
-      farmer?.documentsCount ?? 0,
-    );
-    const totalDocs = 5;
-    if (uploadedCount >= totalDocs) return 'ELIGIBLE';
+    const uploadedCount = Math.max((farmer?.docs ?? []).length, farmer?.documentsCount ?? 0);
+    if (uploadedCount >= 5) return 'ELIGIBLE';
     if (uploadedCount > 0) return 'PARTIAL';
     return 'NOT_ELIGIBLE';
   }
@@ -419,10 +364,10 @@ export default function SchemesScreen() {
 
   const displayBenefit = (scheme: Scheme) => scheme.benefit ?? scheme.benefits ?? '';
 
-  const TABS: { id: Tab; label: string; icon: string; count: number }[] = [
-    { id: 'schemes',   label: state.lang === 'hi' ? 'योजनाएं' : state.lang === 'mr' ? 'योजना' : 'Schemes',   icon: '☰', count: schemes.length },
-    { id: 'insurance', label: state.lang === 'hi' ? 'बीमा'    : state.lang === 'mr' ? 'विमा'  : 'Insurance', icon: '◈', count: insuranceItems.length },
-    { id: 'subsidies', label: state.lang === 'hi' ? 'सब्सिडी' : state.lang === 'mr' ? 'अनुदान': 'Subsidies', icon: '₹', count: subsidyItems.length },
+  const TABS: { id: Tab; label: string; count: number }[] = [
+    { id: 'schemes',   label: state.lang === 'hi' ? 'योजनाएं' : state.lang === 'mr' ? 'योजना' : 'Schemes',   count: schemes.length },
+    { id: 'insurance', label: state.lang === 'hi' ? 'बीमा' : state.lang === 'mr' ? 'विमा' : 'Insurance', count: insuranceItems.length },
+    { id: 'subsidies', label: state.lang === 'hi' ? 'सब्सिडी' : state.lang === 'mr' ? 'अनुदान' : 'Subsidies', count: subsidyItems.length },
   ];
 
   const SCHEME_FILTERS: { id: SchemeFilter; label: string }[] = [
@@ -431,49 +376,12 @@ export default function SchemesScreen() {
     { id: 'STATE',   label: t('stateScheme') },
   ];
 
-  const ELIGIBILITY_FILTERS: { id: EligibilityFilter; label: string; icon: string; color: string }[] = [
-    {
-      id: 'ALL',
-      label: state.lang === 'hi' ? 'सभी' : state.lang === 'mr' ? 'सर्व' : 'All',
-      icon: '◉',
-      color: COLORS.primaryDark,
-    },
-    {
-      id: 'ELIGIBLE',
-      label: state.lang === 'hi' ? 'पात्र' : state.lang === 'mr' ? 'पात्र' : 'Eligible',
-      icon: '✓',
-      color: '#16A34A',
-    },
-    {
-      id: 'PARTIAL',
-      label: state.lang === 'hi' ? 'आंशिक' : state.lang === 'mr' ? 'आंशिक' : 'Partial',
-      icon: '◑',
-      color: '#D97706',
-    },
-    {
-      id: 'NOT_ELIGIBLE',
-      label: state.lang === 'hi' ? 'अपात्र' : state.lang === 'mr' ? 'अपात्र' : 'Not Eligible',
-      icon: '✕',
-      color: '#DC2626',
-    },
+  const ELIGIBILITY_FILTERS: { id: EligibilityFilter; label: string; color: string }[] = [
+    { id: 'ALL',         label: state.lang === 'hi' ? 'सभी' : 'All',         color: COLORS.primaryDark },
+    { id: 'ELIGIBLE',    label: state.lang === 'hi' ? 'पात्र' : 'Eligible',   color: '#16A34A' },
+    { id: 'PARTIAL',     label: state.lang === 'hi' ? 'आंशिक' : 'Partial',    color: '#D97706' },
+    { id: 'NOT_ELIGIBLE',label: state.lang === 'hi' ? 'अपात्र' : 'Not Eligible', color: '#DC2626' },
   ];
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.topBar}>
-          <View style={styles.topBarSide} />
-          <View style={styles.headerLogoWrap}>
-            <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
-          </View>
-          <View style={styles.topBarSide} />
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   const currentItems = tab === 'schemes' ? filteredSchemes : tab === 'insurance' ? filteredInsurance : filteredSubsidies;
   const emptyMsg = tab === 'insurance'
@@ -482,87 +390,118 @@ export default function SchemesScreen() {
     ? (state.lang === 'hi' ? 'कोई सब्सिडी नहीं' : state.lang === 'mr' ? 'कोणतेही अनुदान नाही' : 'No subsidies')
     : t('noSchemes');
 
+  const TopBar = (
+    <View style={styles.topBar}>
+      <View style={styles.topBarSide} />
+      <View style={styles.headerLogoWrap}>
+        <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
+      </View>
+      <View style={[styles.topBarSide, { alignItems: 'flex-end' }]}>
+        <TouchableOpacity onPress={handleManualRefresh} style={styles.refreshBtn} activeOpacity={0.7} disabled={refreshing}>
+          <Text style={[styles.refreshBtnText, refreshing && { opacity: 0.4 }]}>↻</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        {TopBar}
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.topBar}>
-        <View style={styles.topBarSide} />
-        <View style={styles.headerLogoWrap}>
-          <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
-        </View>
-        <View style={[styles.topBarSide, { alignItems: 'flex-end' }]}>
-          <TouchableOpacity onPress={handleManualRefresh} style={styles.refreshBtn} activeOpacity={0.7} disabled={refreshing}>
-            <Text style={[styles.refreshBtnText, refreshing && { opacity: 0.4 }]}>↻</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {TopBar}
 
-      <View style={styles.headerBar}>
+      {/* Sticky header: eligibility banner + tabs + search + filters */}
+      <View style={styles.stickyHeader}>
         {crop && crop !== '—' && (
           <View style={styles.eligibilityBanner}>
+            <View style={styles.eligDot} />
             <Text style={styles.eligibilityText}>
               {state.lang === 'hi' ? `${crop} किसानों के लिए योजनाएं` : state.lang === 'mr' ? `${crop} शेतकऱ्यांसाठी योजना` : `Personalized for ${crop} farmers`}
             </Text>
           </View>
         )}
 
+        {/* Tab switcher */}
         <View style={styles.tabRow}>
           {TABS.map((tb) => (
             <TouchableOpacity key={tb.id} style={[styles.tabBtn, tab === tb.id && styles.tabBtnActive]} onPress={() => setTab(tb.id)} activeOpacity={0.8}>
-              <Text style={[styles.tabText, tab === tb.id && styles.tabTextActive]}>{tb.icon} {tb.label}</Text>
-              <View style={[styles.tabCountBadge, tab === tb.id && styles.tabCountBadgeActive]}>
+              <Text style={[styles.tabText, tab === tb.id && styles.tabTextActive]}>{tb.label}</Text>
+              <View style={[styles.tabCount, tab === tb.id && styles.tabCountActive]}>
                 <Text style={[styles.tabCountText, tab === tb.id && styles.tabCountTextActive]}>{tb.count}</Text>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Search */}
         <View style={styles.searchRow}>
-          <Text style={styles.searchIcon}>◎</Text>
+          <Text style={styles.searchIcon}>○</Text>
           <TextInput
-            style={styles.search}
+            style={styles.searchInput}
             placeholder={state.lang === 'hi' ? 'खोजें...' : state.lang === 'mr' ? 'शोधा...' : 'Search schemes…'}
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor="#9CA3AF"
             value={search}
             onChangeText={setSearch}
           />
+          {search.length > 0 && (
+            <TouchableOpacity onPress={() => setSearch('')} style={styles.searchClear}>
+              <Text style={styles.searchClearText}>✕</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
+        {/* Scheme type filter */}
         {tab === 'schemes' && (
           <View style={styles.filterRow}>
-            {SCHEME_FILTERS.map((f) => (
-              <TouchableOpacity key={f.id} style={[styles.filterBtn, filter === f.id && styles.filterBtnActive]} onPress={() => setFilter(f.id)}>
-                <Text style={[styles.filterText, filter === f.id && styles.filterTextActive]}>{f.label}</Text>
-              </TouchableOpacity>
-            ))}
-            <Text style={styles.countText}>{filteredSchemes.length} {state.lang === 'hi' ? 'मिले' : state.lang === 'mr' ? 'मिळाले' : 'found'}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+              {SCHEME_FILTERS.map((f) => (
+                <TouchableOpacity key={f.id} style={[styles.filterChip, filter === f.id && styles.filterChipActive]} onPress={() => setFilter(f.id)}>
+                  <Text style={[styles.filterChipText, filter === f.id && styles.filterChipTextActive]}>{f.label}</Text>
+                </TouchableOpacity>
+              ))}
+              <View style={styles.filterDivider} />
+              <Text style={styles.countChip}>{filteredSchemes.length} found</Text>
+            </ScrollView>
           </View>
         )}
 
-        <View style={styles.eligFilterRow}>
-          {ELIGIBILITY_FILTERS.map((f) => (
-            <TouchableOpacity
-              key={f.id}
-              style={[styles.eligFilterBtn, eligFilter === f.id && { ...styles.eligFilterBtnActive, backgroundColor: f.color, borderColor: f.color }]}
-              onPress={() => setEligFilter(f.id)}
-            >
-              <Text style={[styles.eligFilterText, eligFilter === f.id && styles.eligFilterTextActive]}>{f.icon} {f.label}</Text>
-            </TouchableOpacity>
-          ))}
-          {tab !== 'schemes' && (
-            <Text style={styles.countText}>
-              {tab === 'insurance' ? filteredInsurance.length : filteredSubsidies.length}
-              {' '}{state.lang === 'hi' ? 'मिले' : state.lang === 'mr' ? 'मिळाले' : 'found'}
-            </Text>
-          )}
+        {/* Eligibility filter */}
+        <View style={styles.filterRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+            {ELIGIBILITY_FILTERS.map((f) => (
+              <TouchableOpacity
+                key={f.id}
+                style={[styles.eligChip, eligFilter === f.id && { backgroundColor: f.color + '18', borderColor: f.color }]}
+                onPress={() => setEligFilter(f.id)}
+              >
+                <Text style={[styles.eligChipText, eligFilter === f.id && { color: f.color }]}>{f.label}</Text>
+              </TouchableOpacity>
+            ))}
+            {tab !== 'schemes' && (
+              <Text style={styles.countChip}>
+                {tab === 'insurance' ? filteredInsurance.length : filteredSubsidies.length} found
+              </Text>
+            )}
+          </ScrollView>
         </View>
       </View>
 
       {currentItems.length === 0 ? (
         <View style={styles.center}>
-          <View style={styles.emptyIconBox}>
+          <View style={styles.emptyBox}>
             <Text style={styles.emptyIcon}>{tab === 'insurance' ? '◈' : tab === 'subsidies' ? '₹' : '☰'}</Text>
           </View>
-          <Text style={styles.emptyText}>{emptyMsg}</Text>
+          <Text style={styles.emptyTitle}>{emptyMsg}</Text>
+          <Text style={styles.emptySub}>Try adjusting your search or filters.</Text>
         </View>
       ) : (
         <FlatList
@@ -584,25 +523,23 @@ export default function SchemesScreen() {
             const itemType = tab === 'schemes' ? (item as Scheme).type : undefined;
 
             return (
-              <View style={[styles.card, item.status === 'Closed' && styles.cardClosed, eligible && styles.cardEligible]}>
-                {/* Applied status banner */}
+              <View style={[styles.card, item.status === 'Closed' && styles.cardClosed, eligible && !existingApp && styles.cardEligible]}>
+
                 {existingApp && (
-                  <View style={[styles.appliedBanner, { backgroundColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}18`, borderColor: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
-                    <Text style={[styles.appliedBannerText, { color: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
+                  <View style={[styles.statusBanner, { backgroundColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}12`, borderColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}50` }]}>
+                    <Text style={[styles.statusBannerText, { color: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
                       {APP_STATUS_ICON[existingApp.status] ?? '○'} {APP_STATUS_LABEL[existingApp.status] ?? existingApp.status} · {existingApp.applicationId}
                     </Text>
                   </View>
                 )}
 
                 {!existingApp && eligible && (
-                  <View style={styles.eligibleBadge}>
-                    <Text style={styles.eligibleBadgeText}>
-                      ✓ {state.lang === 'hi' ? 'आप पात्र हैं' : state.lang === 'mr' ? 'तुम्ही पात्र आहात' : 'You may be eligible'}
-                    </Text>
+                  <View style={styles.eligBadge}>
+                    <Text style={styles.eligBadgeText}>✓ {state.lang === 'hi' ? 'आप पात्र हैं' : state.lang === 'mr' ? 'तुम्ही पात्र आहात' : 'You may be eligible'}</Text>
                   </View>
                 )}
 
-                <View style={styles.cardTop}>
+                <View style={styles.cardHead}>
                   <Text style={styles.cardName} numberOfLines={2}>{item.name}</Text>
                   <View style={styles.badgeRow}>
                     <View style={[styles.typeBadge, isState ? styles.stateBadge : styles.centralBadge]}>
@@ -610,8 +547,8 @@ export default function SchemesScreen() {
                         {isState ? t('stateScheme') : t('centralScheme')}
                       </Text>
                     </View>
-                    <View style={[styles.statusBadge, item.status === 'Active' ? styles.activeBadge : styles.closedBadge]}>
-                      <Text style={[styles.statusText, item.status === 'Active' ? styles.activeText : styles.closedText]}>
+                    <View style={[styles.statusPill, item.status === 'Active' ? styles.activePill : styles.closedPill]}>
+                      <Text style={[styles.statusPillText, item.status === 'Active' ? styles.activePillText : styles.closedPillText]}>
                         {item.status === 'Active' ? t('active') : t('closed')}
                       </Text>
                     </View>
@@ -621,39 +558,34 @@ export default function SchemesScreen() {
                 {item.description && <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>}
 
                 <View style={styles.metaRow}>
-                  {benefit ? <View style={styles.metaItem}><Text style={styles.metaIcon}>₹</Text><Text style={styles.metaText} numberOfLines={1}>{benefit}</Text></View> : null}
-                  {item.deadline && <View style={styles.metaItem}><Text style={styles.metaIcon}>◷</Text><Text style={styles.metaText}>{item.deadline}</Text></View>}
+                  {benefit ? <View style={styles.metaItem}><Text style={styles.metaLabel}>₹</Text><Text style={styles.metaValue} numberOfLines={1}>{benefit}</Text></View> : null}
+                  {item.deadline && <View style={styles.metaItem}><Text style={styles.metaLabel}>📅</Text><Text style={styles.metaValue}>{item.deadline}</Text></View>}
                   {(item as InsuranceSubsidy).crops && (item as InsuranceSubsidy).crops!.length > 0 && (
-                    <View style={styles.metaItem}><Text style={styles.metaIcon}>◈</Text><Text style={styles.metaText} numberOfLines={1}>{(item as InsuranceSubsidy).crops!.join(', ')}</Text></View>
+                    <View style={styles.metaItem}><Text style={styles.metaLabel}>🌾</Text><Text style={styles.metaValue} numberOfLines={1}>{(item as InsuranceSubsidy).crops!.join(', ')}</Text></View>
                   )}
                 </View>
 
                 <View style={styles.cardActions}>
-                  <TouchableOpacity
-                    style={styles.knowMoreBtn}
-                    onPress={() => handleKnowMore(item, tab, existingApp)}
-                  >
+                  <TouchableOpacity style={styles.knowMoreBtn} onPress={() => handleKnowMore(item, tab, existingApp)}>
                     <Text style={styles.knowMoreText}>{t('knowMore')}</Text>
                   </TouchableOpacity>
 
                   {item.status !== 'Closed' && !existingApp && (
                     <TouchableOpacity
-                      style={[styles.applyBtn, styles.applyBtnEligible, isApplyingThis && styles.applyBtnDisabled]}
+                      style={[styles.applyBtn, isApplyingThis && styles.applyBtnDisabled]}
                       disabled={isApplyingThis}
                       onPress={() => handleApply(appType, item as Scheme | InsuranceSubsidy, itemType, eligible, tab === 'schemes' ? formatEligibilityForDisplay((item as Scheme).eligibility) : (item as InsuranceSubsidy).eligibility ?? '', tab)}
                     >
                       {isApplyingThis
-                        ? <ActivityIndicator size="small" color={COLORS.white}/>
-                        : <Text style={styles.applyText}>
-                            {state.lang === 'hi' ? 'आवेदन करें' : state.lang === 'mr' ? 'अर्ज करा' : 'Apply Now'}
-                          </Text>
+                        ? <ActivityIndicator size="small" color={COLORS.white} />
+                        : <Text style={styles.applyBtnText}>{state.lang === 'hi' ? 'आवेदन करें' : state.lang === 'mr' ? 'अर्ज करा' : 'Apply Now'}</Text>
                       }
                     </TouchableOpacity>
                   )}
 
                   {item.status !== 'Closed' && existingApp && (
                     <TouchableOpacity
-                      style={[styles.appliedBtn, { backgroundColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}20`, borderWidth: 1.5, borderColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}60` }]}
+                      style={[styles.statusBtn, { backgroundColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}15`, borderWidth: 1.5, borderColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}50` }]}
                       onPress={() => setStatusModal({
                         app: existingApp,
                         reapplyFn: existingApp.status === 'Rejected'
@@ -662,7 +594,7 @@ export default function SchemesScreen() {
                       })}
                       activeOpacity={0.7}
                     >
-                      <Text style={[styles.appliedBtnText, { color: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
+                      <Text style={[styles.statusBtnText, { color: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
                         {APP_STATUS_ICON[existingApp.status] ?? '○'} Status
                       </Text>
                     </TouchableOpacity>
@@ -673,375 +605,660 @@ export default function SchemesScreen() {
           }}
         />
       )}
-    {/* Success Modal */}
-    {successModal && (
-      <Modal visible animationType="fade" transparent onRequestClose={() => setSuccessModal(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.successSheet}>
-            <View style={styles.successIconCircle}>
-              <Text style={styles.successIconText}>✅</Text>
-            </View>
-            <Text style={styles.successTitle}>
-              {state.lang === 'hi' ? 'आवेदन सफल!' : state.lang === 'mr' ? 'अर्ज यशस्वी!' : 'Application Submitted!'}
-            </Text>
-            <Text style={styles.successSchemeName} numberOfLines={2}>{successModal.schemeName}</Text>
-            <Text style={styles.successBody}>
-              {state.lang === 'hi'
-                ? 'आपका आवेदन सफलतापूर्वक जमा कर दिया गया है। जिला अधिकारी इसकी समीक्षा करेंगे।'
-                : state.lang === 'mr'
-                ? 'तुमचा अर्ज यशस्वीरित्या सादर केला गेला आहे. जिल्हा अधिकारी त्याचे पुनरावलोकन करतील.'
-                : 'Your application has been successfully submitted. The district officer will review it shortly.'}
-            </Text>
-            <View style={styles.successIdBox}>
-              <Text style={styles.successIdLabel}>
-                {state.lang === 'hi' ? 'आवेदन ID' : state.lang === 'mr' ? 'अर्ज ID' : 'Application ID'}
-              </Text>
-              <Text style={styles.successIdValue}>{successModal.applicationId}</Text>
-            </View>
-            <TouchableOpacity style={styles.successBtn} onPress={() => setSuccessModal(null)} activeOpacity={0.85}>
-              <Text style={styles.successBtnText}>
-                {state.lang === 'hi' ? 'ठीक है' : state.lang === 'mr' ? 'ठीक आहे' : 'Great, Got it!'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    )}
 
-    {/* Status Modal */}
-    {statusModal && (
-      <Modal visible animationType="slide" transparent onRequestClose={() => setStatusModal(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.statusSheet}>
-            <View style={styles.modalHeader}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.modalTitle}>
-                  {state.lang === 'hi' ? 'आवेदन स्थिति' : state.lang === 'mr' ? 'अर्जाची स्थिती' : 'Application Status'}
-                </Text>
-                <Text style={styles.modalSubtitle} numberOfLines={1}>{statusModal.app.schemeName}</Text>
+      {/* Success Modal */}
+      {successModal && (
+        <Modal visible animationType="fade" transparent onRequestClose={() => setSuccessModal(null)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.successSheet}>
+              <View style={styles.successIconCircle}>
+                <Text style={styles.successEmoji}>✓</Text>
               </View>
-              <TouchableOpacity onPress={() => setStatusModal(null)} style={styles.modalClose}>
-                <Text style={styles.modalCloseText}>✕</Text>
+              <Text style={styles.successTitle}>
+                {state.lang === 'hi' ? 'आवेदन सफल!' : state.lang === 'mr' ? 'अर्ज यशस्वी!' : 'Application Submitted!'}
+              </Text>
+              <Text style={styles.successSchemeName} numberOfLines={2}>{successModal.schemeName}</Text>
+              <Text style={styles.successBody}>
+                {state.lang === 'hi'
+                  ? 'आपका आवेदन सफलतापूर्वक जमा कर दिया गया है। जिला अधिकारी इसकी समीक्षा करेंगे।'
+                  : state.lang === 'mr'
+                  ? 'तुमचा अर्ज यशस्वीरित्या सादर केला गेला आहे. जिल्हा अधिकारी त्याचे पुनरावलोकन करतील.'
+                  : 'Your application has been submitted. The district officer will review it shortly.'}
+              </Text>
+              <View style={styles.successIdBox}>
+                <Text style={styles.successIdLabel}>{state.lang === 'hi' ? 'आवेदन ID' : state.lang === 'mr' ? 'अर्ज ID' : 'Application ID'}</Text>
+                <Text style={styles.successIdValue}>{successModal.applicationId}</Text>
+              </View>
+              <TouchableOpacity style={styles.successCloseBtn} onPress={() => setSuccessModal(null)} activeOpacity={0.85}>
+                <Text style={styles.successCloseBtnText}>{state.lang === 'hi' ? 'ठीक है' : state.lang === 'mr' ? 'ठीक आहे' : 'Great, Got it!'}</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </Modal>
+      )}
 
-            <View style={styles.statusContent}>
-              <View style={[styles.statusBigBadge, { backgroundColor: `${APP_STATUS_COLOR[statusModal.app.status] ?? '#6B7280'}18`, borderColor: APP_STATUS_COLOR[statusModal.app.status] ?? '#6B7280' }]}>
+      {/* Status Modal */}
+      {statusModal && (
+        <Modal visible animationType="slide" transparent onRequestClose={() => setStatusModal(null)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.sheetModal}>
+              <View style={styles.sheetHandle} />
+              <View style={styles.modalHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.modalTitle}>{state.lang === 'hi' ? 'आवेदन स्थिति' : state.lang === 'mr' ? 'अर्जाची स्थिती' : 'Application Status'}</Text>
+                  <Text style={styles.modalSubtitle} numberOfLines={1}>{statusModal.app.schemeName}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setStatusModal(null)} style={styles.modalCloseBtn}>
+                  <Text style={styles.modalCloseBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={[styles.statusBigBadge, { backgroundColor: `${APP_STATUS_COLOR[statusModal.app.status] ?? '#6B7280'}12`, borderColor: APP_STATUS_COLOR[statusModal.app.status] ?? '#6B7280' }]}>
                 <Text style={styles.statusBigIcon}>{APP_STATUS_ICON[statusModal.app.status] ?? '📋'}</Text>
                 <Text style={[styles.statusBigLabel, { color: APP_STATUS_COLOR[statusModal.app.status] ?? '#6B7280' }]}>
                   {APP_STATUS_LABEL[statusModal.app.status] ?? statusModal.app.status}
                 </Text>
               </View>
 
-              <Text style={styles.statusDescription}>
+              <Text style={styles.statusDesc}>
                 {APP_STATUS_DESC[statusModal.app.status]?.[state.lang as 'en' | 'hi' | 'mr'] ?? APP_STATUS_DESC[statusModal.app.status]?.en ?? ''}
               </Text>
 
               <View style={styles.statusMeta}>
                 <View style={styles.statusMetaRow}>
-                  <Text style={styles.statusMetaLabel}>
-                    {state.lang === 'hi' ? 'आवेदन ID' : state.lang === 'mr' ? 'अर्ज ID' : 'Application ID'}
-                  </Text>
+                  <Text style={styles.statusMetaLabel}>{state.lang === 'hi' ? 'आवेदन ID' : 'Application ID'}</Text>
                   <Text style={styles.statusMetaValue}>{statusModal.app.applicationId}</Text>
                 </View>
-                <View style={styles.statusMetaDivider}/>
+                <View style={styles.statusMetaDivider} />
                 <View style={styles.statusMetaRow}>
-                  <Text style={styles.statusMetaLabel}>
-                    {state.lang === 'hi' ? 'आवेदन की तारीख' : state.lang === 'mr' ? 'अर्जाची तारीख' : 'Applied On'}
-                  </Text>
+                  <Text style={styles.statusMetaLabel}>{state.lang === 'hi' ? 'आवेदन की तारीख' : 'Applied On'}</Text>
                   <Text style={styles.statusMetaValue}>{new Date(statusModal.app.appliedAt).toLocaleDateString('en-IN')}</Text>
                 </View>
-                {(statusModal.app.adminNotes || statusModal.app.adminReply) ? (
+                {(statusModal.app.adminNotes || statusModal.app.adminReply) && (
                   <>
-                    <View style={styles.statusMetaDivider}/>
+                    <View style={styles.statusMetaDivider} />
                     <View style={styles.statusAdminReply}>
                       <Text style={[styles.statusMetaLabel, statusModal.app.status === 'Rejected' && { color: '#DC2626' }]}>
                         {statusModal.app.status === 'Rejected'
-                          ? (state.lang === 'hi' ? '✕ अस्वीकृति का कारण' : state.lang === 'mr' ? '✕ नाकारण्याचे कारण' : '✕ Reason for Rejection')
-                          : (state.lang === 'hi' ? 'अधिकारी टिप्पणी' : state.lang === 'mr' ? 'अधिकाऱ्याची टिप्पणी' : 'Officer Reply')}
+                          ? (state.lang === 'hi' ? '✕ अस्वीकृति का कारण' : '✕ Reason for Rejection')
+                          : (state.lang === 'hi' ? 'अधिकारी टिप्पणी' : 'Officer Reply')}
                       </Text>
-                      <Text style={[styles.statusAdminReplyText, statusModal.app.status === 'Rejected' && { color: '#DC2626', fontWeight: '700' }]}>
+                      <Text style={[styles.statusAdminReplyText, statusModal.app.status === 'Rejected' && { color: '#DC2626' }]}>
                         {statusModal.app.adminNotes ?? statusModal.app.adminReply}
                       </Text>
                     </View>
                   </>
-                ) : null}
+                )}
               </View>
-            </View>
 
-            <View style={[styles.modalFooter, { gap: 10 }]}>
-              {statusModal.reapplyFn && (
-                <TouchableOpacity
-                  style={[styles.statusCloseBtn, { backgroundColor: COLORS.primary }]}
-                  onPress={() => { setStatusModal(null); statusModal.reapplyFn?.(); }}
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.statusCloseBtnText}>
-                    {state.lang === 'hi' ? 'पुनः आवेदन करें' : state.lang === 'mr' ? 'पुन्हा अर्ज करा' : 'Re-apply'}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity style={[styles.statusCloseBtn, { backgroundColor: COLORS.border }]} onPress={() => setStatusModal(null)} activeOpacity={0.85}>
-                <Text style={[styles.statusCloseBtnText, { color: COLORS.text }]}>
-                  {state.lang === 'hi' ? 'बंद करें' : state.lang === 'mr' ? 'बंद करा' : 'Close'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    )}
-
-    {/* Document Upload Modal */}
-    {docModal && (
-      <Modal visible={docModal.visible} animationType="slide" transparent onRequestClose={() => setDocModal(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <View style={styles.modalHeader}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.modalTitle}>
-                  {state.lang === 'hi' ? 'दस्तावेज़ अपलोड करें' : state.lang === 'mr' ? 'कागदपत्रे अपलोड करा' : 'Upload Required Documents'}
-                </Text>
-                <Text style={styles.modalSubtitle} numberOfLines={1}>{docModal.itemName}</Text>
-              </View>
-              <TouchableOpacity onPress={() => setDocModal(null)} style={styles.modalClose}>
-                <Text style={styles.modalCloseText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.modalNote}>
-              {state.lang === 'hi'
-                ? 'नीचे दिए गए दस्तावेज़ इस योजना के लिए आवश्यक हैं। सभी अपलोड करने के बाद आवेदन करें।'
-                : state.lang === 'mr'
-                ? 'खालील कागदपत्रे या योजनेसाठी आवश्यक आहेत. सर्व अपलोड केल्यानंतर अर्ज करा.'
-                : 'The following documents are required for this scheme. Upload any missing ones, then proceed to apply.'}
-            </Text>
-
-            <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-              {docModal.requiredDocIds.map(docId => {
-                const docDef = REQUIRED_DOCUMENTS.find(d => d.id === docId);
-                if (!docDef) return null;
-                const ds = modalDocStates[docId] ?? { status: 'idle' };
-                const isDone = ds.status === 'done';
-                const isWorking = ds.status === 'uploading' || ds.status === 'processing' || ds.status === 'picking';
-                const docLabel = state.lang === 'hi' ? docDef.labelHi : state.lang === 'mr' ? docDef.labelMr : docDef.label;
-
-                return (
-                  <View key={docId} style={[styles.modalDocCard, isDone && styles.modalDocCardDone]}>
-                    <View style={styles.modalDocLeft}>
-                      <Text style={styles.modalDocIcon}>{docDef.icon}</Text>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.modalDocLabel}>{docLabel}</Text>
-                        {ds.status === 'error' && <Text style={styles.modalDocError}>{ds.error}</Text>}
-                        {ds.status === 'uploading' && <Text style={styles.modalDocStatus}>Uploading…</Text>}
-                        {ds.status === 'processing' && <Text style={[styles.modalDocStatus, { color: COLORS.gold }]}>Processing…</Text>}
-                        {isDone && <Text style={[styles.modalDocStatus, { color: COLORS.primary }]}>
-                          {state.lang === 'hi' ? '✓ अपलोड हो गया' : state.lang === 'mr' ? '✓ अपलोड झाले' : '✓ Uploaded'}
-                        </Text>}
-                      </View>
-                    </View>
-                    {isDone ? (
-                      <View style={styles.modalDocDoneBadge}>
-                        <Text style={styles.modalDocDoneText}>✓</Text>
-                      </View>
-                    ) : (
-                      <TouchableOpacity
-                        style={[styles.modalUploadBtn, isWorking && { opacity: 0.6 }]}
-                        disabled={isWorking}
-                        onPress={() => pickAndUploadModalDoc(docId)}
-                      >
-                        {isWorking
-                          ? <ActivityIndicator size="small" color={COLORS.white} />
-                          : <Text style={styles.modalUploadText}>
-                              {state.lang === 'hi' ? 'अपलोड' : state.lang === 'mr' ? 'अपलोड' : 'Upload'}
-                            </Text>
-                        }
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                );
-              })}
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              {(() => {
-                const allDone = docModal.requiredDocIds.every(id => (modalDocStates[id]?.status ?? 'idle') === 'done');
-                const anyUploaded = docModal.requiredDocIds.some(id => (modalDocStates[id]?.status ?? 'idle') === 'done');
-                return (
+              <View style={styles.modalFooter}>
+                {statusModal.reapplyFn && (
                   <TouchableOpacity
-                    style={[styles.modalApplyBtn, !anyUploaded && styles.modalApplyBtnDisabled]}
-                    disabled={!anyUploaded}
-                    onPress={() => {
-                      const uploadedDocIds = docModal.requiredDocIds.filter(id => (modalDocStates[id]?.status ?? 'idle') === 'done');
-                      setDocModal(null);
-                      if (!allDone && !docModal.pendingEligible) {
-                        Alert.alert(
-                          state.lang === 'hi' ? 'पात्रता नोटिस' : state.lang === 'mr' ? 'पात्रता सूचना' : 'Eligibility Notice',
-                          state.lang === 'hi'
-                            ? 'आप पूरी तरह पात्र नहीं हो सकते, फिर भी आवेदन जमा किया जाएगा।'
-                            : state.lang === 'mr'
-                            ? 'तुम्ही पूर्णपणे पात्र नसाल, तरीही अर्ज सादर केला जाईल.'
-                            : 'You may not fully qualify, but your application will be submitted for review.',
-                          [
-                            { text: state.lang === 'hi' ? 'रद्द करें' : state.lang === 'mr' ? 'रद्द करा' : 'Cancel', style: 'cancel' },
-                            { text: state.lang === 'hi' ? 'आवेदन करें' : state.lang === 'mr' ? 'अर्ज करा' : 'Apply', onPress: () => proceedWithApply(docModal.appType, docModal.itemId, docModal.itemName, docModal.itemType, uploadedDocIds) },
-                          ],
-                        );
-                      } else {
-                        proceedWithApply(docModal.appType, docModal.itemId, docModal.itemName, docModal.itemType, uploadedDocIds);
-                      }
-                    }}
+                    style={[styles.footerBtn, { backgroundColor: COLORS.primary }]}
+                    onPress={() => { setStatusModal(null); statusModal.reapplyFn?.(); }}
+                    activeOpacity={0.85}
                   >
-                    <Text style={styles.modalApplyText}>
-                      {state.lang === 'hi' ? 'आवेदन करें' : state.lang === 'mr' ? 'अर्ज करा' : 'Apply Now'}
+                    <Text style={[styles.footerBtnText, { color: '#FFFFFF' }]}>
+                      {state.lang === 'hi' ? 'पुनः आवेदन करें' : state.lang === 'mr' ? 'पुन्हा अर्ज करा' : 'Re-apply'}
                     </Text>
                   </TouchableOpacity>
-                );
-              })()}
+                )}
+                <TouchableOpacity style={[styles.footerBtn, { backgroundColor: '#F3F4F6' }]} onPress={() => setStatusModal(null)} activeOpacity={0.85}>
+                  <Text style={[styles.footerBtnText, { color: '#374151' }]}>{state.lang === 'hi' ? 'बंद करें' : 'Close'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    )}
+        </Modal>
+      )}
+
+      {/* Document Upload Modal */}
+      {docModal && (
+        <Modal visible={docModal.visible} animationType="slide" transparent onRequestClose={() => setDocModal(null)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.sheetModal}>
+              <View style={styles.sheetHandle} />
+              <View style={styles.modalHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.modalTitle}>{state.lang === 'hi' ? 'दस्तावेज़ अपलोड करें' : 'Upload Required Documents'}</Text>
+                  <Text style={styles.modalSubtitle} numberOfLines={1}>{docModal.itemName}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setDocModal(null)} style={styles.modalCloseBtn}>
+                  <Text style={styles.modalCloseBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.modalNote}>
+                {state.lang === 'hi'
+                  ? 'नीचे दिए गए दस्तावेज़ इस योजना के लिए आवश्यक हैं। अपलोड करने के बाद आवेदन करें।'
+                  : 'The following documents are required. Upload any missing ones, then proceed to apply.'}
+              </Text>
+
+              <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+                {docModal.requiredDocIds.map(docId => {
+                  const docDef = REQUIRED_DOCUMENTS.find(d => d.id === docId);
+                  if (!docDef) return null;
+                  const ds = modalDocStates[docId] ?? { status: 'idle' };
+                  const isDone = ds.status === 'done';
+                  const isWorking = ds.status === 'uploading' || ds.status === 'processing' || ds.status === 'picking';
+                  const docLabel = state.lang === 'hi' ? docDef.labelHi : state.lang === 'mr' ? docDef.labelMr : docDef.label;
+                  return (
+                    <View key={docId} style={[styles.docUploadCard, isDone && styles.docUploadCardDone]}>
+                      <View style={styles.docUploadLeft}>
+                        <Text style={styles.docUploadIcon}>{docDef.icon}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.docUploadLabel}>{docLabel}</Text>
+                          {ds.status === 'error' && <Text style={styles.docUploadError}>{ds.error}</Text>}
+                          {ds.status === 'uploading' && <Text style={styles.docUploadStatus}>Uploading…</Text>}
+                          {ds.status === 'processing' && <Text style={[styles.docUploadStatus, { color: COLORS.gold }]}>Processing…</Text>}
+                          {isDone && <Text style={[styles.docUploadStatus, { color: COLORS.primary }]}>{state.lang === 'hi' ? '✓ अपलोड हो गया' : '✓ Uploaded'}</Text>}
+                        </View>
+                      </View>
+                      {isDone ? (
+                        <View style={styles.docDoneBadge}><Text style={styles.docDoneText}>✓</Text></View>
+                      ) : (
+                        <TouchableOpacity style={[styles.docUploadBtn, isWorking && { opacity: 0.6 }]} disabled={isWorking} onPress={() => pickAndUploadModalDoc(docId)}>
+                          {isWorking
+                            ? <ActivityIndicator size="small" color={COLORS.white} />
+                            : <Text style={styles.docUploadBtnText}>{state.lang === 'hi' ? 'अपलोड' : 'Upload'}</Text>
+                          }
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  );
+                })}
+              </ScrollView>
+
+              <View style={styles.modalFooter}>
+                {(() => {
+                  const allDone = docModal.requiredDocIds.every(id => (modalDocStates[id]?.status ?? 'idle') === 'done');
+                  const anyUploaded = docModal.requiredDocIds.some(id => (modalDocStates[id]?.status ?? 'idle') === 'done');
+                  return (
+                    <TouchableOpacity
+                      style={[styles.footerBtn, { backgroundColor: anyUploaded ? COLORS.primary : '#E5E7EB' }]}
+                      disabled={!anyUploaded}
+                      onPress={() => {
+                        const uploadedDocIds = docModal.requiredDocIds.filter(id => (modalDocStates[id]?.status ?? 'idle') === 'done');
+                        setDocModal(null);
+                        if (!allDone && !docModal.pendingEligible) {
+                          Alert.alert(
+                            state.lang === 'hi' ? 'पात्रता नोटिस' : 'Eligibility Notice',
+                            state.lang === 'hi'
+                              ? 'आप पूरी तरह पात्र नहीं हो सकते, फिर भी आवेदन जमा किया जाएगा।'
+                              : 'You may not fully qualify, but your application will be submitted for review.',
+                            [
+                              { text: state.lang === 'hi' ? 'रद्द करें' : 'Cancel', style: 'cancel' },
+                              { text: state.lang === 'hi' ? 'फिर भी आवेदन करें' : 'Apply Anyway', onPress: () => proceedWithApply(docModal.appType, docModal.itemId, docModal.itemName, docModal.itemType, uploadedDocIds) },
+                            ],
+                          );
+                        } else {
+                          proceedWithApply(docModal.appType, docModal.itemId, docModal.itemName, docModal.itemType, uploadedDocIds);
+                        }
+                      }}
+                    >
+                      <Text style={[styles.footerBtnText, { color: anyUploaded ? '#FFFFFF' : '#9CA3AF' }]}>
+                        {state.lang === 'hi' ? 'आवेदन करें' : state.lang === 'mr' ? 'अर्ज करा' : 'Submit Application'}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })()}
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+  safe: { flex: 1, backgroundColor: '#F5F7FA' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 14, padding: 32 },
+
   topBar: {
     backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 8,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
   },
-  topBarSide: { width: 90, justifyContent: 'center' },
+  topBarSide: { width: 90 },
   headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
   headerLogo: { width: 220, height: 220, marginTop: -71 },
-  refreshBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: COLORS.primary + '40',
+  refreshBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center' },
+  refreshBtnText: { fontSize: 22, color: COLORS.primary },
+
+  stickyHeader: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1, borderBottomColor: '#EAECEF',
+    paddingBottom: 10,
   },
-  refreshBtnText: { color: COLORS.primaryDark, fontSize: 20, fontWeight: '700', lineHeight: 22 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  emptyIconBox: { width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: COLORS.primaryLight },
-  emptyIcon: { fontSize: 28, fontWeight: '700', color: COLORS.primary },
-  emptyText: { fontSize: FONT_SIZE.base, color: COLORS.textMuted, fontWeight: '600' },
-  headerBar: { backgroundColor: COLORS.white, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  eligibilityBanner: { backgroundColor: COLORS.primaryBg, borderRadius: RADIUS.md, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 10, borderWidth: 1, borderColor: COLORS.primaryLight },
-  eligibilityText: { fontSize: FONT_SIZE.sm, color: COLORS.primaryDark, fontWeight: '700' },
-  tabRow: { flexDirection: 'row', gap: 8, marginBottom: 10 },
-  tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 9, borderRadius: RADIUS.md, backgroundColor: COLORS.background, borderWidth: 1.5, borderColor: COLORS.border },
+  eligibilityBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#F0FDF4', paddingHorizontal: 16, paddingVertical: 8,
+    borderBottomWidth: 1, borderBottomColor: '#BBF7D0',
+  },
+  eligDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: COLORS.primary },
+  eligibilityText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primaryDark,
+  },
+
+  tabRow: { flexDirection: 'row', paddingHorizontal: 12, paddingTop: 10, gap: 6 },
+  tabBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, paddingVertical: 8, borderRadius: 10,
+    borderWidth: 1.5, borderColor: '#EAECEF', backgroundColor: '#FAFAFA',
+  },
   tabBtnActive: { backgroundColor: COLORS.primaryDark, borderColor: COLORS.primaryDark },
-  tabText: { fontSize: FONT_SIZE.xs, fontWeight: '700', color: COLORS.textSecondary },
-  tabTextActive: { color: COLORS.white },
-  tabCountBadge: { minWidth: 20, height: 20, borderRadius: 10, backgroundColor: COLORS.border, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
-  tabCountBadgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
-  tabCountText: { fontSize: 10, fontWeight: '800', color: COLORS.textMuted },
-  tabCountTextActive: { color: COLORS.white },
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: COLORS.background, borderRadius: RADIUS.md, paddingHorizontal: 12, paddingVertical: 4, borderWidth: 1, borderColor: COLORS.border, marginBottom: 8 },
-  searchIcon: { fontSize: 14 },
-  search: { flex: 1, fontSize: FONT_SIZE.base, color: COLORS.text, paddingVertical: 6 },
-  filterRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginBottom: 6 },
-  filterBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.full, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.border },
-  filterBtnActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  filterText: { fontSize: FONT_SIZE.xs, fontWeight: '700', color: COLORS.textSecondary },
-  filterTextActive: { color: COLORS.white },
-  countText: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginLeft: 'auto', fontWeight: '600' },
-  eligFilterRow: { flexDirection: 'row', gap: 6, alignItems: 'center', flexWrap: 'wrap' },
-  eligFilterBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: RADIUS.full, backgroundColor: COLORS.background, borderWidth: 1.5, borderColor: COLORS.border },
-  eligFilterBtnActive: { borderWidth: 1.5 },
-  eligFilterText: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
-  eligFilterTextActive: { color: COLORS.white },
-  list: { padding: 16, gap: 12 },
-  card: { backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 16, ...SHADOW.sm, borderWidth: 1.5, borderColor: COLORS.border },
+  tabText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#6B7280',
+  },
+  tabTextActive: { color: '#FFFFFF', fontWeight: '500' },
+  tabCount: {
+    minWidth: 22, height: 18, borderRadius: 9,
+    backgroundColor: '#F3F4F6', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5,
+  },
+  tabCountActive: { backgroundColor: 'rgba(255,255,255,0.2)' },
+  tabCountText: {
+    fontSize: 10,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#6B7280',
+  },
+  tabCountTextActive: { color: '#FFFFFF' },
+
+  searchRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    marginHorizontal: 12, marginTop: 10,
+    backgroundColor: '#F5F7FA', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+    borderWidth: 1, borderColor: '#EAECEF',
+  },
+  searchIcon: { fontSize: 16, color: '#9CA3AF' },
+  searchInput: {
+    flex: 1, fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#1A1A2E',
+  },
+  searchClear: { padding: 2 },
+  searchClearText: { fontSize: 14, color: '#9CA3AF' },
+
+  filterRow: { marginTop: 8 },
+  filterScroll: { paddingHorizontal: 12, gap: 6 },
+  filterChip: {
+    paddingHorizontal: 12, paddingVertical: 5, borderRadius: RADIUS.full,
+    borderWidth: 1.5, borderColor: '#EAECEF', backgroundColor: '#FAFAFA',
+  },
+  filterChipActive: { backgroundColor: COLORS.primaryDark, borderColor: COLORS.primaryDark },
+  filterChipText: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#6B7280',
+  },
+  filterChipTextActive: { color: '#FFFFFF', fontWeight: '500' },
+  filterDivider: { width: 1, height: '100%', backgroundColor: '#EAECEF', marginHorizontal: 4 },
+  countChip: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#9CA3AF',
+    alignSelf: 'center',
+  },
+  eligChip: {
+    paddingHorizontal: 12, paddingVertical: 5, borderRadius: RADIUS.full,
+    borderWidth: 1.5, borderColor: '#EAECEF', backgroundColor: '#FAFAFA',
+  },
+  eligChipText: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#6B7280',
+  },
+
+  emptyBox: {
+    width: 72, height: 72, borderRadius: 36,
+    backgroundColor: '#F0FDF4', borderWidth: 2, borderColor: '#BBF7D0',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 4,
+  },
+  emptyIcon: { fontSize: 28, color: COLORS.primary },
+  emptyTitle: {
+    fontSize: 15,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#374151',
+  },
+  emptySub: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#9CA3AF',
+    textAlign: 'center',
+  },
+
+  list: { padding: 14, gap: 12 },
+  card: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16,
+    ...SHADOW.sm, borderWidth: 1, borderColor: '#EAECEF',
+  },
   cardClosed: { opacity: 0.65 },
-  cardEligible: { borderColor: COLORS.primary, borderWidth: 2 },
-  appliedBanner: { borderRadius: RADIUS.md, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 10, borderWidth: 1, alignSelf: 'stretch' },
-  appliedBannerText: { fontSize: FONT_SIZE.xs, fontWeight: '700' },
-  eligibleBadge: { alignSelf: 'flex-start', backgroundColor: COLORS.primaryBg, borderRadius: RADIUS.full, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 10, borderWidth: 1, borderColor: COLORS.primaryLight },
-  eligibleBadgeText: { fontSize: FONT_SIZE.xs, fontWeight: '800', color: COLORS.primary },
-  cardTop: { marginBottom: 8 },
-  cardName: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.text, lineHeight: 22, marginBottom: 6 },
-  badgeRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  typeBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: RADIUS.full },
-  centralBadge: { backgroundColor: COLORS.infoLight },
-  stateBadge: { backgroundColor: COLORS.primaryBg },
-  typeBadgeText: { fontSize: FONT_SIZE.xs, fontWeight: '800' },
-  centralText: { color: COLORS.info },
-  stateText: { color: COLORS.primary },
-  statusBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: RADIUS.full },
-  activeBadge: { backgroundColor: COLORS.primaryBg },
-  closedBadge: { backgroundColor: '#F1F5F9' },
-  statusText: { fontSize: FONT_SIZE.xs, fontWeight: '800' },
-  activeText: { color: COLORS.primary },
-  closedText: { color: COLORS.textMuted },
-  cardDesc: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, lineHeight: 20, marginBottom: 10 },
-  metaRow: { flexDirection: 'row', gap: 12, marginBottom: 12, flexWrap: 'wrap' },
-  metaItem: { flexDirection: 'row', gap: 4, alignItems: 'center' },
-  metaIcon: { fontSize: 13 },
-  metaText: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary, maxWidth: 160 },
-  cardActions: { flexDirection: 'row', gap: 10 },
-  knowMoreBtn: { flex: 1, paddingVertical: 10, borderRadius: RADIUS.md, borderWidth: 2, borderColor: COLORS.primary, alignItems: 'center' },
-  knowMoreText: { fontSize: FONT_SIZE.sm, fontWeight: '800', color: COLORS.primary },
-  applyBtn: { flex: 1, paddingVertical: 10, borderRadius: RADIUS.md, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
-  applyBtnEligible: { backgroundColor: COLORS.primaryDark },
-  applyBtnIneligible: { backgroundColor: 'transparent', borderWidth: 2, borderColor: COLORS.error },
-  applyBtnDisabled: { opacity: 0.7 },
-  applyText: { fontSize: FONT_SIZE.sm, fontWeight: '800', color: COLORS.white },
-  applyTextIneligible: { color: COLORS.error },
-  appliedBtn: { flex: 1, paddingVertical: 10, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
-  appliedBtnText: { fontSize: FONT_SIZE.sm, fontWeight: '800' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalSheet: { backgroundColor: COLORS.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '85%', paddingBottom: 24 },
-  modalHeader: { flexDirection: 'row', alignItems: 'flex-start', padding: 20, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  modalTitle: { fontSize: FONT_SIZE.base, fontWeight: '900', color: COLORS.text },
-  modalSubtitle: { fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginTop: 2 },
-  modalClose: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', marginLeft: 12, marginTop: 2 },
-  modalCloseText: { fontSize: 14, color: COLORS.textMuted, fontWeight: '700' },
-  modalNote: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, lineHeight: 20, paddingHorizontal: 20, paddingVertical: 12, backgroundColor: COLORS.primaryBg, borderBottomWidth: 1, borderBottomColor: COLORS.primaryLight },
-  modalScroll: { maxHeight: 320 },
-  modalDocCard: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  modalDocCardDone: { backgroundColor: '#F0FDF4' },
-  modalDocLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  modalDocIcon: { fontSize: 28 },
-  modalDocLabel: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text },
-  modalDocStatus: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 2 },
-  modalDocError: { fontSize: FONT_SIZE.xs, color: COLORS.error, marginTop: 2 },
-  modalDocDoneBadge: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
-  modalDocDoneText: { color: COLORS.white, fontWeight: '900', fontSize: 16 },
-  modalUploadBtn: { backgroundColor: COLORS.primaryDark, paddingHorizontal: 16, paddingVertical: 8, borderRadius: RADIUS.md, minWidth: 72, alignItems: 'center', justifyContent: 'center' },
-  modalUploadText: { color: COLORS.white, fontSize: FONT_SIZE.xs, fontWeight: '800' },
-  modalFooter: { paddingHorizontal: 20, paddingTop: 16 },
-  modalApplyBtn: { backgroundColor: COLORS.primaryDark, paddingVertical: 14, borderRadius: RADIUS.md, alignItems: 'center' },
-  modalApplyBtnDisabled: { backgroundColor: COLORS.border },
-  modalApplyText: { color: COLORS.white, fontSize: FONT_SIZE.base, fontWeight: '900' },
+  cardEligible: { borderLeftWidth: 4, borderLeftColor: COLORS.primary },
 
-  successSheet: { backgroundColor: COLORS.white, borderRadius: 24, marginHorizontal: 24, padding: 28, alignItems: 'center', ...SHADOW.md },
-  successIconCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#DCFCE7', alignItems: 'center', justifyContent: 'center', marginBottom: 16, borderWidth: 3, borderColor: '#16A34A30' },
-  successIconText: { fontSize: 40 },
-  successTitle: { fontSize: 22, fontWeight: '900', color: COLORS.text, marginBottom: 6, textAlign: 'center' },
-  successSchemeName: { fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.primary, marginBottom: 12, textAlign: 'center' },
-  successBody: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, lineHeight: 22, textAlign: 'center', marginBottom: 18 },
-  successIdBox: { backgroundColor: COLORS.primaryBg, borderRadius: RADIUS.md, paddingHorizontal: 20, paddingVertical: 12, alignItems: 'center', marginBottom: 20, width: '100%', borderWidth: 1, borderColor: COLORS.primaryLight },
-  successIdLabel: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, fontWeight: '700', marginBottom: 4 },
-  successIdValue: { fontSize: FONT_SIZE.sm, fontWeight: '900', color: COLORS.primaryDark, fontFamily: 'monospace' },
-  successBtn: { backgroundColor: COLORS.primaryDark, paddingVertical: 14, paddingHorizontal: 40, borderRadius: RADIUS.md, width: '100%', alignItems: 'center' },
-  successBtnText: { color: COLORS.white, fontSize: FONT_SIZE.base, fontWeight: '900' },
+  statusBanner: {
+    borderRadius: 8, paddingHorizontal: 12, paddingVertical: 7,
+    borderWidth: 1, marginBottom: 10,
+  },
+  statusBannerText: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+  },
+  eligBadge: {
+    backgroundColor: '#F0FDF4', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6,
+    borderWidth: 1, borderColor: COLORS.primary + '50', marginBottom: 10, alignSelf: 'flex-start',
+  },
+  eligBadgeText: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primary,
+  },
 
-  statusSheet: { backgroundColor: COLORS.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '80%', paddingBottom: 24 },
-  statusContent: { paddingHorizontal: 20, paddingTop: 16, gap: 16 },
-  statusBigBadge: { borderRadius: RADIUS.lg, paddingVertical: 16, paddingHorizontal: 20, borderWidth: 2, alignItems: 'center', flexDirection: 'row', gap: 12 },
-  statusBigIcon: { fontSize: 32 },
-  statusBigLabel: { fontSize: 20, fontWeight: '900' },
-  statusDescription: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, lineHeight: 22 },
-  statusMeta: { backgroundColor: COLORS.background, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
-  statusMetaRow: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-  statusMetaDivider: { height: 1, backgroundColor: COLORS.border },
-  statusMetaLabel: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, fontWeight: '700', flex: 1 },
-  statusMetaValue: { fontSize: FONT_SIZE.sm, color: COLORS.text, fontWeight: '700', flex: 2, textAlign: 'right' },
-  statusAdminReply: { paddingHorizontal: 16, paddingVertical: 12, gap: 6 },
-  statusAdminReplyText: { fontSize: FONT_SIZE.sm, color: COLORS.text, lineHeight: 20 },
-  statusCloseBtn: { backgroundColor: COLORS.primaryDark, paddingVertical: 14, borderRadius: RADIUS.md, alignItems: 'center' },
-  statusCloseBtnText: { color: COLORS.white, fontSize: FONT_SIZE.base, fontWeight: '900' },
+  cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 },
+  cardName: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#1A1A2E',
+    lineHeight: 20,
+  },
+  badgeRow: { gap: 5, alignItems: 'flex-end' },
+  typeBadge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1 },
+  stateBadge: { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' },
+  centralBadge: { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' },
+  typeBadgeText: {
+    fontSize: 10,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+  },
+  stateText: { color: '#2563EB' },
+  centralText: { color: '#D97706' },
+  statusPill: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1 },
+  activePill: { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' },
+  closedPill: { backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' },
+  statusPillText: {
+    fontSize: 10,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+  },
+  activePillText: { color: COLORS.primary },
+  closedPillText: { color: '#9CA3AF' },
+
+  cardDesc: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#6B7280',
+    lineHeight: 18,
+    marginBottom: 10,
+  },
+
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
+  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  metaLabel: { fontSize: 12, color: '#9CA3AF' },
+  metaValue: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#4B5563',
+    maxWidth: 160,
+  },
+
+  cardActions: { flexDirection: 'row', gap: 8 },
+  knowMoreBtn: {
+    flex: 1, borderRadius: 10, paddingVertical: 10, alignItems: 'center',
+    borderWidth: 1.5, borderColor: '#EAECEF', backgroundColor: '#FAFAFA',
+  },
+  knowMoreText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#374151',
+  },
+  applyBtn: {
+    flex: 1.2, borderRadius: 10, paddingVertical: 10, alignItems: 'center',
+    backgroundColor: COLORS.primary,
+  },
+  applyBtnDisabled: { opacity: 0.6 },
+  applyBtnText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#FFFFFF',
+  },
+  statusBtn: {
+    flex: 1, borderRadius: 10, paddingVertical: 10, alignItems: 'center',
+  },
+  statusBtnText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+  },
+
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  sheetModal: {
+    backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingHorizontal: 20, paddingBottom: 32, maxHeight: '90%',
+  },
+  sheetHandle: {
+    width: 40, height: 4, borderRadius: 2, backgroundColor: '#E5E7EB',
+    alignSelf: 'center', marginTop: 10, marginBottom: 4,
+  },
+  modalHeader: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6', marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#1A1A2E',
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#9CA3AF',
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    width: 32, height: 32, borderRadius: 16, backgroundColor: '#F3F4F6',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  modalCloseBtnText: { fontSize: 14, color: '#6B7280' },
+  modalNote: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#6B7280',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  modalScroll: { maxHeight: 300, marginBottom: 16 },
+  modalFooter: { gap: 10, paddingTop: 8 },
+  footerBtn: { borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
+  footerBtnText: {
+    fontSize: 14,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+  },
+
+  statusBigBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    borderRadius: 14, padding: 16, borderWidth: 2, marginBottom: 14,
+  },
+  statusBigIcon: { fontSize: 24 },
+  statusBigLabel: {
+    fontSize: 18,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+  },
+  statusDesc: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#6B7280',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  statusMeta: {
+    backgroundColor: '#F9FAFB', borderRadius: 14, padding: 14, marginBottom: 8,
+  },
+  statusMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
+  statusMetaLabel: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#9CA3AF',
+  },
+  statusMetaValue: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#1A1A2E',
+  },
+  statusMetaDivider: { height: 1, backgroundColor: '#EAECEF' },
+  statusAdminReply: { paddingVertical: 8 },
+  statusAdminReplyText: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#374151',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+
+  docUploadCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: '#F3F4F6',
+  },
+  docUploadCardDone: { opacity: 0.85 },
+  docUploadLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  docUploadIcon: { fontSize: 22 },
+  docUploadLabel: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#1A1A2E',
+  },
+  docUploadError: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: COLORS.error,
+    marginTop: 2,
+  },
+  docUploadStatus: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  docDoneBadge: {
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: '#F0FDF4', borderWidth: 1.5, borderColor: COLORS.primary,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  docDoneText: {
+    fontSize: 14,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primary,
+  },
+  docUploadBtn: {
+    backgroundColor: COLORS.primary, borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 8,
+  },
+  docUploadBtnText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#FFFFFF',
+  },
+
+  successSheet: {
+    backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    paddingHorizontal: 28, paddingBottom: 40, paddingTop: 30, alignItems: 'center',
+  },
+  successIconCircle: {
+    width: 72, height: 72, borderRadius: 36, backgroundColor: '#F0FDF4',
+    borderWidth: 3, borderColor: COLORS.primary,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 18,
+  },
+  successEmoji: {
+    fontSize: 30,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primary,
+  },
+  successTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#1A1A2E',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  successSchemeName: {
+    fontSize: 14,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#374151',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  successBody: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  successIdBox: {
+    width: '100%', backgroundColor: '#F9FAFB', borderRadius: 14, padding: 16,
+    alignItems: 'center', gap: 6, marginBottom: 20,
+  },
+  successIdLabel: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: '#9CA3AF',
+  },
+  successIdValue: {
+    fontSize: 16,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primaryDark,
+  },
+  successCloseBtn: {
+    backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 14,
+    paddingHorizontal: 40, alignItems: 'center',
+  },
+  successCloseBtnText: {
+    fontSize: 14,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#FFFFFF',
+  },
 });

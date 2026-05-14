@@ -6,7 +6,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
-import { COLORS, FONT_SIZE, RADIUS, SHADOW, T } from '../constants';
+import { COLORS, RADIUS, SHADOW, T } from '../constants';
 import { Notification } from '../types';
 
 function timeAgo(iso: string): string {
@@ -21,7 +21,7 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-function notifAbbr(type: string): string {
+function notifEmoji(type: string): string {
   switch (type) {
     case 'approval':  return '✓';
     case 'rejection': return '✕';
@@ -39,6 +39,17 @@ function notifColor(type: string): string {
     case 'scheme':    return COLORS.info;
     case 'subsidy':   return '#7C3AED';
     default:          return COLORS.gold;
+  }
+}
+
+function notifTypeLabel(type: string): string {
+  switch (type) {
+    case 'approval':  return 'Approval';
+    case 'rejection': return 'Rejection';
+    case 'scheme':    return 'Scheme';
+    case 'subsidy':   return 'Subsidy';
+    case 'insurance': return 'Insurance';
+    default:          return 'Notice';
   }
 }
 
@@ -62,9 +73,7 @@ export default function NotificationsScreen() {
   }, [fetchNotifs]);
 
   useFocusEffect(
-    useCallback(() => {
-      fetchNotifs();
-    }, [fetchNotifs]),
+    useCallback(() => { fetchNotifs(); }, [fetchNotifs]),
   );
 
   const onRefresh = useCallback(async () => {
@@ -124,7 +133,9 @@ export default function NotificationsScreen() {
       {unreadCount > 0 && (
         <View style={styles.unreadBanner}>
           <View style={styles.unreadDotLarge} />
-          <Text style={styles.unreadBannerText}>{unreadCount} unread notification{unreadCount > 1 ? 's' : ''}</Text>
+          <Text style={styles.unreadBannerText}>
+            {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
+          </Text>
         </View>
       )}
 
@@ -135,8 +146,8 @@ export default function NotificationsScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />
           }
         >
-          <View style={styles.emptyIconBox}>
-            <Text style={styles.emptyIconText}>NT</Text>
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyEmoji}>🔔</Text>
           </View>
           <Text style={styles.emptyTitle}>{t('noNotifications')}</Text>
           <Text style={styles.emptySub}>You will receive updates here when the admin takes action on your registration.</Text>
@@ -152,30 +163,32 @@ export default function NotificationsScreen() {
           }
           renderItem={({ item }) => {
             const color = notifColor(item.type);
-            const abbr = notifAbbr(item.type);
+            const abbr = notifEmoji(item.type);
+            const typeLabel = notifTypeLabel(item.type);
             return (
               <TouchableOpacity
                 style={[styles.notifCard, !item.read && styles.notifCardUnread]}
                 onPress={() => !item.read && markRead(item.notificationId)}
                 activeOpacity={0.85}
               >
-                <View style={[styles.iconBox, { backgroundColor: color + '18' }]}>
-                  <Text style={[styles.iconBoxText, { color }]}>{abbr}</Text>
+                <View style={[styles.iconCircle, { backgroundColor: color + '15' }]}>
+                  <Text style={[styles.iconCircleText, { color }]}>{abbr}</Text>
                 </View>
                 <View style={styles.notifContent}>
                   <View style={styles.notifTopRow}>
-                    <Text style={styles.notifTitle} numberOfLines={1}>{item.title}</Text>
-                    {!item.read && <View style={[styles.unreadDot, { backgroundColor: color }]} />}
+                    <View style={[styles.typePill, { backgroundColor: color + '15', borderColor: color + '40' }]}>
+                      <Text style={[styles.typePillText, { color }]}>{typeLabel}</Text>
+                    </View>
+                    <View style={styles.timeRow}>
+                      {!item.read && <View style={[styles.unreadDot, { backgroundColor: color }]} />}
+                      <Text style={styles.notifTime}>{timeAgo(item.createdAt)}</Text>
+                    </View>
                   </View>
-                  <Text style={styles.notifBody} numberOfLines={3}>{item.body}</Text>
-                  <View style={styles.notifFooter}>
-                    <Text style={styles.notifTime}>{timeAgo(item.createdAt)}</Text>
-                    {!item.read && (
-                      <View style={[styles.tapToRead, { borderColor: color }]}>
-                        <Text style={[styles.tapToReadText, { color }]}>Tap to mark read</Text>
-                      </View>
-                    )}
-                  </View>
+                  <Text style={styles.notifTitle} numberOfLines={1}>{item.title}</Text>
+                  <Text style={styles.notifBody} numberOfLines={2}>{item.body}</Text>
+                  {!item.read && (
+                    <Text style={[styles.tapHint, { color }]}>Tap to mark as read</Text>
+                  )}
                 </View>
               </TouchableOpacity>
             );
@@ -187,7 +200,7 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+  safe: { flex: 1, backgroundColor: '#F5F7FA' },
 
   topBar: {
     backgroundColor: '#FFFFFF',
@@ -200,45 +213,127 @@ const styles = StyleSheet.create({
   headerLogo: { width: 220, height: 220, marginTop: -71 },
 
   markAllBtn: {
-    paddingHorizontal: 10, paddingVertical: 6, borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primaryBg, borderWidth: 1, borderColor: COLORS.primary,
+    paddingHorizontal: 12, paddingVertical: 7,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1, borderColor: COLORS.primary,
   },
-  markAllText: { fontSize: 10, fontWeight: '700', color: COLORS.primary },
+  markAllText: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primary,
+  },
 
   unreadBanner: {
-    backgroundColor: COLORS.primaryBg, paddingHorizontal: 16, paddingVertical: 10,
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    borderBottomWidth: 1, borderBottomColor: COLORS.border,
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 18, paddingVertical: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    borderBottomWidth: 1, borderBottomColor: '#BBF7D0',
   },
-  unreadDotLarge: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.primary },
-  unreadBannerText: { fontSize: FONT_SIZE.sm, color: COLORS.primaryDark, fontWeight: '700' },
-
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, padding: 32 },
-  emptyIconBox: {
-    width: 80, height: 80, borderRadius: 20,
-    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: COLORS.primaryLight,
+  unreadDotLarge: { width: 9, height: 9, borderRadius: 5, backgroundColor: COLORS.primary },
+  unreadBannerText: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: COLORS.primaryDark,
   },
-  emptyIconText: { fontSize: 16, fontWeight: '800', color: COLORS.primary, letterSpacing: 1 },
-  emptyTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.textSecondary },
-  emptySub: { fontSize: FONT_SIZE.sm, color: COLORS.textMuted, textAlign: 'center', lineHeight: 20, maxWidth: 280 },
 
-  list: { padding: 16, gap: 10 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 14, padding: 32 },
+  emptyBox: {
+    width: 80, height: 80, borderRadius: 40,
+    backgroundColor: '#F0FDF4',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: '#BBF7D0',
+    marginBottom: 4,
+  },
+  emptyEmoji: { fontSize: 32 },
+  emptyTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#374151',
+  },
+  emptySub: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#9CA3AF',
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 280,
+  },
+
+  list: { padding: 16, gap: 12 },
   notifCard: {
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 14,
-    flexDirection: 'row', gap: 12, alignItems: 'flex-start', ...SHADOW.sm,
-    borderWidth: 1, borderColor: COLORS.border,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    gap: 14,
+    alignItems: 'flex-start',
+    ...SHADOW.sm,
+    borderWidth: 1,
+    borderColor: '#EAECEF',
   },
-  notifCardUnread: { borderLeftWidth: 4, borderLeftColor: COLORS.primary },
-  iconBox: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  iconBoxText: { fontSize: 12, fontWeight: '800', letterSpacing: 0.5 },
+  notifCardUnread: {
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
+    backgroundColor: '#FAFFFE',
+  },
+  iconCircle: {
+    width: 44, height: 44, borderRadius: 22,
+    alignItems: 'center', justifyContent: 'center',
+    marginTop: 2,
+  },
+  iconCircleText: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '700',
+  },
   notifContent: { flex: 1 },
-  notifTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  notifTitle: { flex: 1, fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.text },
-  unreadDot: { width: 9, height: 9, borderRadius: 5, marginLeft: 8 },
-  notifBody: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, lineHeight: 18, marginBottom: 8 },
-  notifFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  notifTime: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted },
-  tapToRead: { borderWidth: 1, borderRadius: RADIUS.full, paddingHorizontal: 8, paddingVertical: 3 },
-  tapToReadText: { fontSize: 10, fontWeight: '700' },
+  notifTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  typePill: {
+    paddingHorizontal: 8, paddingVertical: 3,
+    borderRadius: RADIUS.full, borderWidth: 1,
+  },
+  typePillText: {
+    fontSize: 10,
+    fontFamily: 'Poppins',
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  unreadDot: { width: 7, height: 7, borderRadius: 4 },
+  notifTime: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#9CA3AF',
+  },
+  notifTitle: {
+    fontSize: 14,
+    fontFamily: 'Poppins',
+    fontWeight: '500',
+    color: '#1A1A2E',
+    marginBottom: 4,
+  },
+  notifBody: {
+    fontSize: 12,
+    fontFamily: 'Poppins',
+    fontWeight: '300',
+    color: '#6B7280',
+    lineHeight: 18,
+    marginBottom: 6,
+  },
+  tapHint: {
+    fontSize: 11,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+  },
 });
