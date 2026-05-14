@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Animated,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { COLORS, FONT_SIZE, RADIUS, SHADOW } from '../constants';
 

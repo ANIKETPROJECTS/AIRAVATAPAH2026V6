@@ -2,6 +2,7 @@ import 'react-native-gesture-handler';
 import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native';
 import { AuthProvider } from './src/context/AuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -14,12 +15,14 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <StatusBar style="auto" />
-      <AuthProvider>
-        <AppNavigator />
-      </AuthProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.root}>
+        <StatusBar style="auto" />
+        <AuthProvider>
+          <AppNavigator />
+        </AuthProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

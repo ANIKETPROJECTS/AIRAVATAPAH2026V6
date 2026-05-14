@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator, Image,
+  View, Text, StyleSheet, ScrollView, ActivityIndicator, Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 import { COLORS, RADIUS, SHADOW, T } from '../constants';

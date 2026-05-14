@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ScrollView,
+  View, Text, TouchableOpacity, StyleSheet, Image, ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../context/AuthContext';
