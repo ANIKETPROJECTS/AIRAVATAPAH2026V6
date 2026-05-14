@@ -94,7 +94,7 @@ function MainTabs({ initialTab }: { initialTab: 'Home' | 'Profile' }) {
       initialRouteName={initialTab}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
+        tabBarActiveTintColor: '#000000',
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: {
           backgroundColor: COLORS.white,
