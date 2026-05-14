@@ -1,0 +1,183 @@
+Microsoft Windows [Version 10.0.26200.8246]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra>npm install --legacy-peer-deps
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated uuid@7.0.3: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+added 767 packages, and audited 768 packages in 19s
+
+90 packages are looking for funding
+  run `npm fund` for details
+
+4 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra>npx expo prebuild --platform android --clean
+! No git repo found in current directory
+› Use git to track file changes before running commands that modify project files.
+
+√ Continue with uncommited changes? ... yes
+
+√ Cleared android code
+√ Created native directory
+√ Updated package.json
+» android: EDGE_TO_EDGE_PLUGIN: No configuration found for `edgeToEdgeEnabled` field in the project app config, falling back to false. In Android 16+ (targetSdkVersion 36) it will no longer be possible to disable edge-to-edge. Learn more: https://expo.fyi/edge-to-edge-rollout
+» android: userInterfaceStyle: Install expo-system-ui in your project to enable this feature.
+√ Finished prebuild
+
+C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra>keytool -genkeypair -v -keystore C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra\krushi-release.keystore -alias krushi -keyalg RSA -keysize 2048 -validity 10000
+Enter keystore password:
+
+Re-enter new password:
+
+What is your first and last name?
+  [Unknown]:  Aniket
+What is the name of your organizational unit?
+  [Unknown]:  krushisuvida
+What is the name of your organization?
+  [Unknown]:  krushi
+What is the name of your City or Locality?
+  [Unknown]:  mumbai
+What is the name of your State or Province?
+  [Unknown]:  maharashtra
+What is the two-letter country code for this unit?
+  [Unknown]:  as
+Is CN=Aniket, OU=krushisuvida, O=krushi, L=mumbai, ST=maharashtra, C=as correct?
+  [no]:  c
+What is your first and last name?
+  [Aniket]:  Aniket
+What is the name of your organizational unit?
+  [krushisuvida]:  krushisuvida
+What is the name of your organization?
+  [krushi]:  krushi
+What is the name of your City or Locality?
+  [mumbai]:  mumbai
+What is the name of your State or Province?
+  [maharashtra]:  maharahstra
+What is the two-letter country code for this unit?
+  [as]:  as
+Is CN=Aniket, OU=krushisuvida, O=krushi, L=mumbai, ST=maharahstra, C=as correct?
+  [no]:  no
+What is your first and last name?
+  [Aniket]:
+What is the name of your organizational unit?
+  [krushisuvida]:
+What is the name of your organization?
+  [krushi]:
+What is the name of your City or Locality?
+  [mumbai]:
+What is the name of your State or Province?
+  [maharahstra]:
+What is the two-letter country code for this unit?
+  [as]:
+Is CN=Aniket, OU=krushisuvida, O=krushi, L=mumbai, ST=maharahstra, C=as correct?
+  [no]:
+What is your first and last name?
+  [Aniket]:
+What is the name of your organizational unit?
+  [krushisuvida]:
+What is the name of your organization?
+  [krushi]:
+What is the name of your City or Locality?
+  [mumbai]:
+What is the name of your State or Province?
+  [maharahstra]:
+What is the two-letter country code for this unit?
+  [as]:
+Is CN=Aniket, OU=krushisuvida, O=krushi, L=mumbai, ST=maharahstra, C=as correct?
+  [no]:  C
+What is your first and last name?
+  [Aniket]:  Ank
+What is the name of your organizational unit?
+  [krushisuvida]:  A
+What is the name of your organization?
+  [krushi]:  A
+What is the name of your City or Locality?
+  [mumbai]:  A
+What is the name of your State or Province?
+  [maharahstra]:  A
+What is the two-letter country code for this unit?
+  [as]:  A
+Is CN=Ank, OU=A, O=A, L=A, ST=A, C=A correct?
+  [no]:  yes
+
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 10,000 days
+        for: CN=Ank, OU=A, O=A, L=A, ST=A, C=A
+[Storing C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra\krushi-release.keystore]
+
+C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra>cd android
+
+C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra\android>gradlew.bat assembleRelease
+Downloading https://services.gradle.org/distributions/gradle-8.13-bin.zip
+.............10%.............20%.............30%.............40%.............50%.............60%.............70%.............80%.............90%.............100%
+
+Welcome to Gradle 8.13!
+
+Here are the highlights of this release:
+ - Daemon JVM auto-provisioning
+ - Enhancements for Scala plugin and JUnit testing
+ - Improvements for build authors and plugin developers
+
+For more details see https://docs.gradle.org/8.13/release-notes.html
+
+Starting a Gradle Daemon (subsequent builds will be faster)
+
+> Configure project :expo-gradle-plugin:expo-autolinking-plugin-shared
+w: file:///C:/Puneagrihackathon/v6/kisan-mitra/kisan-mitra/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build.gradle.kts:32:9: The expression is unused
+
+> Task :expo-gradle-plugin:expo-autolinking-plugin:compileKotlin
+w: file:///C:/Puneagrihackathon/v6/kisan-mitra/kisan-mitra/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/src/main/kotlin/expo/modules/plugin/ExpoAutolinkingPlugin.kt:29:71 Name shadowed: project
+
+> Task :expo-module-gradle-plugin:compileKotlin
+w: file:///C:/Puneagrihackathon/v6/kisan-mitra/kisan-mitra/node_modules/expo-modules-core/expo-module-gradle-plugin/src/main/kotlin/expo/modules/plugin/android/AndroidLibraryExtension.kt:9:24 'targetSdk: Int?' is deprecated. Will be removed from library DSL in v9.0. Use testOptions.targetSdk or/and lint.targetSdk instead
+
+> Configure project :
+[ExpoRootProject] Using the following versions:
+  - buildTools:  35.0.0
+  - minSdk:      24
+  - compileSdk:  35
+  - targetSdk:   35
+  - ndk:         27.1.12297006
+  - kotlin:      1.9.25
+  - ksp:         1.9.25-1.0.20
+
+[Incubating] Problems report is available at: file:///C:/Puneagrihackathon/v6/kisan-mitra/kisan-mitra/android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra\android\build.gradle' line: 37
+
+* What went wrong:
+A problem occurred evaluating root project '???? ??????'.
+> Failed to apply plugin 'com.facebook.react.rootproject'.
+   > A problem occurred configuring project ':app'.
+      > SDK location not found. Define a valid SDK location with an ANDROID_HOME environment variable or by setting the sdk.dir path in your project's local properties file at 'C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra\android\local.properties'.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 3m 49s
+28 actionable tasks: 28 executed
+
+C:\Puneagrihackathon\v6\kisan-mitra\kisan-mitra\android>
