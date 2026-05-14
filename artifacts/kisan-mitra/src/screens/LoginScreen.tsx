@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }: Props) {
         <Image
           source={require('../../assets/brand-logo-new.png')}
           style={styles.headerLogo}
-          resizeMode="contain"
+          resizeMode="cover"
         />
         <View style={styles.backBtnPlaceholder} />
       </View>
