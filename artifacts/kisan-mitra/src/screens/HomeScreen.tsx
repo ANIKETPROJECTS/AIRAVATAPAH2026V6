@@ -116,7 +116,11 @@ export default function HomeScreen() {
               </Text>
             </View>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{initials}</Text>
+              <Image
+                source={require('../../assets/icon-namaste.png')}
+                tintColor="#FFFFFF"
+                style={styles.avatarIcon}
+              />
             </View>
           </View>
           <View style={styles.heroBottom}>
@@ -253,11 +257,10 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 2, borderColor: COLORS.gold + '70',
   },
-  avatarText: {
-    fontSize: 16,
-    fontFamily: 'Poppins',
-    fontWeight: '500',
-    color: COLORS.white,
+  avatarIcon: {
+    width: 26,
+    height: 26,
+    resizeMode: 'contain',
   },
   heroBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   statusPill: {
