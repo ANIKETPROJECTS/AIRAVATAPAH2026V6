@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, ActivityIndicator, Alert, Platform,
+  ScrollView, ActivityIndicator, Alert, Platform, Image,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { COLORS, RADIUS, T } from '../constants';
@@ -49,14 +49,18 @@ export default function PendingScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      {/* Header — same logo style as Login/OTP/DocumentUpload */}
       <View style={styles.topBar}>
-        <View>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-          <Text style={styles.topBarSub}>Application Status</Text>
+        <View style={styles.topBarSpacer} />
+        <View style={styles.headerLogoWrap}>
+          <Image
+            source={require('../../assets/brand-logo-new.png')}
+            style={styles.headerLogo}
+          />
         </View>
         <TouchableOpacity style={styles.refreshTopBtn} onPress={handleRefresh} disabled={refreshing}>
           {refreshing
-            ? <ActivityIndicator size="small" color="rgba(255,255,255,0.7)" />
+            ? <ActivityIndicator size="small" color={COLORS.primaryDark} />
             : <Text style={styles.refreshTopText}>↻  Refresh</Text>}
         </TouchableOpacity>
       </View>
@@ -64,20 +68,23 @@ export default function PendingScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* Status Hero */}
-        <View style={styles.statusHero}>
-          <View style={styles.statusBadge}>
-            <View style={styles.statusDot} />
-            <Text style={styles.statusBadgeText}>Under Review</Text>
+        <View style={styles.heroCard}>
+          <View style={styles.heroBadge}>
+            <View style={styles.heroDot} />
+            <Text style={styles.heroBadgeText}>Under Review</Text>
           </View>
-          <Text style={styles.title}>{t('pendingTitle')}</Text>
-          <Text style={styles.subtitle}>{t('pendingSubtitle')}</Text>
+          <Text style={styles.heroTitle}>{t('pendingTitle')}</Text>
+          <Text style={styles.heroSubtitle}>{t('pendingSubtitle')}</Text>
         </View>
 
         {/* Farmer ID Card */}
         {!!farmer?.farmerId && (
           <View style={styles.idCard}>
-            <View>
-              <Text style={styles.idLabel}>{t('farmerId')}</Text>
+            <View style={styles.idCardLeft}>
+              <View style={styles.idBadgeRow}>
+                <View style={styles.idDot} />
+                <Text style={styles.idLabel}>{t('farmerId')}</Text>
+              </View>
               <Text style={styles.idValue}>{farmer.farmerId}</Text>
               <Text style={styles.idMobile}>+91 {state.mobile}</Text>
             </View>
@@ -89,7 +96,13 @@ export default function PendingScreen() {
 
         {/* Application Timeline */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Application Timeline</Text>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Application Timeline</Text>
+            <View style={styles.cardBadge}>
+              <Text style={styles.cardBadgeText}>Step 2 of 3</Text>
+            </View>
+          </View>
+
           {STEPS.map((step, idx) => {
             const isDone = idx === 0;
             const isActive = idx === 1;
@@ -103,12 +116,17 @@ export default function PendingScreen() {
                     isActive && styles.stepCircleActive,
                     isPending && styles.stepCirclePending,
                   ]}>
-                    {isDone
-                      ? <Text style={styles.stepCircleTextDone}>✓</Text>
-                      : <Text style={[styles.stepCircleNum, isActive && styles.stepCircleNumActive]}>
-                          {step.num}
-                        </Text>
-                    }
+                    {isDone ? (
+                      <Text style={styles.stepCheckmark}>✓</Text>
+                    ) : isActive ? (
+                      <Image
+                        source={require('../../assets/icon-under-review.png')}
+                        style={styles.stepIcon}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Text style={styles.stepCircleNum}>{step.num}</Text>
+                    )}
                   </View>
                   <View style={styles.stepInfo}>
                     <Text style={[
@@ -121,11 +139,14 @@ export default function PendingScreen() {
                     </Text>
                     <Text style={[styles.stepSub, isPending && styles.stepSubPending]}>{step.sub}</Text>
                   </View>
-                  {(isDone || isActive) && (
-                    <View style={[styles.stepStatus, isDone ? styles.stepStatusDone : styles.stepStatusActive]}>
-                      <Text style={[styles.stepStatusText, isDone ? styles.stepStatusTextDone : styles.stepStatusTextActive]}>
-                        {isDone ? 'Done' : 'Active'}
-                      </Text>
+                  {isDone && (
+                    <View style={styles.stepStatusDone}>
+                      <Text style={styles.stepStatusTextDone}>Done</Text>
+                    </View>
+                  )}
+                  {isActive && (
+                    <View style={styles.stepStatusActive}>
+                      <Text style={styles.stepStatusTextActive}>Active</Text>
                     </View>
                   )}
                 </View>
@@ -144,7 +165,7 @@ export default function PendingScreen() {
             {docs.map((doc, i) => (
               <View key={i} style={[styles.docRow, i === 0 && { borderTopWidth: 0 }]}>
                 <View style={styles.docIconBox}>
-                  <Text style={styles.docIconText}>Doc</Text>
+                  <Text style={styles.docIconText}>📄</Text>
                 </View>
                 <View style={styles.docInfo}>
                   <Text style={styles.docName}>{doc.name}</Text>
@@ -164,7 +185,10 @@ export default function PendingScreen() {
 
         {/* What happens next */}
         <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>What happens next?</Text>
+          <View style={styles.infoIconRow}>
+            <Text style={styles.infoIcon}>ℹ</Text>
+            <Text style={styles.infoTitle}>What happens next?</Text>
+          </View>
           <Text style={styles.infoText}>
             The agriculture officer will review your uploaded documents and verify your land records. This typically takes 2–5 working days. You will be notified once a decision is made.
           </Text>
@@ -173,8 +197,8 @@ export default function PendingScreen() {
         {/* Refresh Button */}
         <TouchableOpacity style={styles.refreshBtn} onPress={handleRefresh} disabled={refreshing} activeOpacity={0.85}>
           {refreshing
-            ? <ActivityIndicator color={COLORS.primary} />
-            : <Text style={styles.refreshBtnText}>Refresh Status</Text>}
+            ? <ActivityIndicator color="#FFFFFF" />
+            : <Text style={styles.refreshBtnText}>↻  Refresh Status</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -191,131 +215,154 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F8FAFC' },
 
   topBar: {
-    backgroundColor: COLORS.primaryDark,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  topBarTitle: {
-    fontSize: 16, fontFamily: 'Poppins', fontWeight: '600', color: COLORS.gold,
-  },
-  topBarSub: {
-    fontSize: 11, fontFamily: 'Poppins', fontWeight: '400',
-    color: 'rgba(255,255,255,0.55)', marginTop: 1,
-  },
+  topBarSpacer: { width: 90 },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
   refreshTopBtn: {
-    paddingHorizontal: 14, paddingVertical: 7,
+    paddingHorizontal: 12, paddingVertical: 7,
     borderRadius: RADIUS.full,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1.5, borderColor: '#E2E8F0',
+    width: 90, alignItems: 'center',
   },
   refreshTopText: {
-    color: 'rgba(255,255,255,0.8)', fontSize: 13,
-    fontFamily: 'Poppins', fontWeight: '400',
+    color: COLORS.primaryDark, fontSize: 12,
+    fontFamily: 'Poppins', fontWeight: '500',
   },
 
-  scroll: { paddingHorizontal: 18, paddingTop: 24, paddingBottom: 20 },
+  scroll: { paddingHorizontal: 18, paddingTop: 20, paddingBottom: 20 },
 
-  statusHero: { alignItems: 'center', marginBottom: 20 },
-  statusBadge: {
+  heroCard: {
+    backgroundColor: COLORS.primaryDark,
+    borderRadius: RADIUS.lg,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  heroBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 7,
-    backgroundColor: '#FEF3C7', borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(217,119,6,0.2)', borderRadius: RADIUS.full,
     paddingHorizontal: 14, paddingVertical: 6, marginBottom: 14,
   },
-  statusDot: {
-    width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gold,
+  heroDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gold },
+  heroBadgeText: {
+    fontSize: 12, fontFamily: 'Poppins', fontWeight: '600', color: COLORS.gold,
   },
-  statusBadgeText: {
-    fontSize: 12, fontFamily: 'Poppins', fontWeight: '500', color: '#92400E',
+  heroTitle: {
+    fontSize: 20, fontFamily: 'Poppins', fontWeight: '600',
+    color: '#FFFFFF', textAlign: 'center', marginBottom: 8,
   },
-  title: {
-    fontSize: 22, fontFamily: 'Poppins', fontWeight: '500',
-    color: COLORS.primaryDark, textAlign: 'center', marginBottom: 8,
-  },
-  subtitle: {
+  heroSubtitle: {
     fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
-    color: '#6B7280', textAlign: 'center', lineHeight: 20, maxWidth: 280,
+    color: 'rgba(255,255,255,0.65)', textAlign: 'center', lineHeight: 20, maxWidth: 260,
   },
 
   idCard: {
-    backgroundColor: COLORS.primaryDark, borderRadius: RADIUS.lg, padding: 18,
-    marginBottom: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    backgroundColor: '#1A3D2B',
+    borderRadius: RADIUS.lg, padding: 18,
+    marginBottom: 14, flexDirection: 'row',
+    justifyContent: 'space-between', alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
   },
+  idCardLeft: { flex: 1 },
+  idBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
+  idDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.gold },
   idLabel: {
-    fontSize: 10, fontFamily: 'Poppins', fontWeight: '500',
-    color: COLORS.gold, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 6,
+    fontSize: 10, fontFamily: 'Poppins', fontWeight: '600',
+    color: COLORS.gold, textTransform: 'uppercase', letterSpacing: 1.2,
   },
   idValue: {
-    fontSize: 24, fontFamily: 'Poppins', fontWeight: '500',
-    color: '#FFFFFF', letterSpacing: 0.5, marginBottom: 4,
+    fontSize: 22, fontFamily: 'Poppins', fontWeight: '600',
+    color: '#FFFFFF', letterSpacing: 1, marginBottom: 4,
   },
   idMobile: {
     fontSize: 13, fontFamily: 'Poppins', fontWeight: '400',
-    color: 'rgba(255,255,255,0.55)',
+    color: 'rgba(255,255,255,0.5)',
   },
   idIconBox: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    width: 46, height: 46, borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
     alignItems: 'center', justifyContent: 'center',
   },
   idIconText: {
-    fontSize: 12, fontFamily: 'Poppins', fontWeight: '600',
-    color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5,
+    fontSize: 12, fontFamily: 'Poppins', fontWeight: '700',
+    color: COLORS.gold, letterSpacing: 1,
   },
 
   card: {
     backgroundColor: '#FFFFFF', borderRadius: RADIUS.lg, padding: 18,
     marginBottom: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', marginBottom: 20,
   },
   cardTitle: {
-    fontSize: 14, fontFamily: 'Poppins', fontWeight: '500',
-    color: '#1C1917', marginBottom: 18,
+    fontSize: 14, fontFamily: 'Poppins', fontWeight: '600', color: '#1C1917',
+  },
+  cardBadge: {
+    backgroundColor: '#FEF3C7', borderRadius: RADIUS.full,
+    paddingHorizontal: 10, paddingVertical: 3,
+  },
+  cardBadgeText: {
+    fontSize: 11, fontFamily: 'Poppins', fontWeight: '500', color: '#92400E',
   },
 
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   stepCircle: {
-    width: 32, height: 32, borderRadius: 16,
+    width: 36, height: 36, borderRadius: 18,
     backgroundColor: '#F1F5F9', borderWidth: 1.5, borderColor: '#E2E8F0',
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   stepCircleDone: { backgroundColor: '#F0FDF4', borderColor: COLORS.primary },
-  stepCircleActive: { backgroundColor: '#FEF3C7', borderColor: COLORS.gold },
+  stepCircleActive: { backgroundColor: '#FFF7ED', borderColor: COLORS.gold, borderWidth: 2 },
   stepCirclePending: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' },
-  stepCircleTextDone: {
-    fontSize: 14, color: COLORS.primary, fontWeight: '500',
-  },
+  stepCheckmark: { fontSize: 16, color: COLORS.primary, fontWeight: '700' },
+  stepIcon: { width: 20, height: 20, tintColor: COLORS.gold },
   stepCircleNum: {
-    fontSize: 13, fontFamily: 'Poppins', fontWeight: '500', color: '#94A3B8',
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '500', color: '#CBD5E1',
   },
-  stepCircleNumActive: { color: COLORS.gold },
 
-  stepInfo: { flex: 1, paddingTop: 4 },
+  stepInfo: { flex: 1, paddingTop: 6 },
   stepLabel: {
-    fontSize: 14, fontFamily: 'Poppins', fontWeight: '500', color: '#94A3B8',
+    fontSize: 14, fontFamily: 'Poppins', fontWeight: '500', color: '#CBD5E1',
   },
   stepLabelDone: { color: '#1C1917' },
-  stepLabelActive: { color: '#1C1917' },
+  stepLabelActive: { color: '#1C1917', fontWeight: '600' },
   stepLabelPending: { color: '#CBD5E1' },
   stepSub: {
     fontSize: 12, fontFamily: 'Poppins', fontWeight: '400', color: '#94A3B8', marginTop: 2,
   },
   stepSubPending: { color: '#CBD5E1' },
 
-  stepStatus: {
-    paddingHorizontal: 10, paddingVertical: 4,
-    borderRadius: RADIUS.full, marginTop: 6, flexShrink: 0,
+  stepStatusDone: {
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.full, marginTop: 6,
+    backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#BBF7D0',
   },
-  stepStatusDone: { backgroundColor: '#F0FDF4' },
-  stepStatusActive: { backgroundColor: '#FEF3C7' },
-  stepStatusText: { fontSize: 11, fontFamily: 'Poppins', fontWeight: '500' },
-  stepStatusTextDone: { color: COLORS.primary },
-  stepStatusTextActive: { color: COLORS.gold },
+  stepStatusActive: {
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.full, marginTop: 6,
+    backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#FDE68A',
+  },
+  stepStatusTextDone: {
+    fontSize: 11, fontFamily: 'Poppins', fontWeight: '600', color: COLORS.primary,
+  },
+  stepStatusTextActive: {
+    fontSize: 11, fontFamily: 'Poppins', fontWeight: '600', color: '#92400E',
+  },
 
   stepLine: {
-    width: 1.5, height: 22, backgroundColor: '#E2E8F0', marginLeft: 15, marginVertical: 3,
+    width: 1.5, height: 24, backgroundColor: '#E2E8F0', marginLeft: 17, marginVertical: 2,
   },
   stepLineDone: { backgroundColor: COLORS.primary },
 
@@ -324,13 +371,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#F1F5F9',
   },
   docIconBox: {
-    width: 34, height: 34, borderRadius: 8,
+    width: 36, height: 36, borderRadius: 10,
     backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center',
   },
-  docIconText: {
-    fontSize: 9, fontFamily: 'Poppins', fontWeight: '600',
-    color: COLORS.primary, letterSpacing: 0.3,
-  },
+  docIconText: { fontSize: 16 },
   docInfo: { flex: 1 },
   docName: {
     fontSize: 13, fontFamily: 'Poppins', fontWeight: '500', color: '#1C1917', marginBottom: 2,
@@ -347,26 +391,29 @@ const styles = StyleSheet.create({
   },
 
   infoBox: {
-    backgroundColor: '#F0FDF4', borderRadius: RADIUS.lg, padding: 16,
+    backgroundColor: '#FFFFFF', borderRadius: RADIUS.lg, padding: 16,
     marginBottom: 16, borderLeftWidth: 3, borderLeftColor: COLORS.primary,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 4, elevation: 2,
   },
+  infoIconRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  infoIcon: { fontSize: 16, color: COLORS.primary },
   infoTitle: {
-    fontSize: 13, fontFamily: 'Poppins', fontWeight: '500',
-    color: COLORS.primaryDark, marginBottom: 8,
+    fontSize: 13, fontFamily: 'Poppins', fontWeight: '600', color: COLORS.primaryDark,
   },
   infoText: {
     fontSize: 12, fontFamily: 'Poppins', fontWeight: '400',
-    color: '#166534', lineHeight: 20,
+    color: '#4B5563', lineHeight: 20,
   },
 
   refreshBtn: {
-    backgroundColor: '#FFFFFF', borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.primary, borderRadius: RADIUS.lg,
     paddingVertical: 15, alignItems: 'center', marginBottom: 10,
-    borderWidth: 1.5, borderColor: COLORS.primary,
+    shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },
   refreshBtnText: {
-    color: COLORS.primary, fontSize: 14,
-    fontFamily: 'Poppins', fontWeight: '500',
+    color: '#FFFFFF', fontSize: 14, fontFamily: 'Poppins', fontWeight: '600',
   },
 
   logoutBtn: { paddingVertical: 14, alignItems: 'center' },
