@@ -337,8 +337,8 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 36, alignItems: 'flex-start', justifyContent: 'center' },
   backArrow: { fontSize: 22, color: '#14532D', fontWeight: '400' },
-  headerLogoWrap: { width: 250, height: 74, overflow: 'hidden' },
-  headerLogo: { width: 250, height: 250, marginTop: -65 },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
   logoutBtn: {
     paddingHorizontal: 14, paddingVertical: 6,
     borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: '#D1D5DB',
