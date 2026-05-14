@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  FlatList, TextInput, ActivityIndicator, Alert, Modal, ScrollView, Platform,
+  FlatList, TextInput, ActivityIndicator, Alert, Modal, ScrollView, Platform, Image,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -89,15 +89,15 @@ const APP_STATUS_LABEL: Record<string, string> = {
   'Under Review': 'Under Review',
   Approved:       'Approved ✓',
   Rejected:       'Rejected',
-  Settled:        'Settled 💰',
+  Settled:        'Settled ✓',
 };
 
 const APP_STATUS_ICON: Record<string, string> = {
-  Pending:        '⏳',
-  'Under Review': '🔍',
-  Approved:       '✅',
-  Rejected:       '❌',
-  Settled:        '💰',
+  Pending:        '○',
+  'Under Review': '◎',
+  Approved:       '✓',
+  Rejected:       '✕',
+  Settled:        '₹',
 };
 
 const APP_STATUS_DESC: Record<string, { en: string; hi: string; mr: string }> = {
@@ -420,9 +420,9 @@ export default function SchemesScreen() {
   const displayBenefit = (scheme: Scheme) => scheme.benefit ?? scheme.benefits ?? '';
 
   const TABS: { id: Tab; label: string; icon: string; count: number }[] = [
-    { id: 'schemes',   label: state.lang === 'hi' ? 'योजनाएं' : state.lang === 'mr' ? 'योजना' : 'Schemes',   icon: '📋', count: schemes.length },
-    { id: 'insurance', label: state.lang === 'hi' ? 'बीमा'    : state.lang === 'mr' ? 'विमा'  : 'Insurance', icon: '🛡️', count: insuranceItems.length },
-    { id: 'subsidies', label: state.lang === 'hi' ? 'सब्सिडी' : state.lang === 'mr' ? 'अनुदान': 'Subsidies', icon: '💰', count: subsidyItems.length },
+    { id: 'schemes',   label: state.lang === 'hi' ? 'योजनाएं' : state.lang === 'mr' ? 'योजना' : 'Schemes',   icon: '☰', count: schemes.length },
+    { id: 'insurance', label: state.lang === 'hi' ? 'बीमा'    : state.lang === 'mr' ? 'विमा'  : 'Insurance', icon: '◈', count: insuranceItems.length },
+    { id: 'subsidies', label: state.lang === 'hi' ? 'सब्सिडी' : state.lang === 'mr' ? 'अनुदान': 'Subsidies', icon: '₹', count: subsidyItems.length },
   ];
 
   const SCHEME_FILTERS: { id: SchemeFilter; label: string }[] = [
@@ -435,25 +435,25 @@ export default function SchemesScreen() {
     {
       id: 'ALL',
       label: state.lang === 'hi' ? 'सभी' : state.lang === 'mr' ? 'सर्व' : 'All',
-      icon: '📋',
+      icon: '◉',
       color: COLORS.primaryDark,
     },
     {
       id: 'ELIGIBLE',
       label: state.lang === 'hi' ? 'पात्र' : state.lang === 'mr' ? 'पात्र' : 'Eligible',
-      icon: '✅',
+      icon: '✓',
       color: '#16A34A',
     },
     {
       id: 'PARTIAL',
       label: state.lang === 'hi' ? 'आंशिक' : state.lang === 'mr' ? 'आंशिक' : 'Partial',
-      icon: '⚠️',
+      icon: '◑',
       color: '#D97706',
     },
     {
       id: 'NOT_ELIGIBLE',
       label: state.lang === 'hi' ? 'अपात्र' : state.lang === 'mr' ? 'अपात्र' : 'Not Eligible',
-      icon: '❌',
+      icon: '✕',
       color: '#DC2626',
     },
   ];
@@ -462,7 +462,11 @@ export default function SchemesScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.topBar}>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
+          <View style={styles.topBarSide} />
+          <View style={styles.headerLogoWrap}>
+            <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
+          </View>
+          <View style={styles.topBarSide} />
         </View>
         <View style={styles.center}>
           <ActivityIndicator size="large" color={COLORS.primary} />
@@ -481,20 +485,22 @@ export default function SchemesScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topBar}>
-        <View>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-          <Text style={styles.topBarSub}>{t('availableSchemes')}</Text>
+        <View style={styles.topBarSide} />
+        <View style={styles.headerLogoWrap}>
+          <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
         </View>
-        <TouchableOpacity onPress={handleManualRefresh} style={styles.refreshBtn} activeOpacity={0.7} disabled={refreshing}>
-          <Text style={[styles.refreshBtnText, refreshing && { opacity: 0.4 }]}>🔄</Text>
-        </TouchableOpacity>
+        <View style={[styles.topBarSide, { alignItems: 'flex-end' }]}>
+          <TouchableOpacity onPress={handleManualRefresh} style={styles.refreshBtn} activeOpacity={0.7} disabled={refreshing}>
+            <Text style={[styles.refreshBtnText, refreshing && { opacity: 0.4 }]}>↻</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.headerBar}>
         {crop && crop !== '—' && (
           <View style={styles.eligibilityBanner}>
             <Text style={styles.eligibilityText}>
-              🌾 {state.lang === 'hi' ? `${crop} किसानों के लिए योजनाएं` : state.lang === 'mr' ? `${crop} शेतकऱ्यांसाठी योजना` : `Personalized for ${crop} farmers`}
+              {state.lang === 'hi' ? `${crop} किसानों के लिए योजनाएं` : state.lang === 'mr' ? `${crop} शेतकऱ्यांसाठी योजना` : `Personalized for ${crop} farmers`}
             </Text>
           </View>
         )}
@@ -511,7 +517,7 @@ export default function SchemesScreen() {
         </View>
 
         <View style={styles.searchRow}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Text style={styles.searchIcon}>◎</Text>
           <TextInput
             style={styles.search}
             placeholder={state.lang === 'hi' ? 'खोजें...' : state.lang === 'mr' ? 'शोधा...' : 'Search schemes…'}
@@ -554,7 +560,7 @@ export default function SchemesScreen() {
       {currentItems.length === 0 ? (
         <View style={styles.center}>
           <View style={styles.emptyIconBox}>
-            <Text style={styles.emptyIcon}>{tab === 'insurance' ? '🛡️' : tab === 'subsidies' ? '💰' : '📭'}</Text>
+            <Text style={styles.emptyIcon}>{tab === 'insurance' ? '◈' : tab === 'subsidies' ? '₹' : '☰'}</Text>
           </View>
           <Text style={styles.emptyText}>{emptyMsg}</Text>
         </View>
@@ -583,7 +589,7 @@ export default function SchemesScreen() {
                 {existingApp && (
                   <View style={[styles.appliedBanner, { backgroundColor: `${APP_STATUS_COLOR[existingApp.status] ?? '#6B7280'}18`, borderColor: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
                     <Text style={[styles.appliedBannerText, { color: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
-                      📋 {APP_STATUS_LABEL[existingApp.status] ?? existingApp.status} · {existingApp.applicationId}
+                      {APP_STATUS_ICON[existingApp.status] ?? '○'} {APP_STATUS_LABEL[existingApp.status] ?? existingApp.status} · {existingApp.applicationId}
                     </Text>
                   </View>
                 )}
@@ -615,10 +621,10 @@ export default function SchemesScreen() {
                 {item.description && <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>}
 
                 <View style={styles.metaRow}>
-                  {benefit ? <View style={styles.metaItem}><Text style={styles.metaIcon}>💰</Text><Text style={styles.metaText} numberOfLines={1}>{benefit}</Text></View> : null}
-                  {item.deadline && <View style={styles.metaItem}><Text style={styles.metaIcon}>📅</Text><Text style={styles.metaText}>{item.deadline}</Text></View>}
+                  {benefit ? <View style={styles.metaItem}><Text style={styles.metaIcon}>₹</Text><Text style={styles.metaText} numberOfLines={1}>{benefit}</Text></View> : null}
+                  {item.deadline && <View style={styles.metaItem}><Text style={styles.metaIcon}>◷</Text><Text style={styles.metaText}>{item.deadline}</Text></View>}
                   {(item as InsuranceSubsidy).crops && (item as InsuranceSubsidy).crops!.length > 0 && (
-                    <View style={styles.metaItem}><Text style={styles.metaIcon}>🌾</Text><Text style={styles.metaText} numberOfLines={1}>{(item as InsuranceSubsidy).crops!.join(', ')}</Text></View>
+                    <View style={styles.metaItem}><Text style={styles.metaIcon}>◈</Text><Text style={styles.metaText} numberOfLines={1}>{(item as InsuranceSubsidy).crops!.join(', ')}</Text></View>
                   )}
                 </View>
 
@@ -657,7 +663,7 @@ export default function SchemesScreen() {
                       activeOpacity={0.7}
                     >
                       <Text style={[styles.appliedBtnText, { color: APP_STATUS_COLOR[existingApp.status] ?? '#6B7280' }]}>
-                        {APP_STATUS_ICON[existingApp.status] ?? '📋'} Status
+                        {APP_STATUS_ICON[existingApp.status] ?? '○'} Status
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -751,7 +757,7 @@ export default function SchemesScreen() {
                     <View style={styles.statusAdminReply}>
                       <Text style={[styles.statusMetaLabel, statusModal.app.status === 'Rejected' && { color: '#DC2626' }]}>
                         {statusModal.app.status === 'Rejected'
-                          ? (state.lang === 'hi' ? '❌ अस्वीकृति का कारण' : state.lang === 'mr' ? '❌ नाकारण्याचे कारण' : '❌ Reason for Rejection')
+                          ? (state.lang === 'hi' ? '✕ अस्वीकृति का कारण' : state.lang === 'mr' ? '✕ नाकारण्याचे कारण' : '✕ Reason for Rejection')
                           : (state.lang === 'hi' ? 'अधिकारी टिप्पणी' : state.lang === 'mr' ? 'अधिकाऱ्याची टिप्पणी' : 'Officer Reply')}
                       </Text>
                       <Text style={[styles.statusAdminReplyText, statusModal.app.status === 'Rejected' && { color: '#DC2626', fontWeight: '700' }]}>
@@ -771,7 +777,7 @@ export default function SchemesScreen() {
                   activeOpacity={0.85}
                 >
                   <Text style={styles.statusCloseBtnText}>
-                    {state.lang === 'hi' ? '🔄 पुनः आवेदन करें' : state.lang === 'mr' ? '🔄 पुन्हा अर्ज करा' : '🔄 Re-apply'}
+                    {state.lang === 'hi' ? 'पुनः आवेदन करें' : state.lang === 'mr' ? 'पुन्हा अर्ज करा' : 'Re-apply'}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -903,14 +909,23 @@ export default function SchemesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
-  topBar: { backgroundColor: COLORS.primaryDark, paddingHorizontal: 20, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  topBarTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.gold },
-  topBarSub: { fontSize: FONT_SIZE.xs, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
-  refreshBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center' },
-  refreshBtnText: { color: '#fff', fontSize: 20, fontWeight: '700', lineHeight: 22 },
+  topBar: {
+    backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
+  },
+  topBarSide: { width: 90, justifyContent: 'center' },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
+  refreshBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: COLORS.primary + '40',
+  },
+  refreshBtnText: { color: COLORS.primaryDark, fontSize: 20, fontWeight: '700', lineHeight: 22 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
   emptyIconBox: { width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: COLORS.primaryLight },
-  emptyIcon: { fontSize: 40 },
+  emptyIcon: { fontSize: 28, fontWeight: '700', color: COLORS.primary },
   emptyText: { fontSize: FONT_SIZE.base, color: COLORS.textMuted, fontWeight: '600' },
   headerBar: { backgroundColor: COLORS.white, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   eligibilityBanner: { backgroundColor: COLORS.primaryBg, borderRadius: RADIUS.md, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 10, borderWidth: 1, borderColor: COLORS.primaryLight },

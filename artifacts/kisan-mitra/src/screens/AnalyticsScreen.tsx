@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator,
+  View, Text, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator, Image,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
@@ -8,19 +8,19 @@ import { COLORS, FONT_SIZE, RADIUS, SHADOW, T } from '../constants';
 import { Scheme, InsuranceSubsidy } from '../types';
 
 interface StatCardProps {
+  abbr: string;
   label: string;
   value: string;
   sub?: string;
   color?: string;
   bg?: string;
-  icon: string;
 }
 
-function StatCard({ label, value, sub, color = COLORS.primary, bg = COLORS.primaryBg, icon }: StatCardProps) {
+function StatCard({ abbr, label, value, sub, color = COLORS.primary, bg = COLORS.primaryBg }: StatCardProps) {
   return (
     <View style={[statStyles.card, { backgroundColor: bg, borderColor: color + '30' }]}>
-      <View style={[statStyles.iconBox, { backgroundColor: color + '18' }]}>
-        <Text style={statStyles.icon}>{icon}</Text>
+      <View style={[statStyles.iconBox, { backgroundColor: color + '20' }]}>
+        <Text style={[statStyles.iconText, { color }]}>{abbr}</Text>
       </View>
       <Text style={[statStyles.value, { color }]}>{value}</Text>
       <Text style={statStyles.label}>{label}</Text>
@@ -34,8 +34,8 @@ const statStyles = StyleSheet.create({
     width: '47%', borderRadius: RADIUS.lg, padding: 14,
     alignItems: 'center', borderWidth: 1, ...SHADOW.sm, gap: 4,
   },
-  iconBox: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  icon: { fontSize: 22 },
+  iconBox: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  iconText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
   value: { fontSize: FONT_SIZE['2xl'], fontWeight: '800' },
   label: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary, textAlign: 'center', fontWeight: '600' },
   sub: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, textAlign: 'center' },
@@ -97,9 +97,20 @@ export default function AnalyticsScreen() {
     load();
   }, []);
 
+  const TopBar = (
+    <View style={styles.topBar}>
+      <View style={styles.topBarSide} />
+      <View style={styles.headerLogoWrap}>
+        <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
+      </View>
+      <View style={styles.topBarSide} />
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
+        {TopBar}
         <View style={styles.center}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -118,9 +129,9 @@ export default function AnalyticsScreen() {
 
   const schemeBreakdown = [
     { label: 'Central Schemes', count: centralSchemes, color: COLORS.info },
-    { label: 'State Schemes', count: stateSchemes, color: COLORS.primary },
+    { label: 'State Schemes',   count: stateSchemes,   color: COLORS.primary },
     { label: 'Insurance Plans', count: insurance.length, color: COLORS.gold },
-    { label: 'Subsidies', count: subsidies.length, color: '#7C3AED' },
+    { label: 'Subsidies',       count: subsidies.length, color: '#7C3AED' },
   ];
   const maxScheme = Math.max(...schemeBreakdown.map(s => s.count), 1);
 
@@ -132,18 +143,21 @@ export default function AnalyticsScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      {TopBar}
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.pageHeader}>
-          <View style={styles.pageHeaderInner}>
+
+        {/* Page title strip */}
+        <View style={styles.pageTitleRow}>
+          <View>
             <Text style={styles.pageTitle}>
               {state.lang === 'hi' ? 'विश्लेषण डैशबोर्ड' : state.lang === 'mr' ? 'विश्लेषण डॅशबोर्ड' : 'Analytics Dashboard'}
             </Text>
             <Text style={styles.pageSubtitle}>
-              {state.lang === 'hi' ? 'आपके खाते का पूरा विवरण' : state.lang === 'mr' ? 'तुमच्या खात्याचा संपूर्ण तपशील' : 'Your complete farm & scheme overview'}
+              {state.lang === 'hi' ? 'आपके खाते का पूरा विवरण' : state.lang === 'mr' ? 'तुमच्या खात्याचा संपूर्ण तपशील' : 'Your complete farm and scheme overview'}
             </Text>
           </View>
-          <View style={styles.headerBadge}>
-            <Text style={styles.headerBadgeText}>📊</Text>
+          <View style={styles.headerIconBox}>
+            <Text style={styles.headerIconText}>AN</Text>
           </View>
         </View>
 
@@ -151,35 +165,10 @@ export default function AnalyticsScreen() {
           {state.lang === 'hi' ? 'खेत अवलोकन' : state.lang === 'mr' ? 'शेत आढावा' : 'Farm Overview'}
         </Text>
         <View style={styles.statsGrid}>
-          <StatCard
-            icon="📐"
-            label={t('totalLand')}
-            value={landHa > 0 ? `${landHa} ha` : '—'}
-            sub={landHa > 0 ? `≈ ${landAcres} acres` : undefined}
-            color={COLORS.primary}
-            bg={COLORS.primaryBg}
-          />
-          <StatCard
-            icon="🌾"
-            label={t('primaryCrop')}
-            value={farmer?.crop && farmer.crop !== '—' ? farmer.crop : '—'}
-            color={COLORS.gold}
-            bg={COLORS.goldLight}
-          />
-          <StatCard
-            icon="🏘️"
-            label={t('location')}
-            value={farmer?.village && farmer.village !== '—' ? farmer.village : '—'}
-            color={COLORS.info}
-            bg={COLORS.infoLight}
-          />
-          <StatCard
-            icon="🗺️"
-            label={t('district')}
-            value={farmer?.district && farmer.district !== '—' ? farmer.district : '—'}
-            color="#7C3AED"
-            bg="#F5F3FF"
-          />
+          <StatCard abbr="LA" label={t('totalLand')} value={landHa > 0 ? `${landHa} ha` : '—'} sub={landHa > 0 ? `≈ ${landAcres} acres` : undefined} color={COLORS.primary} bg={COLORS.primaryBg} />
+          <StatCard abbr="CR" label={t('primaryCrop')} value={farmer?.crop && farmer.crop !== '—' ? farmer.crop : '—'} color={COLORS.gold} bg={COLORS.goldLight} />
+          <StatCard abbr="VL" label={t('location')} value={farmer?.village && farmer.village !== '—' ? farmer.village : '—'} color={COLORS.info} bg={COLORS.infoLight} />
+          <StatCard abbr="DT" label={t('district')} value={farmer?.district && farmer.district !== '—' ? farmer.district : '—'} color="#7C3AED" bg="#F5F3FF" />
         </View>
 
         <View style={styles.sectionRow}>
@@ -192,38 +181,10 @@ export default function AnalyticsScreen() {
         </View>
 
         <View style={styles.statsGrid}>
-          <StatCard
-            icon="📋"
-            label={state.lang === 'hi' ? 'सक्रिय योजनाएं' : state.lang === 'mr' ? 'सक्रिय योजना' : 'Active Schemes'}
-            value={String(activeSchemes)}
-            sub={`of ${schemes.length} total`}
-            color={COLORS.primary}
-            bg={COLORS.primaryBg}
-          />
-          <StatCard
-            icon="🛡️"
-            label={state.lang === 'hi' ? 'बीमा योजनाएं' : state.lang === 'mr' ? 'विमा योजना' : 'Insurance Plans'}
-            value={String(activeInsurance)}
-            sub={`of ${insurance.length} total`}
-            color={COLORS.gold}
-            bg={COLORS.goldLight}
-          />
-          <StatCard
-            icon="💰"
-            label={state.lang === 'hi' ? 'सब्सिडी' : state.lang === 'mr' ? 'अनुदान' : 'Subsidies'}
-            value={String(activeSubsidies)}
-            sub={`of ${subsidies.length} total`}
-            color="#7C3AED"
-            bg="#F5F3FF"
-          />
-          <StatCard
-            icon="🏛️"
-            label={state.lang === 'hi' ? 'केंद्रीय योजनाएं' : state.lang === 'mr' ? 'केंद्रीय योजना' : 'Central Schemes'}
-            value={String(centralSchemes)}
-            sub={`${stateSchemes} state`}
-            color={COLORS.info}
-            bg={COLORS.infoLight}
-          />
+          <StatCard abbr="SC" label={state.lang === 'hi' ? 'सक्रिय योजनाएं' : state.lang === 'mr' ? 'सक्रिय योजना' : 'Active Schemes'} value={String(activeSchemes)} sub={`of ${schemes.length} total`} color={COLORS.primary} bg={COLORS.primaryBg} />
+          <StatCard abbr="IN" label={state.lang === 'hi' ? 'बीमा योजनाएं' : state.lang === 'mr' ? 'विमा योजना' : 'Insurance Plans'} value={String(activeInsurance)} sub={`of ${insurance.length} total`} color={COLORS.gold} bg={COLORS.goldLight} />
+          <StatCard abbr="SB" label={state.lang === 'hi' ? 'सब्सिडी' : state.lang === 'mr' ? 'अनुदान' : 'Subsidies'} value={String(activeSubsidies)} sub={`of ${subsidies.length} total`} color="#7C3AED" bg="#F5F3FF" />
+          <StatCard abbr="CS" label={state.lang === 'hi' ? 'केंद्रीय योजनाएं' : state.lang === 'mr' ? 'केंद्रीय योजना' : 'Central Schemes'} value={String(centralSchemes)} sub={`${stateSchemes} state`} color={COLORS.info} bg={COLORS.infoLight} />
         </View>
 
         <View style={styles.card}>
@@ -231,13 +192,7 @@ export default function AnalyticsScreen() {
             {state.lang === 'hi' ? 'श्रेणी वितरण' : state.lang === 'mr' ? 'श्रेणी वितरण' : 'Category Breakdown'}
           </Text>
           {schemeBreakdown.map((item) => (
-            <BarRow
-              key={item.label}
-              label={item.label}
-              value={item.count}
-              max={maxScheme}
-              color={item.color}
-            />
+            <BarRow key={item.label} label={item.label} value={item.count} max={maxScheme} color={item.color} />
           ))}
         </View>
 
@@ -259,16 +214,14 @@ export default function AnalyticsScreen() {
             ))}
           </View>
           <View style={[styles.statusResultPill, {
-            backgroundColor: farmer?.status === 'Active' || farmer?.status === 'Verified'
-              ? COLORS.primaryBg : COLORS.goldLight
+            backgroundColor: farmer?.status === 'Active' || farmer?.status === 'Verified' ? COLORS.primaryBg : COLORS.goldLight
           }]}>
             <Text style={[styles.statusResultText, {
-              color: farmer?.status === 'Active' || farmer?.status === 'Verified'
-                ? COLORS.primary : COLORS.gold
+              color: farmer?.status === 'Active' || farmer?.status === 'Verified' ? COLORS.primary : COLORS.gold
             }]}>
               {farmer?.status === 'Active' || farmer?.status === 'Verified'
-                ? (state.lang === 'hi' ? '✅ सत्यापित किसान' : state.lang === 'mr' ? '✅ सत्यापित शेतकरी' : '✅ Verified Farmer')
-                : (state.lang === 'hi' ? '⏳ समीक्षाधीन' : state.lang === 'mr' ? '⏳ पुनरावलोकनाधीन' : '⏳ Under Review')}
+                ? (state.lang === 'hi' ? '✓ सत्यापित किसान' : state.lang === 'mr' ? '✓ सत्यापित शेतकरी' : '✓ Verified Farmer')
+                : (state.lang === 'hi' ? 'समीक्षाधीन' : state.lang === 'mr' ? 'पुनरावलोकनाधीन' : 'Under Review')}
             </Text>
           </View>
         </View>
@@ -280,7 +233,7 @@ export default function AnalyticsScreen() {
             </Text>
             <View style={styles.card}>
               <View style={styles.docsProgressRow}>
-                <View style={[styles.docsProgressCircle]}>
+                <View style={styles.docsProgressCircle}>
                   <Text style={styles.docsProgressValue}>{farmer.docs.length}</Text>
                   <Text style={styles.docsProgressLabel}>/ 5</Text>
                 </View>
@@ -303,7 +256,7 @@ export default function AnalyticsScreen() {
               {farmer.docs.map((doc, i) => (
                 <View key={i} style={styles.docRow}>
                   <View style={styles.docIconBox}>
-                    <Text style={styles.docIcon}>📄</Text>
+                    <Text style={styles.docIcon}>DC</Text>
                   </View>
                   <View style={styles.docInfo}>
                     <Text style={styles.docName}>{doc.name}</Text>
@@ -324,7 +277,7 @@ export default function AnalyticsScreen() {
 
         <View style={styles.infoCard}>
           <Text style={styles.infoCardTitle}>
-            {state.lang === 'hi' ? '🏛️ महाराष्ट्र कृषि विभाग' : state.lang === 'mr' ? '🏛️ महाराष्ट्र कृषी विभाग' : '🏛️ Maharashtra Agriculture Dept.'}
+            {state.lang === 'hi' ? 'महाराष्ट्र कृषि विभाग' : state.lang === 'mr' ? 'महाराष्ट्र कृषी विभाग' : 'Maharashtra Agriculture Dept.'}
           </Text>
           <Text style={styles.infoCardText}>
             {state.lang === 'hi'
@@ -344,21 +297,33 @@ export default function AnalyticsScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { paddingHorizontal: 16, paddingTop: 0, paddingBottom: 16 },
-  pageHeader: {
-    backgroundColor: COLORS.primaryDark, borderRadius: RADIUS.xl,
-    padding: 20, marginBottom: 20, marginTop: 8,
+
+  topBar: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16, paddingVertical: 8,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    ...SHADOW.md,
+    borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
   },
-  pageHeaderInner: { flex: 1 },
-  pageTitle: { fontSize: FONT_SIZE.xl, fontWeight: '800', color: COLORS.white, marginBottom: 4 },
-  pageSubtitle: { fontSize: FONT_SIZE.sm, color: 'rgba(255,255,255,0.75)' },
-  headerBadge: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center',
+  topBarSide: { width: 90 },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
+
+  scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 16 },
+
+  pageTitleRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 20, paddingBottom: 16,
+    borderBottomWidth: 1, borderBottomColor: '#F1F5F9',
   },
-  headerBadgeText: { fontSize: 28 },
+  pageTitle: { fontSize: FONT_SIZE.xl, fontWeight: '800', color: COLORS.text, marginBottom: 4 },
+  pageSubtitle: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary },
+  headerIconBox: {
+    width: 52, height: 52, borderRadius: 14,
+    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: COLORS.primary + '40',
+  },
+  headerIconText: { fontSize: 14, fontWeight: '800', color: COLORS.primary, letterSpacing: 0.5 },
+
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   sectionTitle: { fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.text, marginBottom: 12 },
   totalBadge: {
@@ -366,12 +331,15 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full, borderWidth: 1, borderColor: COLORS.primary,
   },
   totalBadgeText: { fontSize: FONT_SIZE.xs, color: COLORS.primary, fontWeight: '700' },
+
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+
   card: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 16,
     marginBottom: 20, ...SHADOW.sm,
   },
   cardTitle: { fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.text, marginBottom: 14 },
+
   statusTrack: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
   statusStep: { alignItems: 'center', flex: 1 },
   statusDot: {
@@ -387,6 +355,7 @@ const styles = StyleSheet.create({
   statusLabelDone: { color: COLORS.primary },
   statusResultPill: { borderRadius: RADIUS.full, paddingVertical: 10, alignItems: 'center' },
   statusResultText: { fontSize: FONT_SIZE.sm, fontWeight: '800' },
+
   docsProgressRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 },
   docsProgressCircle: {
     width: 64, height: 64, borderRadius: 32,
@@ -406,10 +375,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10, borderTopWidth: 1, borderTopColor: COLORS.borderLight,
   },
   docIconBox: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 36, height: 36, borderRadius: 10,
     backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
   },
-  docIcon: { fontSize: 18 },
+  docIcon: { fontSize: 10, fontWeight: '800', color: COLORS.primary, letterSpacing: 0.5 },
   docInfo: { flex: 1 },
   docName: { fontSize: FONT_SIZE.sm, fontWeight: '600', color: COLORS.text },
   docDate: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted },

@@ -27,11 +27,11 @@ const DOC_LABELS: Record<string, string> = {
 };
 
 const DOC_ICONS: Record<string, string> = {
-  aadhar: '🪪',
-  bank_passbook: '🏦',
-  form7: '📄',
-  form12: '🌾',
-  form8a: '📋',
+  aadhar: 'AD',
+  bank_passbook: 'BK',
+  form7: 'F7',
+  form12: 'F12',
+  form8a: 'F8',
 };
 
 const SKIP_KEYS = new Set([
@@ -128,11 +128,11 @@ function humanLabel(key: string): string {
 }
 
 const DOC_SECTIONS: Array<{ key: keyof NonNullable<NonNullable<ReturnType<typeof useAuth>['state']['farmer']>['ocr']>; label: string; icon: string; color: string }> = [
-  { key: 'aadhar',   label: 'Aadhaar Card',              icon: '🪪', color: '#6366F1' },
-  { key: 'passbook', label: 'Bank Passbook',              icon: '🏦', color: COLORS.info },
-  { key: 'form7',    label: 'Form 7 — 7/12 Satbara',     icon: '📄', color: COLORS.gold },
-  { key: 'form12',   label: 'Form 12 — Pik Pahani',      icon: '🌾', color: COLORS.primary },
-  { key: 'form8a',   label: 'Form 8A — Dharana',         icon: '📋', color: '#0D9488' },
+  { key: 'aadhar',   label: 'Aadhaar Card',              icon: 'AD', color: '#6366F1' },
+  { key: 'passbook', label: 'Bank Passbook',              icon: 'BK', color: COLORS.info },
+  { key: 'form7',    label: 'Form 7 — 7/12 Satbara',     icon: 'F7', color: COLORS.gold },
+  { key: 'form12',   label: 'Form 12 — Pik Pahani',      icon: 'F12', color: COLORS.primary },
+  { key: 'form8a',   label: 'Form 8A — Dharana',         icon: 'F8', color: '#0D9488' },
 ];
 
 function val(v: string | number | undefined | null): string {
@@ -181,7 +181,7 @@ function SectionCard({ title, icon, color = COLORS.primary, subtitle, children }
     <View style={cardStyles.card}>
       <View style={[cardStyles.cardHeader, { borderLeftColor: color }]}>
         <View style={[cardStyles.iconBox, { backgroundColor: color + '18' }]}>
-          <Text style={cardStyles.cardIcon}>{icon}</Text>
+          <Text style={[cardStyles.cardIcon, { color }]}>{icon}</Text>
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[cardStyles.cardTitle, { color: COLORS.primaryDark }]}>{title}</Text>
@@ -204,8 +204,8 @@ const cardStyles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: COLORS.borderLight,
     borderLeftWidth: 3, paddingLeft: 10,
   },
-  iconBox: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  cardIcon: { fontSize: 19 },
+  iconBox: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  cardIcon: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
   cardTitle: { fontSize: FONT_SIZE.base, fontWeight: '800' },
   cardSubtitle: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 2 },
 });
@@ -217,7 +217,7 @@ function DocImageModal({ doc, onClose }: { doc: DocImage; onClose: () => void })
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.primaryDark }}>
         <View style={modalStyles.header}>
-          <Text style={modalStyles.headerTitle}>{DOC_ICONS[doc.docType] ?? '📄'}  {label}</Text>
+          <Text style={modalStyles.headerTitle}>{label}</Text>
           <TouchableOpacity onPress={onClose} style={modalStyles.closeBtn} activeOpacity={0.7}>
             <Text style={modalStyles.closeText}>✕ Close</Text>
           </TouchableOpacity>
@@ -355,17 +355,19 @@ export default function ProfileScreen() {
       )}
 
       <View style={styles.topBar}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-          <Text style={styles.topBarSub}>{t('myProfile')}</Text>
+        <View style={styles.topBarSide} />
+        <View style={styles.headerLogoWrap}>
+          <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
         </View>
-        <TouchableOpacity
-          style={styles.settingsBtn}
-          onPress={() => navigation.navigate('Settings')}
-          activeOpacity={0.75}
-        >
-          <Text style={styles.settingsBtnText}>⚙️</Text>
-        </TouchableOpacity>
+        <View style={[styles.topBarSide, { alignItems: 'flex-end' }]}>
+          <TouchableOpacity
+            style={styles.settingsBtn}
+            onPress={() => navigation.navigate('Settings')}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.settingsBtnText}>⚙</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -382,7 +384,7 @@ export default function ProfileScreen() {
           <View style={styles.badgeRow}>
             {farmer?.farmerId && (
               <View style={styles.idBadge}>
-                <Text style={styles.idBadgeText}>🪪  {farmer.farmerId}</Text>
+                <Text style={styles.idBadgeText}>ID: {farmer.farmerId}</Text>
               </View>
             )}
             <View style={styles.kycBadge}>
@@ -409,7 +411,7 @@ export default function ProfileScreen() {
           })
         ) : (
           /* Fallback: show basic top-level fields when no OCR data yet */
-          <SectionCard title={t('personalInfo')} icon="👤" color={COLORS.primary}>
+          <SectionCard title={t('personalInfo')} icon="PR" color={COLORS.primary}>
             <InfoRow label={t('name')} value={farmer?.name} />
             <InfoRow label={t('aadhaar')} value={farmer?.aadhaar} />
             <InfoRow label={t('dob')} value={farmer?.dob} />
@@ -432,7 +434,7 @@ export default function ProfileScreen() {
 
         {/* Document Images Viewer */}
         {canViewDocs && (
-          <SectionCard title="My Documents" icon="🖼️" color={COLORS.gold}>
+          <SectionCard title="My Documents" icon="DC" color={COLORS.gold}>
             {loadingDocs ? (
               <View style={styles.docsLoading}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
@@ -456,7 +458,9 @@ export default function ProfileScreen() {
                   >
                     <Image source={{ uri: imgSrc }} style={styles.docThumbnail} resizeMode="cover" />
                     <View style={styles.docImageInfo}>
-                      <Text style={styles.docImageIcon}>{icon}</Text>
+                      <View style={[styles.docIconBox, { backgroundColor: COLORS.goldLight }]}>
+                    <Text style={[styles.docIconBoxText, { color: COLORS.gold }]}>{icon}</Text>
+                  </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.docImageLabel}>{label}</Text>
                         <Text style={styles.docImageDate}>
@@ -479,16 +483,16 @@ export default function ProfileScreen() {
           onPress={() => navigation.navigate('Grievance')}
           activeOpacity={0.85}
         >
-          <Text style={styles.grievanceBtnText}>📢  {t('raiseGrievance')}</Text>
+          <Text style={styles.grievanceBtnText}>{t('raiseGrievance')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
-          <Text style={styles.logoutText}>🚪  {t('logout')}</Text>
+          <Text style={styles.logoutText}>{t('logout')}</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
           <View style={styles.footerLogo}>
-            <Text style={styles.footerLogoText}>🌾</Text>
+            <Text style={styles.footerLogoText}>KS</Text>
           </View>
           <Text style={styles.footerTitle}>कृषी सुविधा</Text>
           <Text style={styles.footerText}>Govt. of Maharashtra  •  Agriculture & Farmers Welfare Dept.</Text>
@@ -502,17 +506,19 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   topBar: {
-    backgroundColor: COLORS.primaryDark, paddingHorizontal: 20, paddingVertical: 14,
-    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
   },
-  topBarTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.gold },
-  topBarSub: { fontSize: FONT_SIZE.xs, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
+  topBarSide: { width: 90, justifyContent: 'center' },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
   settingsBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: COLORS.primary + '40',
   },
-  settingsBtnText: { fontSize: 20 },
+  settingsBtnText: { fontSize: 18, color: COLORS.primaryDark, fontWeight: '400' },
   scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 },
   profileHero: {
     backgroundColor: COLORS.primaryDark, borderRadius: RADIUS.xl, padding: 24,
@@ -555,6 +561,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 10,
     backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.borderLight,
   },
+  docIconBox: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  docIconBoxText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
   docImageIcon: { fontSize: 22 },
   docImageLabel: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text },
   docImageDate: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 2 },
@@ -574,11 +582,11 @@ const styles = StyleSheet.create({
   logoutText: { color: COLORS.error, fontSize: FONT_SIZE.base, fontWeight: '700' },
   footer: { alignItems: 'center', gap: 8, paddingTop: 8 },
   footerLogo: {
-    width: 44, height: 44, borderRadius: 22,
+    width: 44, height: 44, borderRadius: 12,
     backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1.5, borderColor: COLORS.primaryLight,
   },
-  footerLogoText: { fontSize: 22 },
+  footerLogoText: { fontSize: 14, fontWeight: '800', color: COLORS.primary, letterSpacing: 0.5 },
   footerTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.primaryDark },
   footerText: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, textAlign: 'center' },
 });

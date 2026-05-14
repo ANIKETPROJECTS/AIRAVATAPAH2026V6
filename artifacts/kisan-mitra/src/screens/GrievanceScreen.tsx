@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, TextInput, Platform, ActivityIndicator, Alert,
+  ScrollView, TextInput, Platform, ActivityIndicator, Alert, Image,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -169,25 +169,27 @@ export default function GrievanceScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-          <Text style={styles.topBarSub}>Raise Grievance / तक्रार नोंदवा</Text>
+        <View style={styles.topBarSide}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
         </View>
+        <View style={styles.headerLogoWrap}>
+          <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
+        </View>
+        <View style={styles.topBarSide} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         {success && (
           <View style={styles.successBanner}>
-            <Text style={styles.successText}>✅  Your grievance has been submitted successfully! We will review it shortly.</Text>
+            <Text style={styles.successText}>✓  Your grievance has been submitted successfully. We will review it shortly.</Text>
           </View>
         )}
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📢  New Grievance</Text>
+          <Text style={styles.cardTitle}>New Grievance</Text>
 
           <Text style={styles.label}>Category <Text style={styles.required}>*</Text></Text>
           <View style={styles.chipWrap}>
@@ -245,7 +247,7 @@ export default function GrievanceScreen() {
             </View>
           ) : (
             <TouchableOpacity style={styles.attachBtn} onPress={pickAttachment} activeOpacity={0.8}>
-              <Text style={styles.attachBtnText}>📎  Attach File / Image</Text>
+              <Text style={styles.attachBtnText}>Attach File / Image</Text>
             </TouchableOpacity>
           )}
 
@@ -257,12 +259,12 @@ export default function GrievanceScreen() {
           >
             {submitting
               ? <ActivityIndicator color={COLORS.white} />
-              : <Text style={styles.submitBtnText}>📤  Submit Grievance</Text>}
+              : <Text style={styles.submitBtnText}>Submit Grievance</Text>}
           </TouchableOpacity>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📋  My Previous Grievances</Text>
+          <Text style={styles.cardTitle}>My Previous Grievances</Text>
           {loadingList ? (
             <ActivityIndicator size="small" color={COLORS.primary} style={{ marginVertical: 16 }} />
           ) : myGrievances.length === 0 ? (
@@ -285,7 +287,7 @@ export default function GrievanceScreen() {
                     onPress={() => handleView(g.grievanceId)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.actionBtnText}>👁 View</Text>
+                    <Text style={styles.actionBtnText}>View</Text>
                   </TouchableOpacity>
 
                   {g.status === 'Open' && (
@@ -294,7 +296,7 @@ export default function GrievanceScreen() {
                       onPress={() => handleEdit(g.grievanceId)}
                       activeOpacity={0.8}
                     >
-                      <Text style={[styles.actionBtnText, styles.actionBtnEditText]}>✏️ Edit</Text>
+                      <Text style={[styles.actionBtnText, styles.actionBtnEditText]}>Edit</Text>
                     </TouchableOpacity>
                   )}
 
@@ -307,7 +309,7 @@ export default function GrievanceScreen() {
                     >
                       {deletingId === g.grievanceId
                         ? <ActivityIndicator size="small" color={COLORS.error} />
-                        : <Text style={[styles.actionBtnText, styles.actionBtnDeleteText]}>🗑 Delete</Text>
+                        : <Text style={[styles.actionBtnText, styles.actionBtnDeleteText]}>Delete</Text>
                       }
                     </TouchableOpacity>
                   )}
@@ -326,16 +328,19 @@ export default function GrievanceScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   topBar: {
-    backgroundColor: COLORS.primaryDark, flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingVertical: 14, gap: 12,
+    backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 8, justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
   },
+  topBarSide: { width: 80, justifyContent: 'center' },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
   backBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: '#E2E8F0',
   },
-  backIcon: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
-  topBarTitle: { fontSize: FONT_SIZE.sm, fontWeight: '800', color: COLORS.gold },
-  topBarSub: { fontSize: FONT_SIZE.xs, color: 'rgba(255,255,255,0.65)', marginTop: 2 },
+  backIcon: { color: COLORS.primaryDark, fontSize: 18, fontWeight: '700', marginTop: -1 },
   scroll: { paddingHorizontal: 16, paddingTop: 16 },
   card: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 18,

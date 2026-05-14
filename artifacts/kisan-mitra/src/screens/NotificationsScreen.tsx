@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  FlatList, ActivityIndicator, RefreshControl, ScrollView,
+  FlatList, ActivityIndicator, RefreshControl, ScrollView, Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -21,24 +21,24 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-function notifIcon(type: string): string {
+function notifAbbr(type: string): string {
   switch (type) {
-    case 'approval': return '✅';
-    case 'rejection': return '❌';
-    case 'scheme': return '📋';
-    case 'subsidy': return '💰';
-    case 'insurance': return '🛡️';
-    default: return '🔔';
+    case 'approval':  return '✓';
+    case 'rejection': return '✕';
+    case 'scheme':    return 'SC';
+    case 'subsidy':   return 'SB';
+    case 'insurance': return 'IN';
+    default:          return 'NT';
   }
 }
 
 function notifColor(type: string): string {
   switch (type) {
-    case 'approval': return COLORS.primary;
+    case 'approval':  return COLORS.primary;
     case 'rejection': return COLORS.error;
-    case 'scheme': return COLORS.info;
-    case 'subsidy': return '#7C3AED';
-    default: return COLORS.gold;
+    case 'scheme':    return COLORS.info;
+    case 'subsidy':   return '#7C3AED';
+    default:          return COLORS.gold;
   }
 }
 
@@ -90,12 +90,26 @@ export default function NotificationsScreen() {
 
   const unreadCount = notifs.filter((n) => !n.read).length;
 
+  const Header = (
+    <View style={styles.topBar}>
+      <View style={styles.topBarSide} />
+      <View style={styles.headerLogoWrap}>
+        <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
+      </View>
+      <View style={[styles.topBarSide, { alignItems: 'flex-end' }]}>
+        {unreadCount > 0 && (
+          <TouchableOpacity style={styles.markAllBtn} onPress={markAllRead}>
+            <Text style={styles.markAllText}>Mark all read</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
-        <View style={styles.topBar}>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-        </View>
+        {Header}
         <View style={styles.center}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -105,17 +119,7 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.topBar}>
-        <View>
-          <Text style={styles.topBarTitle}>कृषी सुविधा</Text>
-          <Text style={styles.topBarSub}>{t('notifications')}</Text>
-        </View>
-        {unreadCount > 0 && (
-          <TouchableOpacity style={styles.markAllBtn} onPress={markAllRead}>
-            <Text style={styles.markAllText}>{t('markAllRead')}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {Header}
 
       {unreadCount > 0 && (
         <View style={styles.unreadBanner}>
@@ -132,10 +136,10 @@ export default function NotificationsScreen() {
           }
         >
           <View style={styles.emptyIconBox}>
-            <Text style={styles.emptyIcon}>🔕</Text>
+            <Text style={styles.emptyIconText}>NT</Text>
           </View>
           <Text style={styles.emptyTitle}>{t('noNotifications')}</Text>
-          <Text style={styles.emptySub}>You'll receive updates here when the admin takes action on your registration.</Text>
+          <Text style={styles.emptySub}>You will receive updates here when the admin takes action on your registration.</Text>
         </ScrollView>
       ) : (
         <FlatList
@@ -148,6 +152,7 @@ export default function NotificationsScreen() {
           }
           renderItem={({ item }) => {
             const color = notifColor(item.type);
+            const abbr = notifAbbr(item.type);
             return (
               <TouchableOpacity
                 style={[styles.notifCard, !item.read && styles.notifCardUnread]}
@@ -155,7 +160,7 @@ export default function NotificationsScreen() {
                 activeOpacity={0.85}
               >
                 <View style={[styles.iconBox, { backgroundColor: color + '18' }]}>
-                  <Text style={styles.icon}>{notifIcon(item.type)}</Text>
+                  <Text style={[styles.iconBoxText, { color }]}>{abbr}</Text>
                 </View>
                 <View style={styles.notifContent}>
                   <View style={styles.notifTopRow}>
@@ -183,17 +188,23 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
+
   topBar: {
-    backgroundColor: COLORS.primaryDark, paddingHorizontal: 20, paddingVertical: 14,
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16, paddingVertical: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
   },
-  topBarTitle: { fontSize: FONT_SIZE.base, fontWeight: '800', color: COLORS.gold },
-  topBarSub: { fontSize: FONT_SIZE.xs, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
+  topBarSide: { width: 100, justifyContent: 'center' },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
+
   markAllBtn: {
-    paddingHorizontal: 12, paddingVertical: 7, borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primaryBg, borderWidth: 1, borderColor: COLORS.primary,
   },
-  markAllText: { fontSize: FONT_SIZE.xs, fontWeight: '700', color: 'rgba(255,255,255,0.85)' },
+  markAllText: { fontSize: 10, fontWeight: '700', color: COLORS.primary },
+
   unreadBanner: {
     backgroundColor: COLORS.primaryBg, paddingHorizontal: 16, paddingVertical: 10,
     flexDirection: 'row', alignItems: 'center', gap: 8,
@@ -201,15 +212,17 @@ const styles = StyleSheet.create({
   },
   unreadDotLarge: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.primary },
   unreadBannerText: { fontSize: FONT_SIZE.sm, color: COLORS.primaryDark, fontWeight: '700' },
+
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, padding: 32 },
   emptyIconBox: {
-    width: 88, height: 88, borderRadius: 44,
+    width: 80, height: 80, borderRadius: 20,
     backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
     borderWidth: 2, borderColor: COLORS.primaryLight,
   },
-  emptyIcon: { fontSize: 44 },
+  emptyIconText: { fontSize: 16, fontWeight: '800', color: COLORS.primary, letterSpacing: 1 },
   emptyTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.textSecondary },
   emptySub: { fontSize: FONT_SIZE.sm, color: COLORS.textMuted, textAlign: 'center', lineHeight: 20, maxWidth: 280 },
+
   list: { padding: 16, gap: 10 },
   notifCard: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 14,
@@ -217,8 +230,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.border,
   },
   notifCardUnread: { borderLeftWidth: 4, borderLeftColor: COLORS.primary },
-  iconBox: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
-  icon: { fontSize: 22 },
+  iconBox: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  iconBoxText: { fontSize: 12, fontWeight: '800', letterSpacing: 0.5 },
   notifContent: { flex: 1 },
   notifTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   notifTitle: { flex: 1, fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.text },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, Alert,
+  ScrollView, Alert, Image,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,10 +13,17 @@ import { Notification } from '../types';
 import type { RootStackParamList, TabParamList } from '../navigation/AppNavigator';
 
 const QUICK_ACTIONS = [
-  { key: 'applyScheme', icon: '📋', color: COLORS.primary },
-  { key: 'fileInsurance', icon: '🛡️', color: COLORS.info },
-  { key: 'raiseGrievance', icon: '📢', color: COLORS.gold },
-  { key: 'checkSubsidy', icon: '💰', color: '#7C3AED' },
+  { key: 'applyScheme',    abbr: 'SC', color: COLORS.primary,  bg: COLORS.primaryBg },
+  { key: 'fileInsurance',  abbr: 'IN', color: COLORS.info,     bg: '#DBEAFE' },
+  { key: 'raiseGrievance', abbr: 'GR', color: COLORS.gold,     bg: '#FEF3C7' },
+  { key: 'checkSubsidy',   abbr: 'SB', color: '#7C3AED',       bg: '#F5F3FF' },
+];
+
+const FARM_STATS = [
+  { key: 'land',     abbr: 'LA', label: 'totalLand',    color: COLORS.primary,  bg: COLORS.primaryBg },
+  { key: 'crop',     abbr: 'CR', label: 'primaryCrop',  color: COLORS.gold,     bg: '#FEF3C7' },
+  { key: 'village',  abbr: 'VL', label: 'location',     color: COLORS.info,     bg: '#DBEAFE' },
+  { key: 'district', abbr: 'DT', label: 'district',     color: '#7C3AED',       bg: '#F5F3FF' },
 ];
 
 export default function HomeScreen() {
@@ -52,35 +59,57 @@ export default function HomeScreen() {
     : '??';
 
   function handleQuickAction(key: string) {
-    if (key === 'raiseGrievance') {
-      stackNav.navigate('Grievance');
-      return;
-    }
-    if (key === 'applyScheme') {
-      tabNav.navigate('Schemes', { initialTab: 'schemes' });
-      return;
-    }
-    if (key === 'fileInsurance') {
-      tabNav.navigate('Schemes', { initialTab: 'insurance' });
-      return;
-    }
-    if (key === 'checkSubsidy') {
-      tabNav.navigate('Schemes', { initialTab: 'subsidies' });
-      return;
-    }
+    if (key === 'raiseGrievance') { stackNav.navigate('Grievance'); return; }
+    if (key === 'applyScheme') { tabNav.navigate('Schemes', { initialTab: 'schemes' }); return; }
+    if (key === 'fileInsurance') { tabNav.navigate('Schemes', { initialTab: 'insurance' }); return; }
+    if (key === 'checkSubsidy') { tabNav.navigate('Schemes', { initialTab: 'subsidies' }); return; }
   }
 
   const greetName = farmer?.name && farmer.name !== '—' ? farmer.name.split(' ')[0] : '';
 
+  function notifTypeColor(type: string) {
+    if (type === 'approval') return COLORS.primary;
+    if (type === 'rejection') return COLORS.error;
+    if (type === 'scheme') return COLORS.info;
+    if (type === 'subsidy') return '#7C3AED';
+    return COLORS.gold;
+  }
+  function notifTypeAbbr(type: string) {
+    if (type === 'approval') return '✓';
+    if (type === 'rejection') return '✕';
+    if (type === 'scheme') return 'SC';
+    if (type === 'subsidy') return 'SB';
+    return 'NT';
+  }
+
+  const farmStatValue = (key: string) => {
+    if (!farmer) return '—';
+    if (key === 'land') return farmer.land ? `${farmer.land} ha` : '—';
+    if (key === 'crop') return (farmer.crop && farmer.crop !== '—') ? farmer.crop : '—';
+    if (key === 'village') return (farmer.village && farmer.village !== '—') ? farmer.village : '—';
+    if (key === 'district') return (farmer.district && farmer.district !== '—') ? farmer.district : '—';
+    return '—';
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
+      {/* White logo header */}
+      <View style={styles.topBar}>
+        <View style={styles.topBarSide} />
+        <View style={styles.headerLogoWrap}>
+          <Image source={require('../../assets/brand-logo-new.png')} style={styles.headerLogo} />
+        </View>
+        <View style={styles.topBarSide} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
+        {/* Hero Card */}
         <View style={styles.heroCard}>
           <View style={styles.heroTop}>
             <View style={styles.heroText}>
               <Text style={styles.greeting}>
-                {t('welcome')}{greetName ? `, ${greetName}` : ''} 🙏
+                {t('welcome')}{greetName ? `, ${greetName}` : ''}
               </Text>
               <Text style={styles.greetingSub}>
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -101,25 +130,30 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Farm Summary */}
         <View style={styles.farmCard}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.sectionTitle}>{t('farmSummary')}</Text>
-            <View style={styles.sectionBadge}><Text style={styles.sectionBadgeText}>📊</Text></View>
+            <View style={styles.iconBox2L}>
+              <Text style={styles.iconBox2LText}>FS</Text>
+            </View>
           </View>
           <View style={styles.farmGrid}>
-            <FarmStat icon="📐" label={t('totalLand')} value={farmer?.land ? `${farmer.land} ha` : t('na')} color={COLORS.primary} />
-            <FarmStat icon="🌾" label={t('primaryCrop')} value={(farmer?.crop && farmer.crop !== '—') ? farmer.crop : t('na')} color={COLORS.gold} />
-            <FarmStat icon="🏘️" label={t('location')} value={(farmer?.village && farmer.village !== '—') ? farmer.village : t('na')} color={COLORS.info} />
-            <FarmStat icon="🗺️" label={t('district')} value={(farmer?.district && farmer.district !== '—') ? farmer.district : t('na')} color="#7C3AED" />
-            {(farmer?.taluka && farmer.taluka !== '—') ? (
-              <FarmStat icon="🏛️" label={t('taluka')} value={farmer.taluka} color={COLORS.primaryMid} />
-            ) : null}
-            {(farmer?.surveyNumber && farmer.surveyNumber !== '—') ? (
-              <FarmStat icon="📋" label={t('surveyNo')} value={farmer.surveyNumber} color={COLORS.gold} />
-            ) : null}
+            {FARM_STATS.map((stat) => (
+              <View key={stat.key} style={[styles.farmStat, { borderTopColor: stat.color }]}>
+                <View style={[styles.statIconBox, { backgroundColor: stat.bg }]}>
+                  <Text style={[styles.statIconText, { color: stat.color }]}>{stat.abbr}</Text>
+                </View>
+                <Text style={styles.statLabel}>{t(stat.label)}</Text>
+                <Text style={[styles.statValue, { color: stat.color }]} numberOfLines={1}>
+                  {farmStatValue(stat.key)}
+                </Text>
+              </View>
+            ))}
           </View>
         </View>
 
+        {/* Quick Actions */}
         <Text style={styles.sectionTitle}>{t('quickActions')}</Text>
         <View style={styles.actionsGrid}>
           {QUICK_ACTIONS.map((a) => (
@@ -129,41 +163,45 @@ export default function HomeScreen() {
               onPress={() => handleQuickAction(a.key)}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionIconBox, { backgroundColor: a.color + '15' }]}>
-                <Text style={styles.actionIcon}>{a.icon}</Text>
+              <View style={[styles.actionIconBox, { backgroundColor: a.bg }]}>
+                <Text style={[styles.actionIconText, { color: a.color }]}>{a.abbr}</Text>
               </View>
               <Text style={styles.actionLabel}>{t(a.key)}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Recent Notifications */}
         {recentNotifs.length > 0 && (
           <View style={styles.section}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.sectionTitle}>{t('recentNotifs')}</Text>
             </View>
             <View style={styles.notifList}>
-              {recentNotifs.map((n) => (
-                <View key={n.notificationId} style={[styles.notifRow, !n.read && styles.notifRowUnread]}>
-                  <View style={[styles.notifIconBox, { backgroundColor: (n.type === 'approval' ? COLORS.primary : n.type === 'rejection' ? COLORS.error : COLORS.info) + '18' }]}>
-                    <Text style={styles.notifIcon}>
-                      {n.type === 'approval' ? '✅' : n.type === 'rejection' ? '❌' : '🔔'}
-                    </Text>
+              {recentNotifs.map((n) => {
+                const color = notifTypeColor(n.type);
+                const abbr = notifTypeAbbr(n.type);
+                return (
+                  <View key={n.notificationId} style={[styles.notifRow, !n.read && styles.notifRowUnread]}>
+                    <View style={[styles.notifIconBox, { backgroundColor: color + '18' }]}>
+                      <Text style={[styles.notifIconText, { color }]}>{abbr}</Text>
+                    </View>
+                    <View style={styles.notifInfo}>
+                      <Text style={styles.notifTitle}>{n.title}</Text>
+                      <Text style={styles.notifBody} numberOfLines={2}>{n.body}</Text>
+                    </View>
+                    {!n.read && <View style={styles.unreadDot} />}
                   </View>
-                  <View style={styles.notifInfo}>
-                    <Text style={styles.notifTitle}>{n.title}</Text>
-                    <Text style={styles.notifBody} numberOfLines={2}>{n.body}</Text>
-                  </View>
-                  {!n.read && <View style={styles.unreadDot} />}
-                </View>
-              ))}
+                );
+              })}
             </View>
           </View>
         )}
 
+        {/* Weather Advisory */}
         <View style={styles.advisoryCard}>
-          <View style={styles.advisoryIconBox}>
-            <Text style={styles.advisoryIcon}>🌤️</Text>
+          <View style={[styles.advisoryIconBox, { backgroundColor: '#FEF9C3' }]}>
+            <Text style={[styles.advisoryIconText, { color: '#92400E' }]}>WA</Text>
           </View>
           <View style={styles.advisoryInfo}>
             <Text style={styles.advisoryTitle}>Weather Advisory</Text>
@@ -172,7 +210,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.brandingStrip}>
-          <Text style={styles.brandingText}>कृषी सुविधा  •  Govt. of Maharashtra</Text>
+          <Text style={styles.brandingText}>Krushi Suvidha  •  Govt. of Maharashtra</Text>
         </View>
 
         <View style={{ height: 20 }} />
@@ -181,32 +219,21 @@ export default function HomeScreen() {
   );
 }
 
-function FarmStat({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
-  return (
-    <View style={[farmStyles.stat, { borderTopColor: color }]}>
-      <View style={[farmStyles.iconBox, { backgroundColor: color + '15' }]}>
-        <Text style={farmStyles.icon}>{icon}</Text>
-      </View>
-      <Text style={farmStyles.label}>{label}</Text>
-      <Text style={[farmStyles.value, { color }]} numberOfLines={1}>{value}</Text>
-    </View>
-  );
-}
-
-const farmStyles = StyleSheet.create({
-  stat: {
-    width: '47%', backgroundColor: COLORS.white, borderRadius: RADIUS.md,
-    padding: 14, alignItems: 'center', gap: 6, borderTopWidth: 3, ...SHADOW.sm,
-  },
-  iconBox: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  icon: { fontSize: 20 },
-  label: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, textAlign: 'center', fontWeight: '600' },
-  value: { fontSize: FONT_SIZE.sm, fontWeight: '800', textAlign: 'center' },
-});
-
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
-  scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 },
+
+  topBar: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16, paddingVertical: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
+  },
+  topBarSide: { width: 90 },
+  headerLogoWrap: { width: 220, height: 74, overflow: 'hidden' },
+  headerLogo: { width: 220, height: 220, marginTop: -71 },
+
+  scroll: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16 },
+
   heroCard: {
     backgroundColor: COLORS.primaryDark, borderRadius: RADIUS.xl,
     padding: 20, marginBottom: 16, ...SHADOW.md,
@@ -231,27 +258,44 @@ const styles = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#4ADE80' },
   statusPillText: { color: COLORS.white, fontSize: FONT_SIZE.xs, fontWeight: '700' },
   farmerIdText: { color: 'rgba(255,255,255,0.5)', fontSize: FONT_SIZE.xs, fontWeight: '600' },
+
   farmCard: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 16,
     marginBottom: 20, ...SHADOW.sm,
   },
   section: { marginBottom: 16 },
-  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   sectionTitle: { fontSize: FONT_SIZE.base, fontWeight: '700', color: COLORS.text },
-  sectionBadge: {
-    width: 30, height: 30, borderRadius: 15,
+  iconBox2L: {
+    width: 34, height: 34, borderRadius: 10,
     backgroundColor: COLORS.primaryBg, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: COLORS.primary + '40',
   },
-  sectionBadgeText: { fontSize: 15 },
+  iconBox2LText: { fontSize: 10, fontWeight: '800', color: COLORS.primary, letterSpacing: 0.5 },
+
   farmGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  farmStat: {
+    width: '47%', backgroundColor: COLORS.white, borderRadius: RADIUS.md,
+    padding: 14, alignItems: 'center', gap: 6, borderTopWidth: 3, ...SHADOW.sm,
+    borderWidth: 1, borderColor: '#F1F5F9',
+  },
+  statIconBox: {
+    width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+  },
+  statIconText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
+  statLabel: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, textAlign: 'center', fontWeight: '600' },
+  statValue: { fontSize: FONT_SIZE.sm, fontWeight: '800', textAlign: 'center' },
+
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
   actionBtn: {
     width: '47%', backgroundColor: COLORS.white, borderRadius: RADIUS.lg,
     padding: 16, alignItems: 'center', gap: 10, ...SHADOW.sm, borderTopWidth: 3,
+    borderWidth: 1, borderColor: '#F1F5F9',
   },
-  actionIconBox: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
-  actionIcon: { fontSize: 24 },
+  actionIconBox: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  actionIconText: { fontSize: 13, fontWeight: '800', letterSpacing: 0.5 },
   actionLabel: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text, textAlign: 'center' },
+
   notifList: { gap: 10 },
   notifRow: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.md, padding: 14,
@@ -259,25 +303,27 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.border,
   },
   notifRowUnread: { borderLeftWidth: 3, borderLeftColor: COLORS.primary },
-  notifIconBox: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  notifIcon: { fontSize: 20 },
+  notifIconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  notifIconText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
   notifInfo: { flex: 1 },
   notifTitle: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text, marginBottom: 2 },
   notifBody: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary, lineHeight: 16 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.primary, marginTop: 6 },
+
   advisoryCard: {
     backgroundColor: COLORS.primaryBg, borderRadius: RADIUS.lg, padding: 16,
     flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 12,
     borderWidth: 1, borderColor: COLORS.primaryLight,
   },
   advisoryIconBox: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: COLORS.white, alignItems: 'center', justifyContent: 'center', ...SHADOW.sm,
+    width: 48, height: 48, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
   },
-  advisoryIcon: { fontSize: 26 },
+  advisoryIconText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
   advisoryInfo: { flex: 1 },
   advisoryTitle: { fontSize: FONT_SIZE.sm, fontWeight: '800', color: COLORS.primaryDark, marginBottom: 4 },
   advisoryText: { fontSize: FONT_SIZE.sm, color: COLORS.primaryMid, lineHeight: 18 },
+
   brandingStrip: {
     alignItems: 'center', paddingVertical: 10,
     borderTopWidth: 1, borderTopColor: COLORS.border, marginTop: 4,

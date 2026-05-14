@@ -49,20 +49,25 @@ export type TabParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const TAB_ICONS: Record<string, { active: string; inactive: string }> = {
-  Home:          { active: '🏠', inactive: '🏡' },
-  Schemes:       { active: '📋', inactive: '📄' },
-  Notifications: { active: '🔔', inactive: '🔕' },
-  Analytics:     { active: '📊', inactive: '📈' },
-  Profile:       { active: '👤', inactive: '👥' },
+const TAB_ICON_CHARS: Record<string, string> = {
+  Home:          '\u2302',
+  Schemes:       '\u2630',
+  Notifications: '\u25C9',
+  Analytics:     '\u25A6',
+  Profile:       '\u25CE',
 };
 
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
-  const icon = TAB_ICONS[name];
+  const char = TAB_ICON_CHARS[name] ?? '\u25CF';
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: -2 }}>
-      <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.55 }}>
-        {focused ? icon?.active : icon?.inactive}
+    <View style={{ alignItems: 'center', justifyContent: 'center', width: 28, height: 24 }}>
+      <Text style={{
+        fontSize: 19,
+        color: focused ? COLORS.primary : COLORS.textMuted,
+        fontWeight: focused ? '700' : '400',
+        lineHeight: 22,
+      }}>
+        {char}
       </Text>
     </View>
   );
@@ -160,8 +165,8 @@ export default function AppNavigator() {
   if (state.loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.primaryDark }}>
-        <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-          <Text style={{ fontSize: 36 }}>🌾</Text>
+        <View style={{ width: 72, height: 72, borderRadius: 16, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: 1 }}>KS</Text>
         </View>
         <ActivityIndicator size="large" color={COLORS.gold} />
       </View>
