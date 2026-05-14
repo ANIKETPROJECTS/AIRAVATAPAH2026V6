@@ -116,7 +116,7 @@ export default function OtpScreen({ navigation, route }: Props) {
         <Image
           source={require('../../assets/brand-logo-new.png')}
           style={styles.headerLogo}
-          resizeMode="cover"
+          resizeMode="contain"
         />
         <View style={styles.backBtnPlaceholder} />
       </View>

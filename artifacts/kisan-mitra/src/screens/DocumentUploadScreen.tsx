@@ -137,7 +137,7 @@ export default function DocumentUploadScreen({ isReupload, onCancelReupload }: P
         <Image
           source={require('../../assets/brand-logo-new.png')}
           style={styles.headerLogo}
-          resizeMode="cover"
+          resizeMode="contain"
         />
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
